@@ -4,13 +4,13 @@
 
 Let \(G=(V,E)\) be a simple undirected graph with \(n=|V|\), \(m=|E|\), vertex degrees \(d_i\), and maximum degree \(\Delta\). For one circuit repetition, define
 
-\[
+$$$
 U_G(\boldsymbol{\alpha},\gamma,\beta)
 =
 U_M(\beta)\,
 U_E(G,\gamma)\,
 U_D(G,\boldsymbol{\alpha}),
-\]
+$$$
 
 where
 
