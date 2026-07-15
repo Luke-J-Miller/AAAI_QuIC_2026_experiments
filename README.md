@@ -4131,3 +4131,415 @@ At (n=16), those 1,000 coordinates represent only about 1.5% of the complete vec
 The appropriate central claim is:
 
 > QuIC’s cycle-count information is rank-stratified within the sorted probability distribution. Triangle and 4-cycle structure is concentrated in the extreme head, 5-cycle information emerges within the first few hundred probabilities, and 6-cycle information extends to approximately the first thousand. Across (n=14) and (n=16), the useful absolute head grows far more slowly than the full (2^n)-dimensional representation, although practical finite-shot recovery of that head remains untested.
+
+### E8 - CoSpectral Audit
+
+##### Experimental design
+
+This experiment audits the adjacency-cospectral graph census and determines which graph invariants actually vary within cospectral classes.
+
+The analysis uses the complete connected cubic-graph censuses at:
+
+* (n=14): 509 graphs;
+* (n=16): 4,060 graphs.
+
+It has two objectives:
+
+1. replace the earlier rounded-eigenvalue grouping with an exact cospectrality test;
+2. identify targets that vary among graphs having exactly the same adjacency spectrum.
+
+For each graph with adjacency matrix (A), the exact signature is
+
+[
+\left(
+\operatorname{tr}(A),
+\operatorname{tr}(A^2),
+\ldots,
+\operatorname{tr}(A^n)
+\right).
+]
+
+Because (A) is an integer matrix, these traces are exact integer walk counts. Newton’s identities imply that the first (n) power sums of the eigenvalues determine the characteristic polynomial. Two (n)-vertex graphs are therefore adjacency-cospectral exactly when all (n) traces agree.
+
+The within-group audit computes:
+
+* cycle counts (C_3) through (C_7);
+* girth;
+* diameter;
+* radius;
+* Wiener index;
+* node connectivity;
+* edge connectivity;
+* maximum matching size;
+* clique number;
+* automorphism-group order.
+
+The purpose is not to test whether QuIC separates the graphs. It is to determine whether a downstream target varies after the complete adjacency spectrum has been fixed.
+
+##### Exact cospectral census
+
+The exact integer-trace grouping reproduces the earlier spectrum-hash census without any disagreement.
+
+| Order  | Exact groups | Graphs in groups | Group sizes             | Within-group pairs |
+| ------ | -----------: | ---------------: | ----------------------- | -----------------: |
+| (n=14) |            3 |                6 | three pairs             |                  3 |
+| (n=16) |           41 |               83 | 40 pairs and one triple |                 43 |
+
+At both graph orders, the exact groups are identical to those obtained by rounding adjacency eigenvalues to eight decimal places.
+
+This closes the numerical-tolerance concern for these two censuses. No false cospectral groups were created by rounding, and no exact group was missed.
+
+The agreement validates the earlier census, but only for these datasets. It does not imply that eight-decimal eigenvalue hashing is universally safe on larger or different graph families.
+
+##### Invariant audit
+
+###### Group-level variation counts
+
+| Invariant          | (n=14): differing groups | (n=16): differing groups |
+| ------------------ | -----------------------: | -----------------------: |
+| (C_3)              |                        0 |                        0 |
+| (C_4)              |                        0 |                        0 |
+| (C_5)              |                        0 |                        0 |
+| (C_6)              |                        0 |                        0 |
+| (C_7)              |                        0 |                        0 |
+| Girth              |                        0 |                        0 |
+| Diameter           |                        0 |                        0 |
+| Radius             |                        0 |                        4 |
+| Wiener index       |                        1 |                       25 |
+| Node connectivity  |                        0 |                        0 |
+| Edge connectivity  |                        0 |                        0 |
+| Matching number    |                        0 |                        0 |
+| Clique number      |                        0 |                        0 |
+| Automorphism order |                        3 |                       14 |
+
+A group is counted once when at least two of its members differ on the invariant. Because the (n=16) census contains one cospectral triple, these are group counts rather than pair counts.
+
+The number of groups differing on at least one audited non-spectral target is:
+
+[
+3\text{ of }3
+\quad\text{at }n=14,
+]
+
+and
+
+[
+29\text{ of }41
+\quad\text{at }n=16.
+]
+
+Thus, most (n=16) cospectral groups are not isomorphic copies with identical audited structure. They differ on at least one global metric or symmetry quantity.
+
+##### Spectrally fixed controls
+
+The short-cycle controls behave exactly as expected.
+
+Every cospectral group agrees on:
+
+[
+C_3,\quad C_4,\quad C_5.
+]
+
+For regular graphs, these quantities are determined by low-order adjacency traces. Their agreement is therefore a theorem-level consistency check on:
+
+* the exact cospectral grouping;
+* the cycle-count implementation;
+* the graph ordering;
+* and the invariant audit.
+
+Girth also agrees in every group. In this census, that equality is reinforced by the observed agreement of all cycle counts through (C_7).
+
+No pinned-control violation occurs. There is therefore no indication that the cospectral census or invariant calculations are misaligned.
+
+##### Six-cycle count and diamonds
+
+Every cospectral group agrees on (C_6).
+
+For cubic graphs, the notebook verifies the identity
+
+[
+\operatorname{tr}(A^6)
+======================
+
+12(C_6+D)
++
+87n
++
+6C_3
++
+96C_4,
+]
+
+where (D) is the number of diamonds, or copies of (K_4) with one edge removed.
+
+The identity holds exactly for every graph in both complete censuses.
+
+Because the spectrum fixes
+
+[
+\operatorname{tr}(A^6),
+]
+
+and also fixes (n), (C_3), and (C_4), it fixes the sum
+
+[
+C_6+D.
+]
+
+The audit shows that (C_6) itself does not vary within any cospectral group at (n=14) or (n=16). It follows that diamond count also does not vary within those groups.
+
+This does not establish that (C_6) or (D) is universally adjacency-spectral for all cubic graphs. The identity fixes only their sum. A larger census could contain cospectral mates that trade one 6-cycle against one diamond.
+
+The present result is narrower:
+
+> No such (C_6)-diamond tradeoff occurs among the exact cospectral cubic groups at (n=14) or (n=16).
+
+Consequently, these groups cannot support a within-cospectral-class challenge based on (C_6) or diamonds.
+
+##### Seven-cycle count
+
+Every exact group also agrees on (C_7).
+
+Unlike the (C_3)–(C_6) results, the notebook does not derive a spectral identity explaining this agreement. The (C_7) result is therefore empirical.
+
+It establishes that (C_7) is unusable as a varying cospectral target in these two censuses. It does not establish that 7-cycle count is generally determined by the adjacency spectrum of cubic graphs.
+
+##### Diameter and radius
+
+Diameter agrees in all 44 exact cospectral groups:
+
+[
+0\text{ differing groups}.
+]
+
+Radius behaves differently. Four (n=16) groups have different radii despite identical adjacency spectra.
+
+The four radius-varying groups include changes of the form
+
+[
+3\leftrightarrow4.
+]
+
+This distinction is structurally meaningful. Diameter records the maximum eccentricity, while radius records the minimum eccentricity. The cospectral mates preserve the worst-case graph distance but can differ in how centrally positioned their most central vertices are.
+
+The result demonstrates that the adjacency spectrum does not determine radius within this census, even though it happens to determine diameter across the observed cospectral classes.
+
+Radius is therefore a valid non-spectral challenge target, but the sample is small:
+
+[
+4\text{ usable groups}.
+]
+
+That is insufficient for a strong standalone statistical experiment without combining it with other evidence.
+
+##### Wiener index
+
+The Wiener index is the most common varying invariant.
+
+It differs in:
+
+[
+1\text{ of }3
+]
+
+groups at (n=14), and
+
+[
+25\text{ of }41
+]
+
+groups at (n=16).
+
+The Wiener index is
+
+[
+W(G)
+====
+
+\sum_{{u,v}\subseteq V}
+d(u,v),
+]
+
+the sum of all unordered pairwise shortest-path distances.
+
+Most within-group differences are small:
+
+[
+1\text{--}3
+]
+
+units on total values approximately between 270 and 360 at (n=16).
+
+The small absolute differences do not make the result trivial. The entire adjacency spectrum is identical within each group. Any repeatable prediction of which mate has the larger Wiener index must therefore use information not determined by that spectrum.
+
+The prevalence of Wiener variation shows that cospectral mates often differ in the detailed distribution of shortest-path lengths even when they share:
+
+* diameter;
+* short-cycle counts;
+* connectivity;
+* matching number;
+* and clique number.
+
+This makes the Wiener index the strongest audited target for a functional cospectral challenge.
+
+Its main advantages are:
+
+* it varies in a majority of the (n=16) groups;
+* it is precisely defined and inexpensive to compute;
+* it measures global graph organization rather than another local motif;
+* it supports within-group ranking without target-scale confounding.
+
+The principal limitation is that the differences are usually narrow, so ordinary unrestricted regression may obscure the relevant comparison. A within-group ranking or paired prediction task is better aligned with the structure of the data.
+
+##### Automorphism-group order
+
+Automorphism-group order differs in:
+
+[
+3\text{ of }3
+]
+
+groups at (n=14), and
+
+[
+14\text{ of }41
+]
+
+groups at (n=16).
+
+Examples include:
+
+[
+1\leftrightarrow2,
+\qquad
+2\leftrightarrow4,
+\qquad
+4\leftrightarrow8,
+\qquad
+12\leftrightarrow48.
+]
+
+This shows that adjacency-cospectral graphs can have substantially different symmetry groups.
+
+The (n=14) result is particularly clear: all three cospectral pairs differ in automorphism order, even though only one differs in Wiener index.
+
+Automorphism order therefore captures a different non-spectral direction from the metric quantities. It is not merely a proxy for radius or Wiener index.
+
+Because its distribution is highly skewed and multiplicative, a transformed target such as
+
+[
+\log_2|\operatorname{Aut}(G)|
+]
+
+is more suitable for regression or ranking than raw group order.
+
+The usable sample remains limited, particularly if groups are divided into training and test sets. Automorphism order is therefore a strong secondary challenge target rather than the best primary target.
+
+##### Invariants that do not vary
+
+No exact cospectral group differs in:
+
+* node connectivity;
+* edge connectivity;
+* maximum matching size;
+* clique number.
+
+These negative results should be interpreted as census-specific.
+
+They show that these invariants cannot support the planned cospectral challenge at (n\le16). They do not imply that any of them is generally determined by the adjacency spectrum.
+
+The same qualification applies to diameter, (C_6), and (C_7): agreement across all observed groups is a property of the available census, not a universal spectral theorem unless separately proved.
+
+##### Structure of the usable challenge set
+
+At (n=16), 29 of the 41 exact groups differ on at least one of:
+
+* Wiener index;
+* radius;
+* automorphism order.
+
+The overlap among these targets is substantial but incomplete.
+
+Some groups differ only in automorphism order. Others differ only in Wiener index. A smaller number differ in radius together with Wiener index or automorphism order.
+
+The cospectral triple
+
+[
+(582,3061,3800)
+]
+
+has Wiener values
+
+[
+283,\ 282,\ 283.
+]
+
+This illustrates why the natural unit of cross-validation is the cospectral group rather than an arbitrary graph or graph pair. All members of a group must remain in the same fold to prevent the model from seeing a spectral duplicate of a test graph during training.
+
+The audit therefore determines not only the viable targets but also the required evaluation structure:
+
+[
+\boxed{
+\text{group-preserving folds with within-group comparisons}
+}
+]
+
+##### What the experiment establishes
+
+The completed audit supports five conclusions.
+
+1. **The earlier rounded-spectrum census is exact for these datasets.**
+   Integer trace tuples recover exactly the same 3 groups at (n=14) and 41 groups at (n=16).
+
+2. **Short-cycle structure is constant within every cospectral class.**
+   All groups agree on (C_3) through (C_7) and on girth.
+
+3. **The obvious cycle-based challenge targets are not viable.**
+   Neither (C_6) nor (C_7) varies within any exact group.
+
+4. **Non-spectral variation is concentrated in global metric and symmetry structure.**
+   Wiener index differs in 25 (n=16) groups, automorphism order in 14, and radius in 4.
+
+5. **A functional cospectral challenge remains viable.**
+   Twenty-nine of the 41 (n=16) groups differ on at least one audited non-spectral invariant.
+
+The audit therefore changes the interpretation of the non-spectral residue. Within these cubic censuses, it is not expressed through additional short-cycle counts. It appears through global distance organization and graph symmetry.
+
+##### Necessary qualifications
+
+The exact trace test relies on the fact that the graphs have the same order. Traces through (A^n) determine the characteristic polynomial for an (n\times n) matrix through Newton’s identities.
+
+The use of signed 64-bit integers is safe at (n\le16) for cubic graphs because the relevant closed-walk counts remain far below the integer limit. This implementation would require reassessment at substantially larger graph orders or degrees.
+
+The audit covers only graph invariants explicitly listed in the notebook. Cospectral groups may differ on many other quantities that were not computed.
+
+The sample contains only 44 exact groups in total. Group-level statistical power is therefore limited, especially for radius and automorphism order.
+
+The (n=14) results are based on only three groups. The fact that all three differ in automorphism order is structurally interesting but does not provide a precise population-frequency estimate.
+
+Wiener-index differences are usually small relative to the total index. A successful downstream result must demonstrate genuine within-group discrimination rather than exploiting global scale or graph-order information.
+
+The invariant audit establishes target variation, not QuIC decodability. A separate experiment is required to show that QuIC can predict which cospectral mate has the larger Wiener index, radius, or automorphism group.
+
+Finally, the absence of variation is not proof of spectral determination. For (C_7), diameter, connectivity, matching number, and clique number, the correct wording is that no variation occurs in these censuses.
+
+##### Overall assessment
+
+The audit successfully performs its viability-gate function.
+
+Exact integer arithmetic confirms that the original rounded-eigenvalue census contains precisely the correct cospectral groups. The short-cycle controls agree everywhere, and the cubic sixth-moment identity explains why the spectrum constrains the combined (C_6)-diamond quantity.
+
+The intended cycle-based challenge does not survive. Every cospectral group agrees on cycle counts through (C_7), as well as girth and diameter.
+
+The non-spectral variation instead appears in:
+
+* Wiener index;
+* radius;
+* automorphism-group order.
+
+Wiener index is the strongest primary target because it differs in 25 of the 41 (n=16) groups. Automorphism order provides an independent symmetry-based secondary target, while radius offers a smaller metric exhibit.
+
+The appropriate central claim is:
+
+> Exact integer certification identifies 3 adjacency-cospectral groups at (n=14) and 41 at (n=16), exactly matching the earlier rounded-spectrum census. All groups agree on cycle counts through (C_7), girth, and diameter, but 29 of the 41 (n=16) groups differ in Wiener index, radius, or automorphism-group order. The non-spectral variation available for functional testing is therefore global metric and symmetry structure rather than additional short-cycle information.
+
