@@ -3646,3 +3646,488 @@ The appropriate central claim is:
 
 > The structural hierarchy observed for flat-start QuIC on cubic graphs is not robust to nonregular fixed-degree-sequence families. Without explicit degree encoding, QuIC loses most standalone linear accessibility to cycle and metric invariants, while classical spectral coordinates remain substantially stronger. QuIC contributes limited complementary C5 information in two maximum-degree-4 strata, but no consistent advantage appears across all four families.
 
+### E7 - Truncation
+
+
+##### Experimental design
+
+This experiment measures how much of QuIC’s cycle-count information is retained when the sorted probability vector is truncated to its (k) largest entries.
+
+The analysis uses the complete connected cubic-graph censuses at:
+
+* (n=14): 509 graphs;
+* (n=16): 4,060 graphs.
+
+For each graph, the full QuIC representation is the descending sorted probability vector
+
+[
+\mathbf p(G)
+============
+
+\left(
+p_{(1)},p_{(2)},\ldots,p_{(2^n)}
+\right),
+\qquad
+p_{(1)}\ge p_{(2)}\ge\cdots.
+]
+
+The truncated representation is
+
+[
+\mathbf p_k(G)
+==============
+
+\left(
+p_{(1)},\ldots,p_{(k)}
+\right).
+]
+
+The tested truncation lengths are:
+
+[
+k\in
+{25,50,100,200,400,1000,4000},
+]
+
+plus the full (16{,}384)-dimensional vector at (n=14).
+
+The (n=16) run completed through (k=4000) but did not reach the full (65{,}536)-dimensional point before termination.
+
+Four cycle-count targets are evaluated:
+
+* triangles;
+* 4-cycles;
+* 5-cycles;
+* 6-cycles.
+
+Each score is produced using the same five shuffled folds and nested ridge-regression protocol as the earlier E2 analysis.
+
+##### Completed results
+
+###### (n=14)
+
+|    (k) |       Triangles |        4-cycles |         5-cycles |        6-cycles |
+| -----: | --------------: | --------------: | ---------------: | --------------: |
+|     25 | (1.000\pm0.000) | (0.957\pm0.009) |  (0.034\pm0.062) | (0.163\pm0.056) |
+|     50 | (1.000\pm0.000) | (0.988\pm0.004) | (-0.026\pm0.036) | (0.228\pm0.077) |
+|    100 | (1.000\pm0.000) | (0.993\pm0.004) |  (0.272\pm0.142) | (0.235\pm0.079) |
+|    200 | (1.000\pm0.000) | (0.995\pm0.003) |  (0.920\pm0.081) | (0.391\pm0.083) |
+|    400 | (1.000\pm0.000) | (0.998\pm0.002) |  (0.927\pm0.092) | (0.478\pm0.113) |
+|  1,000 | (1.000\pm0.000) | (0.998\pm0.002) |  (0.928\pm0.092) | (0.484\pm0.327) |
+|  4,000 | (1.000\pm0.000) | (0.998\pm0.002) |  (0.928\pm0.092) | (0.485\pm0.326) |
+| 16,384 | (1.000\pm0.000) | (0.998\pm0.002) |  (0.928\pm0.092) | (0.485\pm0.326) |
+
+###### (n=16)
+
+|   (k) |       Triangles |        4-cycles |        5-cycles |        6-cycles |
+| ----: | --------------: | --------------: | --------------: | --------------: |
+|    25 | (1.000\pm0.000) | (0.968\pm0.011) | (0.169\pm0.031) | (0.126\pm0.014) |
+|    50 | (1.000\pm0.000) | (0.981\pm0.003) | (0.167\pm0.032) | (0.179\pm0.013) |
+|   100 | (1.000\pm0.000) | (0.996\pm0.001) | (0.335\pm0.041) | (0.184\pm0.011) |
+|   200 | (1.000\pm0.000) | (0.998\pm0.002) | (0.743\pm0.060) | (0.190\pm0.027) |
+|   400 | (1.000\pm0.000) | (0.998\pm0.003) | (0.981\pm0.015) | (0.363\pm0.023) |
+| 1,000 | (1.000\pm0.000) | (1.000\pm0.000) | (0.982\pm0.015) | (0.640\pm0.121) |
+| 4,000 | (1.000\pm0.000) | (1.000\pm0.000) | (0.982\pm0.015) | (0.642\pm0.122) |
+
+##### Triangle count
+
+Triangle prediction is completely preserved at the smallest tested truncation:
+
+[
+R^2=1.000
+]
+
+using only the 25 largest probabilities at both graph orders.
+
+Those 25 coordinates represent:
+
+[
+\frac{25}{16{,}384}\approx0.153%
+]
+
+of the (n=14) vector, and
+
+[
+\frac{25}{65{,}536}\approx0.038%
+]
+
+of the (n=16) vector.
+
+The experiment does not determine whether fewer than 25 coordinates would suffice, because no smaller truncation was tested. It does establish that the triangle signal is concentrated extremely strongly in the probability head.
+
+This agrees with the earlier probability-moment results, where triangle count was almost exactly recoverable from the lowest power sums. Both experiments indicate that triangle count primarily controls coarse concentration properties of the sorted distribution.
+
+##### Four-cycle count
+
+Four-cycle information is also highly head-concentrated, although less completely than triangle information.
+
+At (k=25), the scores are already:
+
+[
+R^2=0.957
+\quad\text{at }n=14,
+]
+
+and
+
+[
+R^2=0.968
+\quad\text{at }n=16.
+]
+
+By (k=100), performance reaches:
+
+[
+0.993
+\quad\text{and}\quad
+0.996.
+]
+
+The remaining coordinates produce little additional improvement.
+
+Thus, approximately 100 leading probabilities are sufficient to retain nearly all linearly accessible 4-cycle information. This corresponds to:
+
+[
+0.61%
+]
+
+of the (n=14) vector and only
+
+[
+0.15%
+]
+
+of the (n=16) vector.
+
+The result is consistent with the power-sum ladder, where 4-cycle count became essentially exact using low-order global summaries. Its information is distributed more broadly than the triangle signal but remains concentrated near the probability head.
+
+##### Five-cycle count
+
+Five-cycle count exhibits a distinct truncation threshold.
+
+At (n=14), the score remains weak through (k=100):
+
+[
+R^2=0.272\pm0.142.
+]
+
+It then rises sharply at (k=200):
+
+[
+R^2=0.920\pm0.081,
+]
+
+and reaches its full-vector value by approximately (k=400).
+
+At (n=16), the transition occurs later:
+
+[
+R^2=0.335
+\quad\text{at }k=100,
+]
+
+[
+R^2=0.743
+\quad\text{at }k=200,
+]
+
+and
+
+[
+R^2=0.981
+\quad\text{at }k=400.
+]
+
+The score then remains unchanged through (k=4000).
+
+The 5-cycle information is therefore not spread uniformly throughout the complete vector. It becomes accessible after a relatively narrow rank window is included:
+
+[
+k\approx200\text{--}400.
+]
+
+This differs from the gradual accumulation expected if every additional tail coordinate contributed a small independent amount of information. The sharp rise suggests that the relevant probability-spectrum structure is concentrated around a specific portion of the sorted head.
+
+At (n=16), 400 coordinates constitute only:
+
+[
+\frac{400}{65{,}536}\approx0.61%
+]
+
+of the full representation.
+
+The strong full-vector 5-cycle result therefore does not require most of the exponentially large probability vector. It does, however, require substantially more than the first 50–100 entries that already solve triangles and 4-cycles.
+
+## Six-cycle count
+
+Six-cycle information is the deepest and most diffusely represented of the four tested targets.
+
+At (n=14), performance rises gradually:
+
+[
+0.163
+\rightarrow
+0.228
+\rightarrow
+0.235
+\rightarrow
+0.391
+\rightarrow
+0.478
+]
+
+as (k) increases from 25 to 400.
+
+The mean then saturates near the full-vector result:
+
+[
+R^2\approx0.485.
+]
+
+At (n=16), the early head contains little 6-cycle information:
+
+[
+R^2=0.126
+\quad\text{at }k=25,
+]
+
+and only
+
+[
+R^2=0.190
+]
+
+at (k=200).
+
+The score rises to
+
+[
+0.363
+]
+
+at (k=400), followed by a large jump to
+
+[
+0.640
+]
+
+at (k=1000.
+]
+
+Increasing to (k=4000) produces almost no further gain:
+
+[
+0.642.
+]
+
+The 6-cycle signal therefore extends considerably farther into the probability vector than the C3–C5 signals, but it still saturates within the first approximately 1,000 entries.
+
+At (n=16), this is only:
+
+[
+\frac{1000}{65{,}536}\approx1.53%
+]
+
+of the full vector.
+
+The (n=14) results also reveal a bias–variance effect. At (k=400),
+
+[
+R^2=0.478\pm0.113,
+]
+
+which is almost the same mean as the full-vector result:
+
+[
+0.485\pm0.326.
+]
+
+Adding the tail beyond (k=400) contributes almost no average predictive value but substantially increases fold variability. For this target and census, truncation acts as an effective regularizer.
+
+## Rank-stratified structural hierarchy
+
+The truncation curves reveal a clear ordering in the amount of the probability head required for each structural layer:
+
+[
+\boxed{
+C_3
+;\rightarrow;
+C_4
+;\rightarrow;
+C_5
+;\rightarrow;
+C_6
+}
+]
+
+A practical summary is:
+
+| Target    | Approximate saturation scale |
+| --------- | ---------------------------: |
+| Triangles |                     (k\le25) |
+| 4-cycles  |                (k\approx100) |
+| 5-cycles  |    (k\approx200\text{--}400) |
+| 6-cycles  |   (k\approx400\text{--}1000) |
+
+The hierarchy should be interpreted as a rank-depth ordering, not as a strict ordering of (R^2) at every small (k).
+
+For example, at (n=14), the 6-cycle score exceeds the 5-cycle score at (k=25) and (k=50). The meaningful pattern is that each target reaches its eventual predictive plateau at progressively larger truncation lengths.
+
+##### Scaling from (n=14) to (n=16)
+
+The ambient representation dimension increases by a factor of four:
+
+[
+16{,}384
+\rightarrow
+65{,}536.
+]
+
+The truncation length needed to retain each target increases much more slowly.
+
+* Triangle count remains exact at (k=25).
+* Four-cycle count remains nearly saturated by (k=100).
+* Five-cycle saturation shifts from approximately (k=200)–400 to approximately (k=400).
+* Six-cycle saturation remains near (k=1000).
+
+Consequently, the fraction of the full vector required for each target decreases as (n) increases.
+
+For example:
+
+|   (k) | Fraction at (n=14) | Fraction at (n=16) |
+| ----: | -----------------: | -----------------: |
+|    25 |             0.153% |             0.038% |
+|   100 |             0.610% |             0.153% |
+|   400 |             2.441% |             0.610% |
+| 1,000 |             6.104% |             1.526% |
+| 4,000 |            24.414% |             6.104% |
+
+With only two graph orders, this does not establish an asymptotic scaling law. It does show that the usable structural information does not expand proportionally with the ambient (2^n)-dimensional state vector over the tested range.
+
+##### Compact representations
+
+The experiment identifies several useful operating points.
+
+###### (k=25)
+
+Using only 25 probabilities preserves:
+
+* exact triangle prediction;
+* (R^2\approx0.96\text{--}0.97) for 4-cycles.
+
+It does not preserve meaningful 5- or 6-cycle prediction.
+
+###### (k=100)
+
+Using 100 probabilities preserves:
+
+* exact triangle prediction;
+* nearly complete 4-cycle prediction;
+* only partial 5-cycle information;
+* weak 6-cycle information.
+
+This is approximately dimension matched to the 64-dimensional GNN embeddings used in the E3 experiment. At this scale, truncated QuIC remains exceptionally strong on triangles and 4-cycles but does not retain its full-vector advantage for deeper cycles.
+
+###### (k=400)
+
+Using 400 probabilities preserves:
+
+* all triangle and 4-cycle information;
+* essentially all 5-cycle information;
+* most of the (n=14) 6-cycle signal;
+* approximately 57% of the (n=16) full 6-cycle score.
+
+###### (k=1000)
+
+Using 1,000 probabilities preserves essentially all observed cycle-count performance at both graph orders.
+
+The remaining tail—from coordinate 1,001 through 16,384 or 65,536—adds no material predictive value for the tested cycle targets.
+
+## Relation to the probability-moment results
+
+The truncation and moment experiments address different forms of compression.
+
+Power sums reduce the entire probability vector to a few global scalars:
+
+[
+\sum_zp_z^k.
+]
+
+Truncation retains the detailed shape of the largest probabilities but discards the long tail.
+
+The results show that:
+
+* triangles and 4-cycles survive both forms of compression;
+* 5-cycles survive head truncation but not low-order moment compression;
+* 6-cycles require a larger portion of the head and are also poorly captured by low-order moments.
+
+The 5-cycle result is particularly informative. Its signal is present almost entirely within the first 200–400 ranked probabilities, yet it cannot be reconstructed from power sums through order eight.
+
+Thus, 5-cycle accessibility depends on the detailed arrangement of probability magnitudes within the head, rather than only on coarse concentration summaries.
+
+##### Uncompleted cospectral tracer
+
+The notebook planned a second analysis measuring how the global percentile of each cospectral-pair separation changes under truncation.
+
+That analysis did not produce completed outputs in this run. Consequently, the notebook supports conclusions about cycle-count decodability under truncation, but not about how truncation changes the relative standing of cospectral separations.
+
+No claim about cospectral mate percentiles should be based on this run alone.
+
+##### What the experiment establishes
+
+The completed results support five conclusions.
+
+1. **Most cycle-count information is concentrated in a small leading portion of the sorted probability vector.**
+   None of the tested targets benefits materially from retaining more than approximately 1,000 coordinates.
+
+2. **The structural hierarchy appears as a truncation-depth hierarchy.**
+   Triangles require the fewest coordinates, followed by 4-cycles, 5-cycles, and 6-cycles.
+
+3. **The full 5-cycle signal is highly compressible.**
+   It reaches its full performance using only 200–400 probabilities.
+
+4. **Six-cycle information is deeper and less stable.**
+   It requires approximately 400–1,000 coordinates and exhibits greater fold sensitivity, particularly at (n=14).
+
+5. **The required fraction of the full vector decreases from (n=14) to (n=16).**
+   The relevant absolute head grows slowly compared with the fourfold growth in ambient dimension.
+
+The experiment therefore refines the earlier claim that QuIC contains a structural hierarchy. That hierarchy is not only visible in predictive strength; it is spatially ordered within the sorted probability vector.
+
+##### Necessary qualifications
+
+The (n=16) full-vector point did not complete in this notebook. Saturation is inferred from the negligible differences between (k=1000) and (k=4000), together with the previously established full-vector scores. The current run alone does not directly measure the final (61{,}536) coordinates.
+
+The vectors contain exact ideal probabilities. The experiment does not determine how many circuit shots are required to identify and estimate the largest (k) probabilities.
+
+In particular, extracting the exact top-(k) sorted vector from finite samples is not equivalent to measuring only (k) predetermined bitstrings. The identities of the highest-probability outcomes must first be discovered, and ranking errors may occur when probabilities are close.
+
+The truncated vectors are not renormalized. A ridge model may therefore use both:
+
+* the relative shape of the retained probabilities;
+* the cumulative retained mass
+  [
+  \sum_{i=1}^{k}p_{(i)}.
+  ]
+
+This is appropriate for measuring predictive information in the raw head, but it does not isolate shape information from retained-mass information. A normalized-head control would answer that separate question.
+
+Only cycle-count targets are included. The results do not establish suitable truncation lengths for girth, diameter, spectral gap, diamonds, or other graph invariants.
+
+The truncation grid is coarse. Statements such as “C5 saturates at (k=200)” mean that 200 is the first tested point near saturation, not that it is the true minimum sufficient dimension.
+
+The ridge models operate in a high-dimensional, low-sample regime, particularly at (n=14). The increase in 6-cycle variance after (k=400) indicates that the tail can amplify fold instability even when its average predictive contribution is negligible.
+
+Finally, no paired statistical test is performed between adjacent truncation levels. Small differences near saturation should be treated descriptively.
+
+##### Overall assessment
+
+The experiment shows that the exponentially large QuIC probability vector is highly redundant for cycle-count decoding.
+
+Triangle count is completely accessible from the first 25 probabilities. Four-cycle count is nearly saturated by 100. Five-cycle count undergoes a sharp transition between approximately 100 and 400 entries. Six-cycle information extends deeper, but performance saturates by approximately 1,000 entries.
+
+At (n=16), those 1,000 coordinates represent only about 1.5% of the complete vector. Increasing to 4,000 entries produces essentially no additional gain.
+
+The appropriate central claim is:
+
+> QuIC’s cycle-count information is rank-stratified within the sorted probability distribution. Triangle and 4-cycle structure is concentrated in the extreme head, 5-cycle information emerges within the first few hundred probabilities, and 6-cycle information extends to approximately the first thousand. Across (n=14) and (n=16), the useful absolute head grows far more slowly than the full (2^n)-dimensional representation, although practical finite-shot recovery of that head remains untested.
