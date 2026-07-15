@@ -150,7 +150,7 @@ Every dataset is a complete enumeration or a seeded, deduplicated sample. SEED =
 #### N14
 ##### Experimental design
 
-The notebook analyzes the complete set of **509 connected 3-regular graphs on 14 vertices**. Each graph is represented by its full, sorted QuIC probability vector of dimension \(2^{14}=16{,}384\), generated with one noiseless circuit repetition and fixed canonical angles.
+The notebook analyzes the complete set of **509 connected 3-regular graphs on 14 vertices**. Each graph is represented by its full, sorted QuIC probability vector of dimension $2^{14}=16{,}384$, generated with one noiseless circuit repetition and fixed canonical angles.
 
 This is a particularly clean test bed:
 
@@ -159,17 +159,17 @@ This is a particularly clean test bed:
 - Bitstring identities are discarded by sorting the probabilities.
 - Any geometric separation must arise from topology transmitted through the entangling circuit, rather than vertex degree or labeling.
 
-The experiment compares pairwise \(L_1\) distances between QuIC embeddings with absolute differences in triangle, 4-cycle, and 5-cycle counts. Spearman Mantel tests assess whether graphs with more different cycle counts also lie farther apart in embedding space.
+The experiment compares pairwise $L_1$ distances between QuIC embeddings with absolute differences in triangle, 4-cycle, and 5-cycle counts. Spearman Mantel tests assess whether graphs with more different cycle counts also lie farther apart in embedding space.
 
 The stratified analyses then remove the dominant structural variables sequentially:
 
-\[
+$$
 \text{all graphs}
 \rightarrow
 \text{fixed triangle count}
 \rightarrow
 \text{fixed triangle and 4-cycle counts}.
-\]
+$$
 
 This is the central strength of the experiment. It does not merely observe correlations among several mutually correlated graph statistics; it progressively conditions out the stronger statistics and examines the residual geometry.
 
@@ -177,7 +177,7 @@ This is the central strength of the experiment. It does not merely observe corre
 
 Across all 509 graphs:
 
-| Structural quantity | Mantel \(\rho\) | Permutation \(p\) |
+| Structural quantity | Mantel $\rho$ | Permutation $p$ |
 |---|---:|---:|
 | Triangle count | 0.903 | 0.0001 |
 | 4-cycle count | 0.290 | 0.0001 |
@@ -196,7 +196,7 @@ Five triangle-count strata contain at least 15 graphs, covering **490 of the 509
 
 Within each fixed-triangle stratum, the association with 4-cycle count becomes extremely strong:
 
-| Triangle stratum | \(n\) | C4 \(\rho\) | C5 \(\rho\) | Effective rank |
+| Triangle stratum | $n$ | C4 $\rho$ | C5 $\rho$ | Effective rank |
 |---|---:|---:|---:|---:|
 | 0 triangles | 110 | 0.968 | 0.320 | 2.90 |
 | 1 triangle | 122 | 0.954 | 0.179 | 2.88 |
@@ -204,9 +204,9 @@ Within each fixed-triangle stratum, the association with 4-cycle count becomes e
 | 3 triangles | 74 | 0.906 | 0.175 | 2.87 |
 | 4 triangles | 45 | 0.898 | 0.203 | 2.79 |
 
-Once triangle count is fixed, 4-cycle differences almost completely organize pairwise embedding distances. The consistency is more important than any single value: every sufficiently large triangle stratum produces \(\rho\) between 0.898 and 0.968.
+Once triangle count is fixed, 4-cycle differences almost completely organize pairwise embedding distances. The consistency is more important than any single value: every sufficiently large triangle stratum produces $\rho$ between 0.898 and 0.968.
 
-The PCA results make the geometric claim more concrete. In the four largest strata, PC1 explains approximately 53–56% of the variance and has Spearman correlation between \(-0.978\) and \(-0.988\) with 4-cycle count. The sign is arbitrary because PCA eigenvectors may be reversed. In magnitude, PC1 is essentially a 4-cycle axis.
+The PCA results make the geometric claim more concrete. In the four largest strata, PC1 explains approximately 53–56% of the variance and has Spearman correlation between $-0.978$ and $-0.988$ with 4-cycle count. The sign is arbitrary because PCA eigenvectors may be reversed. In magnitude, PC1 is essentially a 4-cycle axis.
 
 This is stronger than saying that 4-cycle count is statistically associated with the embedding. It shows that, after triangle count is held constant, 4-cycle count corresponds almost directly to the leading direction of variation.
 
@@ -216,17 +216,17 @@ The effective ranks near 3 are also notable. Although the raw vectors have 16,38
 
 The second stratification exposes the 5-cycle signal. Across all 16 joint strata with at least 12 graphs, the association between embedding distance and 5-cycle-count difference is positive:
 
-\[
+$$
 \rho \in [0.316,0.926].
-\]
+$$
 
 Several strata show very strong relationships:
 
-- \((\text{tri}=0,\text{C4}=1)\): \(\rho=0.926\)
-- \((1,2)\): \(\rho=0.893\)
-- \((0,2)\): \(\rho=0.871\)
-- \((1,1)\): \(\rho=0.870\)
-- \((2,1)\): \(\rho=0.836\)
+- $(\text{tri}=0,\text{C4}=1)$: $\rho=0.926$
+- $(1,2)$: $\rho=0.893$
+- $(0,2)$: $\rho=0.871$
+- $(1,1)$: $\rho=0.870$
+- $(2,1)$: $\rho=0.836$
 
 These joint strata contain **340 graphs**, approximately **66.8%** of the complete enumeration. Thus, the result is not based on a small exceptional subset.
 
@@ -234,7 +234,7 @@ This resolves the apparently weak global 5-cycle result. Globally, 5-cycle varia
 
 The resulting interpretation is hierarchical:
 
-\[
+$$
 \boxed{
 \text{triangles}
 \;\rightarrow\;
@@ -242,7 +242,7 @@ The resulting interpretation is hierarchical:
 \;\rightarrow\;
 \text{5-cycles}
 }
-\]
+$$
 
 The QuIC probability spectrum appears to organize these cubic graphs lexicographically or onion-like: shorter-cycle structure dominates first, while longer-cycle information remains recoverable in the residual geometry.
 
@@ -264,13 +264,13 @@ This makes the result more interesting than a straightforward cycle-count correl
 
 The Mantel tests establish **metric organization**, not direct decodability. They show that differences in cycle counts track embedding distances. They do not demonstrate that a decoder can recover the exact count of each cycle type from a previously unseen embedding. A cross-validated regression or classification experiment would be needed for that stronger wording.
 
-The permutation \(p\)-values have resolution \(1/(10{,}000+1)\). Values printed as 0.0001 are therefore at the Monte Carlo floor. Feeding these floor values into Fisher’s method produces extremely small combined values such as \(10^{-15}\) and \(10^{-40}\), but those numbers imply more precision than the permutation runs provide. The defensible conclusion is overwhelming combined evidence, not the exact reported exponent. More permutations or separate analytical treatment would be needed to emphasize the numerical combined \(p\)-values.
+The permutation $p$-values have resolution $1/(10{,}000+1)$. Values printed as 0.0001 are therefore at the Monte Carlo floor. Feeding these floor values into Fisher’s method produces extremely small combined values such as $10^{-15}$ and $10^{-40}$, but those numbers imply more precision than the permutation runs provide. The defensible conclusion is overwhelming combined evidence, not the exact reported exponent. More permutations or separate analytical treatment would be needed to emphasize the numerical combined $p$-values.
 
 The tests are one-sided. That is appropriate for a prespecified hypothesis that greater cycle-count differences should produce greater embedding distances, but it should be stated explicitly.
 
-The same random seed is reused for each stratum’s permutation test. This does not explain the effect sizes, but independent seed streams would be cleaner when the resulting \(p\)-values are combined using Fisher’s method.
+The same random seed is reused for each stratum’s permutation test. This does not explain the effect sizes, but independent seed streams would be cleaner when the resulting $p$-values are combined using Fisher’s method.
 
-Finally, the study concerns one graph family, one graph size, and one circuit parameterization. It establishes the hierarchy exhaustively for connected cubic graphs at \(n=14\); it does not yet establish that the same hierarchy persists across graph orders, degree distributions, circuit angles, or repetitions.
+Finally, the study concerns one graph family, one graph size, and one circuit parameterization. It establishes the hierarchy exhaustively for connected cubic graphs at $n=14$; it does not yet establish that the same hierarchy persists across graph orders, degree distributions, circuit angles, or repetitions.
 
 ##### Overall assessment
 
@@ -327,7 +327,7 @@ Two kinds of moments appear in the notebook and should be distinguished:
 
 * **adjacency spectral moments**
   [
-  \operatorname{tr}(A^k),
+  	ext{tr}(A^k),
   ]
   used to determine how much of QuIC geometry is explained by the classical adjacency spectrum.
 
@@ -503,7 +503,7 @@ The correct conclusion is not that 5-cycle information is absent from all symmet
 The notebook next decomposes the centered QuIC vectors using singular-value decomposition and asks how well the leading principal components can be reconstructed from:
 
 * triangle, 4-cycle, and 5-cycle counts;
-* adjacency moments (\operatorname{tr}(A^k)), (k=3,\ldots,8);
+* adjacency moments (	ext{tr}(A^k)), (k=3,\ldots,8);
 * the complete nonconstant adjacency spectrum;
 * adjacency moments concatenated with the three cycle counts.
 
@@ -836,17 +836,17 @@ This notebook asks whether QuIC predicts graph properties that are not already r
 
 The experiment uses the complete connected cubic-graph censuses at two orders:
 
-- **509 graphs at \(n=14\)**
-- **4,060 graphs at \(n=16\)**
+- **509 graphs at $n=14$**
+- **4,060 graphs at $n=16$**
 
 Four feature representations are compared using the same five frozen train/test folds and the same ridge-regression protocol:
 
 1. **QuIC:** the full sorted probability vector from the original E2 experiment.
-2. **Eigenvalues:** the sorted adjacency eigenvalues, excluding the constant Perron eigenvalue \(\lambda_{\max}=3\).
+2. **Eigenvalues:** the sorted adjacency eigenvalues, excluding the constant Perron eigenvalue $\lambda_{\max}=3$.
 3. **Spectral moments:**  
-   \[
-   \operatorname{tr}(A^k), \qquad k=3,\ldots,8.
-   \]
+   $$
+   	ext{tr}(A^k), \qquad k=3,\ldots,8.
+   $$
 4. **QuIC + spectrum:** the QuIC vector concatenated with the eigenvalue and moment features.
 
 The seven prediction targets are:
@@ -863,7 +863,7 @@ The spectral-only features are standardized. In the concatenated representation,
 
 The primary comparison is
 
-\[
+$$
 \Delta R^2
 =
 R^2_{\text{QuIC+spec}}
@@ -872,7 +872,7 @@ R^2_{\text{QuIC+spec}}
 R^2_{\text{eigenvalues}},
 R^2_{\text{moments}}
 \right).
-\]
+$$
 
 A positive value indicates that the combined representation predicts better than either linear spectral representation alone.
 
@@ -880,59 +880,59 @@ A positive value indicates that the combined representation predicts better than
 
 For cubic graphs, the first three cycle-count targets are exact linear functions of adjacency moments:
 
-\[
-C_3=\frac{\operatorname{tr}(A^3)}{6},
-\]
+$$
+C_3=\frac{	ext{tr}(A^3)}{6},
+$$
 
-\[
-C_4=\frac{\operatorname{tr}(A^4)-15n}{8},
-\]
+$$
+C_4=\frac{	ext{tr}(A^4)-15n}{8},
+$$
 
 and
 
-\[
+$$
 C_5=
 \frac{
-\operatorname{tr}(A^5)-10\operatorname{tr}(A^3)
+	ext{tr}(A^5)-10	ext{tr}(A^3)
 }{10}.
-\]
+$$
 
-The notebook verifies these identities exactly across all 509 graphs at \(n=14\) and all 4,060 graphs at \(n=16\).
+The notebook verifies these identities exactly across all 509 graphs at $n=14$ and all 4,060 graphs at $n=16$.
 
 These checks serve two purposes:
 
 - They confirm that the graph statistics and spectra were computed consistently.
 - They provide positive controls for the linear-probe protocol.
 
-As expected, the moment representation obtains \(R^2=1.000\) for triangle, 4-cycle, and 5-cycle counts at both graph orders.
+As expected, the moment representation obtains $R^2=1.000$ for triangle, 4-cycle, and 5-cycle counts at both graph orders.
 
 ## Main results
 
-The reported values are mean \(R^2\) with standard deviation across the five frozen folds.
+The reported values are mean $R^2$ with standard deviation across the five frozen folds.
 
-###### \(n=14\)
+###### $n=14$
 
-| Target | QuIC | Eigenvalues | Moments | QuIC + spectrum | \(\Delta R^2\) |
+| Target | QuIC | Eigenvalues | Moments | QuIC + spectrum | $\Delta R^2$ |
 |---|---:|---:|---:|---:|---:|
-| Triangles | \(1.000\pm0.000\) | \(0.987\pm0.004\) | \(1.000\pm0.000\) | \(1.000\pm0.000\) | \(-0.000\) |
-| 4-cycles | \(0.998\pm0.002\) | \(0.972\pm0.004\) | \(1.000\pm0.000\) | \(1.000\pm0.000\) | \(-0.000\) |
-| 5-cycles | \(0.928\pm0.092\) | \(0.905\pm0.013\) | \(1.000\pm0.000\) | \(1.000\pm0.000\) | \(-0.000\) |
-| 6-cycles | \(0.485\pm0.326\) | \(0.842\pm0.059\) | \(0.983\pm0.005\) | \(1.000\pm0.000\) | \(+0.017\) |
-| Girth | \(0.993\pm0.014\) | \(0.611\pm0.100\) | \(0.376\pm0.045\) | \(0.993\pm0.014\) | \(+0.382\) |
-| Diameter | \(0.548\pm0.058\) | \(0.560\pm0.049\) | \(0.711\pm0.012\) | \(0.741\pm0.030\) | \(+0.030\) |
-| Spectral gap | \(0.944\pm0.010\) | \(1.000\pm0.000\) | \(0.871\pm0.032\) | \(1.000\pm0.000\) | \(-0.000\) |
+| Triangles | $1.000\pm0.000$ | $0.987\pm0.004$ | $1.000\pm0.000$ | $1.000\pm0.000$ | $-0.000$ |
+| 4-cycles | $0.998\pm0.002$ | $0.972\pm0.004$ | $1.000\pm0.000$ | $1.000\pm0.000$ | $-0.000$ |
+| 5-cycles | $0.928\pm0.092$ | $0.905\pm0.013$ | $1.000\pm0.000$ | $1.000\pm0.000$ | $-0.000$ |
+| 6-cycles | $0.485\pm0.326$ | $0.842\pm0.059$ | $0.983\pm0.005$ | $1.000\pm0.000$ | $+0.017$ |
+| Girth | $0.993\pm0.014$ | $0.611\pm0.100$ | $0.376\pm0.045$ | $0.993\pm0.014$ | $+0.382$ |
+| Diameter | $0.548\pm0.058$ | $0.560\pm0.049$ | $0.711\pm0.012$ | $0.741\pm0.030$ | $+0.030$ |
+| Spectral gap | $0.944\pm0.010$ | $1.000\pm0.000$ | $0.871\pm0.032$ | $1.000\pm0.000$ | $-0.000$ |
 
-###### \(n=16\)
+###### $n=16$
 
-| Target | QuIC | Eigenvalues | Moments | QuIC + spectrum | \(\Delta R^2\) |
+| Target | QuIC | Eigenvalues | Moments | QuIC + spectrum | $\Delta R^2$ |
 |---|---:|---:|---:|---:|---:|
-| Triangles | \(1.000\pm0.000\) | \(0.989\pm0.001\) | \(1.000\pm0.000\) | \(1.000\pm0.000\) | \(-0.000\) |
-| 4-cycles | \(1.000\pm0.000\) | \(0.974\pm0.002\) | \(1.000\pm0.000\) | \(1.000\pm0.000\) | \(-0.000\) |
-| 5-cycles | \(0.982\pm0.015\) | \(0.918\pm0.009\) | \(1.000\pm0.000\) | \(1.000\pm0.000\) | \(-0.000\) |
-| 6-cycles | \(0.642\pm0.122\) | \(0.857\pm0.009\) | \(0.983\pm0.001\) | \(1.000\pm0.000\) | \(+0.017\) |
-| Girth | \(0.999\pm0.003\) | \(0.543\pm0.042\) | \(0.382\pm0.020\) | \(0.999\pm0.003\) | \(+0.456\) |
-| Diameter | \(0.737\pm0.019\) | \(0.657\pm0.006\) | \(0.775\pm0.016\) | \(0.802\pm0.014\) | \(+0.026\) |
-| Spectral gap | \(0.932\pm0.007\) | \(1.000\pm0.000\) | \(0.865\pm0.005\) | \(1.000\pm0.000\) | \(-0.000\) |
+| Triangles | $1.000\pm0.000$ | $0.989\pm0.001$ | $1.000\pm0.000$ | $1.000\pm0.000$ | $-0.000$ |
+| 4-cycles | $1.000\pm0.000$ | $0.974\pm0.002$ | $1.000\pm0.000$ | $1.000\pm0.000$ | $-0.000$ |
+| 5-cycles | $0.982\pm0.015$ | $0.918\pm0.009$ | $1.000\pm0.000$ | $1.000\pm0.000$ | $-0.000$ |
+| 6-cycles | $0.642\pm0.122$ | $0.857\pm0.009$ | $0.983\pm0.001$ | $1.000\pm0.000$ | $+0.017$ |
+| Girth | $0.999\pm0.003$ | $0.543\pm0.042$ | $0.382\pm0.020$ | $0.999\pm0.003$ | $+0.456$ |
+| Diameter | $0.737\pm0.019$ | $0.657\pm0.006$ | $0.775\pm0.016$ | $0.802\pm0.014$ | $+0.026$ |
+| Spectral gap | $0.932\pm0.007$ | $1.000\pm0.000$ | $0.865\pm0.005$ | $1.000\pm0.000$ | $-0.000$ |
 
 ##### Eigenvalues versus spectral moments
 
@@ -940,9 +940,9 @@ The comparison between eigenvalues and moments illustrates that linear-probe per
 
 The sorted eigenvalue representation performs well but not perfectly on short-cycle counts:
 
-\[
+$$
 R^2\approx0.91\text{--}0.99.
-\]
+$$
 
 This is expected because cycle counts are power sums of the eigenvalues. They are spectral functions, but they are not linear functions of the individual sorted eigenvalue coordinates.
 
@@ -950,13 +950,13 @@ In contrast, the moment representation contains those power sums directly and th
 
 The reverse occurs for the spectral gap. For a connected cubic graph,
 
-\[
+$$
 \lambda_{\max}=3,
 \qquad
 \text{gap}=3-\lambda_2.
-\]
+$$
 
-The spectral gap is therefore an exact linear function of a sorted eigenvalue coordinate. The eigenvalue probe obtains \(R^2=1.000\), while the moment representation reaches only approximately \(0.87\).
+The spectral gap is therefore an exact linear function of a sorted eigenvalue coordinate. The eigenvalue probe obtains $R^2=1.000$, while the moment representation reaches only approximately $0.87$.
 
 This establishes an important methodological point: poor performance from a linear model on sorted eigenvalues does not imply that a target is non-spectral. It may instead mean that the target is nonlinear in those particular spectral coordinates.
 
@@ -967,9 +967,9 @@ The results for triangles, 4-cycles, and 5-cycles behave exactly as expected.
 The moment representation recovers all three perfectly because the relevant identities are built into the feature coordinates. QuIC also performs strongly:
 
 - exact or nearly exact prediction for triangles and 4-cycles,
-- \(R^2=0.928\) at \(n=14\) and \(0.982\) at \(n=16\) for 5-cycles.
+- $R^2=0.928$ at $n=14$ and $0.982$ at $n=16$ for 5-cycles.
 
-The lower and more variable \(n=14\) 5-cycle result suggests that the finite census or fold composition makes this target less stable at the smaller graph order. The larger census produces substantially stronger and more consistent prediction.
+The lower and more variable $n=14$ 5-cycle result suggests that the finite census or fold composition makes this target less stable at the smaller graph order. The larger census produces substantially stronger and more consistent prediction.
 
 The concatenated representation provides no improvement because the spectral moments already solve these targets exactly.
 
@@ -981,63 +981,63 @@ The 6-cycle row is the most striking interaction result.
 
 QuIC alone predicts 6-cycle count relatively poorly:
 
-\[
+$$
 R^2=0.485\pm0.326
 \quad\text{at }n=14,
-\]
+$$
 
 and
 
-\[
+$$
 R^2=0.642\pm0.122
 \quad\text{at }n=16.
-\]
+$$
 
 The spectral moment representation is already very strong:
 
-\[
+$$
 R^2=0.983
-\]
+$$
 
 at both graph orders.
 
-Nevertheless, concatenating QuIC with the spectral features raises the reported score to \(1.000\pm0.000\), giving
+Nevertheless, concatenating QuIC with the spectral features raises the reported score to $1.000\pm0.000$, giving
 
-\[
+$$
 \Delta R^2=+0.017
-\]
+$$
 
-at both \(n=14\) and \(n=16\).
+at both $n=14$ and $n=16$.
 
 The replication of the same gain across two complete graph censuses is notable. It indicates that QuIC contains information or transformed structure that complements the linear spectral coordinates used by the baseline.
 
-The result is better interpreted as **complementarity** than as strong standalone 6-cycle decoding. QuIC by itself is not a competitive 6-cycle predictor, particularly at \(n=14\). Its contribution becomes useful only when combined with the spectral representation.
+The result is better interpreted as **complementarity** than as strong standalone 6-cycle decoding. QuIC by itself is not a competitive 6-cycle predictor, particularly at $n=14$. Its contribution becomes useful only when combined with the spectral representation.
 
 ##### Girth
 
 QuIC predicts girth almost perfectly:
 
-\[
+$$
 R^2=0.993\pm0.014
 \quad\text{at }n=14,
-\]
+$$
 
 and
 
-\[
+$$
 R^2=0.999\pm0.003
 \quad\text{at }n=16.
-\]
+$$
 
-The linear spectral baselines are much weaker. The best spectral score is only \(0.611\) at \(n=14\) and \(0.543\) at \(n=16\).
+The linear spectral baselines are much weaker. The best spectral score is only $0.611$ at $n=14$ and $0.543$ at $n=16$.
 
 This produces the largest nominal improvements:
 
-\[
+$$
 \Delta R^2=+0.382
 \quad\text{and}\quad
 +0.456.
-\]
+$$
 
 However, these large values should not be interpreted as evidence that girth is non-spectral. Within these censuses, girth is determined by the presence or absence of short cycles and is therefore a nonlinear threshold function of spectrally determined cycle counts.
 
@@ -1049,49 +1049,49 @@ This is strong evidence for favorable representation geometry, but not for infor
 
 Diameter is the clearest open structural target.
 
-At \(n=14\):
+At $n=14$:
 
-\[
+$$
 R^2_{\text{QuIC}}=0.548,
 \qquad
 R^2_{\text{moments}}=0.711,
 \qquad
 R^2_{\text{combined}}=0.741.
-\]
+$$
 
-At \(n=16\):
+At $n=16$:
 
-\[
+$$
 R^2_{\text{QuIC}}=0.737,
 \qquad
 R^2_{\text{moments}}=0.775,
 \qquad
 R^2_{\text{combined}}=0.802.
-\]
+$$
 
 The resulting improvements are modest but consistent:
 
-\[
+$$
 \Delta R^2=+0.030
 \quad\text{at }n=14,
-\]
+$$
 
 and
 
-\[
+$$
 \Delta R^2=+0.026
 \quad\text{at }n=16.
-\]
+$$
 
 Unlike girth, the combined representation outperforms both QuIC and the spectral baselines. The replication across graph orders supports the presence of complementary structural information.
 
-The absolute gains are small, however, and no fold-level uncertainty or paired significance test is reported for \(\Delta R^2\). The appropriate conclusion is that the combined representation provides a consistent predictive improvement, not that a large independent diameter signal has been established.
+The absolute gains are small, however, and no fold-level uncertainty or paired significance test is reported for $\Delta R^2$. The appropriate conclusion is that the combined representation provides a consistent predictive improvement, not that a large independent diameter signal has been established.
 
 ##### Spectral gap
 
 The spectral-gap row acts as another positive control.
 
-The sorted-eigenvalue representation obtains perfect prediction because the target is explicitly a linear function of the two largest adjacency eigenvalues. QuIC reaches approximately \(R^2=0.93\text{--}0.94\), demonstrating that it captures substantial spectral information but does not reproduce the relevant eigenvalue coordinate exactly under a linear probe.
+The sorted-eigenvalue representation obtains perfect prediction because the target is explicitly a linear function of the two largest adjacency eigenvalues. QuIC reaches approximately $R^2=0.93\text{--}0.94$, demonstrating that it captures substantial spectral information but does not reproduce the relevant eigenvalue coordinate exactly under a linear probe.
 
 The concatenated model returns to perfect prediction because the exact spectral feature is present. There is no improvement beyond the spectral baseline.
 
@@ -1114,7 +1114,7 @@ The experiment supports several conclusions.
    The combined representation consistently outperforms the stronger spectral baseline at both graph orders.
 
 5. **The complementarity is reproducible.**  
-   The same qualitative pattern appears in both the \(n=14\) and \(n=16\) complete censuses.
+   The same qualitative pattern appears in both the $n=14$ and $n=16$ complete censuses.
 
 The experiment therefore strengthens the interpretation of QuIC as a structurally organized representation rather than merely an injective graph identifier.
 
@@ -1122,9 +1122,9 @@ The experiment therefore strengthens the interpretation of QuIC as a structurall
 
 The central limitation is that positive
 
-\[
+$$
 \Delta R^2
-\]
+$$
 
 does not, by itself, prove that QuIC contains non-spectral information.
 
@@ -1139,11 +1139,11 @@ A stronger non-spectral claim would require at least one of the following:
 - prediction of target residuals after a sufficiently expressive nonlinear spectral model,
 - or a direct conditional test showing that QuIC varies meaningfully when the complete spectrum is fixed.
 
-The notebook also reports no paired uncertainty estimate for the differences in \(R^2\). Because every method uses the same frozen folds, the foldwise score differences could be analyzed directly. This would clarify whether the \(+0.017\), \(+0.030\), and \(+0.026\) gains are stable across folds rather than driven by one split.
+The notebook also reports no paired uncertainty estimate for the differences in $R^2$. Because every method uses the same frozen folds, the foldwise score differences could be analyzed directly. This would clarify whether the $+0.017$, $+0.030$, and $+0.026$ gains are stable across folds rather than driven by one split.
 
-The concatenated model also has far higher dimensionality than either spectral baseline, especially at \(n=16\). The comparison is valid as a predictive test, but the improvement may reflect both additional information and a richer transformed feature basis.
+The concatenated model also has far higher dimensionality than either spectral baseline, especially at $n=16$. The comparison is valid as a predictive test, but the improvement may reflect both additional information and a richer transformed feature basis.
 
-Finally, scores printed as \(1.000\pm0.000\) are exact only to the displayed precision unless separately guaranteed by an algebraic identity. Exact recoverability is established for \(C_3\), \(C_4\), and \(C_5\); the reported combined 6-cycle result should be described as numerically perfect or perfect to displayed precision.
+Finally, scores printed as $1.000\pm0.000$ are exact only to the displayed precision unless separately guaranteed by an algebraic identity. Exact recoverability is established for $C_3$, $C_4$, and $C_5$; the reported combined 6-cycle result should be described as numerically perfect or perfect to displayed precision.
 
 ##### Overall assessment
 
@@ -1151,7 +1151,7 @@ This notebook provides a useful classical baseline and materially sharpens the i
 
 The spectral controls behave correctly:
 
-- moments exactly recover \(C_3\), \(C_4\), and \(C_5\);
+- moments exactly recover $C_3$, $C_4$, and $C_5$;
 - sorted eigenvalues exactly recover spectral gap;
 - the difference between eigenvalue and moment probes exposes the importance of feature coordinates.
 
@@ -1161,7 +1161,7 @@ First, it makes some nonlinear structural properties, particularly girth, almost
 
 The appropriate central claim is:
 
-> Across the complete connected cubic-graph censuses at \(n=14\) and \(n=16\), QuIC is neither reducible to nor uniformly stronger than a linear adjacency-spectral representation. It provides a different structural coordinate system: one that makes girth highly accessible and adds reproducible predictive value to spectral features for 6-cycle count and diameter.
+> Across the complete connected cubic-graph censuses at $n=14$ and $n=16$, QuIC is neither reducible to nor uniformly stronger than a linear adjacency-spectral representation. It provides a different structural coordinate system: one that makes girth highly accessible and adds reproducible predictive value to spectral features for 6-cycle count and diameter.
 
 The notebook supports complementarity beyond linear spectral baselines. A claim of genuinely non-spectral information requires the planned cospectral or conditional-residual analysis.
 
@@ -1177,7 +1177,7 @@ The spectral representation contains:
 * the sorted adjacency eigenvalues, excluding the constant cubic-graph eigenvalue (\lambda_{\max}=3);
 * the spectral moments
   [
-  \operatorname{tr}(A^k), \qquad k=3,\ldots,8.
+  	ext{tr}(A^k), \qquad k=3,\ldots,8.
   ]
 
 Each target is evaluated using the same five frozen outer folds used in the earlier ridge-probe experiment. Within each outer fold, prediction proceeds in two stages:
@@ -1342,7 +1342,7 @@ R^2_{\mathrm{QuIC}}=0.996
 This result is especially important because the sixth spectral moment obeys the cubic-graph identity
 
 [
-\operatorname{tr}(A^6)
+	ext{tr}(A^6)
 ======================
 
 12(C_6+D)
@@ -2295,7 +2295,7 @@ The measured collapse statistic is
 \frac{
 \max_{i,j}|\mathbf h(G_i)-\mathbf h(G_j)|_2
 }{
-\operatorname{mean}_i|\mathbf h(G_i)|_2
+	ext{mean}_i|\mathbf h(G_i)|_2
 }.
 ]
 
@@ -2581,7 +2581,7 @@ For each trained model, the analysis computes:
 \frac{
 |\mathbf h(G_i)-\mathbf h(G_j)|*2
 }{
-\operatorname{median}*{a<b}
+	ext{median}*{a<b}
 |\mathbf h(G_a)-\mathbf h(G_b)|_2
 }
 ]
@@ -3188,7 +3188,7 @@ For each target, four representations are evaluated:
 1. sorted adjacency eigenvalues;
 2. adjacency trace moments
    [
-   \operatorname{tr}(A^k),\qquad k=3,\ldots,8;
+   	ext{tr}(A^k),\qquad k=3,\ldots,8;
    ]
 3. the full sorted QuIC probability vector;
 4. QuIC concatenated with a rescaled eigenvalue block.
@@ -3336,7 +3336,7 @@ The classical controls behave as required.
 For every graph,
 
 [
-\operatorname{tr}(A^3)=6C_3.
+	ext{tr}(A^3)=6C_3.
 ]
 
 Therefore the moment probe obtains:
@@ -3350,7 +3350,7 @@ for triangle count in every stratum.
 For general graphs,
 
 [
-\operatorname{tr}(A^4)
+	ext{tr}(A^4)
 ======================
 
 8C_4
@@ -3383,7 +3383,7 @@ They also demonstrate an important coordinate effect. The sorted eigenvalue repr
 
 ## Five-cycle count
 
-C5 is the primary live target because the simple cubic identity relating (\operatorname{tr}(A^5)) to C3 and C5 no longer applies on nonregular graphs.
+C5 is the primary live target because the simple cubic identity relating (	ext{tr}(A^5)) to C3 and C5 no longer applies on nonregular graphs.
 
 The spectral baselines remain moderately strong but no longer exact:
 
@@ -4152,10 +4152,10 @@ For each graph with adjacency matrix (A), the exact signature is
 
 [
 \left(
-\operatorname{tr}(A),
-\operatorname{tr}(A^2),
+	ext{tr}(A),
+	ext{tr}(A^2),
 \ldots,
-\operatorname{tr}(A^n)
+	ext{tr}(A^n)
 \right).
 ]
 
@@ -4258,7 +4258,7 @@ Every cospectral group agrees on (C_6).
 For cubic graphs, the notebook verifies the identity
 
 [
-\operatorname{tr}(A^6)
+	ext{tr}(A^6)
 ======================
 
 12(C_6+D)
@@ -4277,7 +4277,7 @@ The identity holds exactly for every graph in both complete censuses.
 Because the spectrum fixes
 
 [
-\operatorname{tr}(A^6),
+	ext{tr}(A^6),
 ]
 
 and also fixes (n), (C_3), and (C_4), it fixes the sum
@@ -4428,7 +4428,7 @@ Automorphism order therefore captures a different non-spectral direction from th
 Because its distribution is highly skewed and multiplicative, a transformed target such as
 
 [
-\log_2|\operatorname{Aut}(G)|
+\log_2|	ext{Aut}(G)|
 ]
 
 is more suitable for regression or ranking than raw group order.
