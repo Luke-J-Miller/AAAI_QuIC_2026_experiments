@@ -3050,6 +3050,607 @@ The appropriate central claim is:
 
 > On the complete connected cubic-graph censuses at (n=14) and (n=16), conventional constant-feature message passing collapses exactly, while RNI and Laplacian positional encodings recover progressively more structure but lose accessibility with cycle depth. The full, fixed QuIC probability representation provides the strongest linear decodability across all tested cycle-count targets, although its deeper-cycle advantage depends on a substantially higher-dimensional readout and does not extend to diameter or spectral gap.
 
+
+# E3C — Folklore 2-WL Baseline
+
+## Experimental design
+
+This experiment adds a stronger classical graph representation baseline to the QuIC analysis.
+
+The earlier constant-feature GIN and GCN models are useful negative controls, but they are not competitive structural representations on fixed-order regular graphs. Ordinary 1-WL message passing collapses by construction because every vertex begins with the same feature and receives the same multiset of neighbor features.
+
+The present experiment therefore evaluates **folklore 2-WL**, defined on ordered vertex pairs. For each ordered pair ((u,v)), refinement updates its color according to
+
+[
+c_{t+1}(u,v)
+============
+
+\operatorname{hash}
+\left(
+c_t(u,v),
+\left{!\left{
+\left(c_t(u,w),c_t(w,v)\right)
+:
+w\in V
+\right}!\right}
+\right).
+]
+
+Initial pair colors distinguish:
+
+* diagonal pairs;
+* adjacent pairs;
+* nonadjacent pairs.
+
+The analysis uses the complete connected cubic-graph censuses at:
+
+* (n=14): 509 graphs;
+* (n=16): 4,060 graphs.
+
+The seven prediction targets are:
+
+* triangle count (C_3);
+* 4-cycle count (C_4);
+* 5-cycle count (C_5);
+* 6-cycle count (C_6);
+* girth;
+* diameter;
+* spectral gap.
+
+Two 2-WL representations are evaluated.
+
+### Cumulative all-rounds representation
+
+For each refinement round, the histogram of pair colors is computed. Histograms from all rounds are concatenated into a sparse feature vector:
+
+[
+\mathbf h_{\mathrm{cumulative}}(G)
+==================================
+
+\mathbf h_0(G)
+\oplus
+\mathbf h_1(G)
+\oplus
+\cdots
+\oplus
+\mathbf h_T(G).
+]
+
+This is the primary baseline. Early rounds retain shared motif-level colors that can transfer between training and test graphs.
+
+### Stable-only representation
+
+The second arm uses only the histogram at the final stable refinement round:
+
+[
+\mathbf h_{\mathrm{stable}}(G).
+]
+
+This representation has maximal distinguishing power on the tested censuses, but its final colors are highly graph-specific. It is included to separate two different properties:
+
+* ability to distinguish graphs;
+* ability to support transferable linear prediction.
+
+All graphs in a census are refined synchronously using one shared color vocabulary per round. Ridge probes use the same five shuffled folds and regularization grid as the QuIC E2 experiment.
+
+## Target and protocol checks
+
+The graph invariants are recomputed directly from the adjacency matrices.
+
+The cubic trace identities
+
+[
+\operatorname{tr}(A^3)=6C_3
+]
+
+and
+
+[
+\operatorname{tr}(A^4)=8C_4+15n
+]
+
+hold exactly for every graph at both orders.
+
+The ordinary 1-WL control also behaves exactly as expected. Every vertex retains the same color on every graph because the censuses are fixed-order and 3-regular. The resulting graph histogram is the constant vector:
+
+[
+(n).
+]
+
+Ordinary 1-WL therefore has no predictive variation and remains at the constant-predictor floor:
+
+[
+R^2=0.
+]
+
+This is asserted directly rather than estimated through unnecessary ridge fits.
+
+## Refinement behavior
+
+Folklore 2-WL stabilizes after five refinement checks at both graph orders.
+
+### (n=14)
+
+The per-round vocabulary sizes are:
+
+[
+3,\ 8,\ 1{,}894,\ 56{,}352,\ 56{,}708.
+]
+
+The cumulative representation has dimension:
+
+[
+114{,}965.
+]
+
+The stable-only representation has dimension:
+
+[
+56{,}708.
+]
+
+All 509 graphs have distinct stable histograms:
+
+[
+509/509.
+]
+
+### (n=16)
+
+The per-round vocabulary sizes are:
+
+[
+3,\ 8,\ 2{,}230,\ 741{,}367,\ 757{,}353.
+]
+
+The cumulative representation has dimension:
+
+[
+1{,}500{,}961.
+]
+
+The stable-only representation has dimension:
+
+[
+757{,}353.
+]
+
+All 4,060 graphs have distinct stable histograms:
+
+[
+4{,}060/4{,}060.
+]
+
+The refinement therefore distinguishes every graph in both complete censuses.
+
+The rapid vocabulary expansion is also notable. Most final-round colors are highly specific to individual graph structures. This produces excellent graph discrimination but little coordinate sharing between independently held-out graphs.
+
+## Cospectral separation
+
+The exact adjacency-cospectral groups are reconstructed using integer trace tuples.
+
+The censuses contain:
+
+* 3 cospectral pairs at (n=14);
+* 43 within-group pairs at (n=16), arising from 40 pairs and one triple.
+
+Stable 2-WL histograms separate every exact cospectral pair:
+
+[
+3/3
+\quad\text{at }n=14,
+]
+
+and
+
+[
+43/43
+\quad\text{at }n=16.
+]
+
+The comparisons use exact integer histogram counts. No numerical tolerance is involved.
+
+| Representation     | (n=14) cospectral pairs | (n=16) cospectral pairs |
+| ------------------ | ----------------------: | ----------------------: |
+| Ordinary 1-WL      |                     0/3 |                    0/43 |
+| Adjacency spectrum |                     0/3 |                    0/43 |
+| Folklore 2-WL      |                     3/3 |                   43/43 |
+| QuIC               |                     3/3 |                   43/43 |
+
+Folklore 2-WL and QuIC both distinguish every tested adjacency-cospectral pair. The adjacency spectrum ties by definition, while ordinary 1-WL assigns the same representation to every graph in each census.
+
+This result shows that cospectral separation is not unique to QuIC once a sufficiently strong higher-order classical representation is included.
+
+## Ridge-probe results
+
+### (n=14)
+
+| Target       | 2-WL all rounds | 2-WL stable only |  QuIC |
+| ------------ | --------------: | ---------------: | ----: |
+| (C_3)        | (0.998\pm0.001) | (-0.005\pm0.003) | 1.000 |
+| (C_4)        | (0.993\pm0.004) | (-0.025\pm0.022) | 0.998 |
+| (C_5)        | (0.917\pm0.038) | (-0.011\pm0.013) | 0.928 |
+| (C_6)        | (0.879\pm0.061) | (-0.004\pm0.002) | 0.485 |
+| Girth        | (0.787\pm0.071) | (-0.020\pm0.013) | 0.993 |
+| Diameter     | (0.779\pm0.031) | (-0.010\pm0.011) | 0.548 |
+| Spectral gap | (0.947\pm0.028) | (-0.004\pm0.004) | 0.944 |
+
+### (n=16)
+
+| Target       | 2-WL all rounds | 2-WL stable only |  QuIC |
+| ------------ | --------------: | ---------------: | ----: |
+| (C_3)        | (1.000\pm0.000) | (-0.007\pm0.007) | 1.000 |
+| (C_4)        | (0.999\pm0.000) | (-0.018\pm0.009) | 1.000 |
+| (C_5)        | (0.993\pm0.002) | (-0.001\pm0.001) | 0.982 |
+| (C_6)        | (0.983\pm0.003) | (-0.002\pm0.001) | 0.642 |
+| Girth        | (0.844\pm0.016) | (-0.006\pm0.002) | 0.999 |
+| Diameter     | (0.861\pm0.012) | (-0.010\pm0.007) | 0.737 |
+| Spectral gap | (0.982\pm0.002) | (-0.014\pm0.016) | 0.932 |
+
+## Short-cycle prediction
+
+The cumulative 2-WL representation nearly saturates the short-cycle targets.
+
+At (n=14), it obtains:
+
+[
+R^2=
+0.998,\ 0.993,\ 0.917
+]
+
+for (C_3,C_4,C_5).
+
+At (n=16), these increase to:
+
+[
+1.000,\ 0.999,\ 0.993.
+]
+
+QuIC and cumulative 2-WL are therefore closely matched on the first three cycle counts.
+
+At (n=14), QuIC is numerically slightly stronger:
+
+[
+1.000>0.998,
+]
+
+[
+0.998>0.993,
+]
+
+and
+
+[
+0.928>0.917.
+]
+
+At (n=16), the representations are effectively tied on (C_3) and (C_4), while cumulative 2-WL is slightly stronger on (C_5):
+
+[
+0.993>0.982.
+]
+
+The differences on these targets are small relative to the general conclusion: both representations make short-cycle information highly linearly accessible.
+
+The classical spectral moments remain exact controls for (C_3,C_4,) and (C_5). Neither QuIC nor 2-WL exceeds the direct spectral identities on those targets.
+
+## Six-cycle count
+
+The largest 2-WL advantage occurs for (C_6).
+
+At (n=14):
+
+[
+R^2_{\mathrm{2WL}}=0.879\pm0.061,
+]
+
+compared with:
+
+[
+R^2_{\mathrm{QuIC}}=0.485\pm0.326.
+]
+
+At (n=16):
+
+[
+R^2_{\mathrm{2WL}}=0.983\pm0.003,
+]
+
+compared with:
+
+[
+R^2_{\mathrm{QuIC}}=0.642\pm0.122.
+]
+
+Cumulative 2-WL therefore captures substantially more transferable 6-cycle information.
+
+The (n=16) score is almost saturated and has very little fold variation. This contrasts with QuIC, where 6-cycle accessibility is weaker and much less stable than the (C_3)–(C_5) hierarchy.
+
+The result limits any claim that QuIC provides uniquely broad cycle-count accessibility. A higher-order classical refinement recovers the longer-cycle target more effectively.
+
+## Girth
+
+Girth is the clearest QuIC advantage.
+
+At (n=14):
+
+[
+R^2_{\mathrm{QuIC}}=0.993,
+]
+
+compared with:
+
+[
+R^2_{\mathrm{2WL}}=0.787.
+]
+
+At (n=16):
+
+[
+R^2_{\mathrm{QuIC}}=0.999,
+]
+
+compared with:
+
+[
+R^2_{\mathrm{2WL}}=0.844.
+]
+
+QuIC makes girth almost perfectly linearly accessible, whereas cumulative 2-WL remains strong but incomplete.
+
+This result is notable because 2-WL already predicts the individual short-cycle counts extremely well. Nevertheless, its cumulative histogram does not translate those signals into an equally direct girth coordinate.
+
+QuIC’s near-perfect girth score therefore reflects a particularly favorable organization of short-cycle presence and absence within its probability geometry.
+
+## Diameter
+
+Cumulative 2-WL is substantially stronger on diameter.
+
+At (n=14):
+
+[
+0.779\pm0.031
+]
+
+versus QuIC’s:
+
+[
+0.548.
+]
+
+At (n=16):
+
+[
+0.861\pm0.012
+]
+
+versus:
+
+[
+0.737.
+]
+
+The ordering replicates across graph orders and becomes more stable in the larger census.
+
+This shows that the higher-order pair refinement captures global distance organization that is only partially accessible from the QuIC vector.
+
+The result also confirms that the comparison is not simply determined by local motif recovery. QuIC is stronger on girth, while 2-WL is stronger on diameter, despite both being shortest-path-related graph invariants.
+
+## Spectral gap
+
+Cumulative 2-WL predicts spectral gap strongly:
+
+[
+0.947\pm0.028
+]
+
+at (n=14), and
+
+[
+0.982\pm0.002
+]
+
+at (n=16).
+
+QuIC obtains:
+
+[
+0.944
+\quad\text{and}\quad
+0.932.
+]
+
+The two representations are approximately matched at (n=14), while 2-WL has a clearer advantage at (n=16).
+
+The sorted adjacency eigenvalue representation remains exact:
+
+[
+R^2=1.000.
+]
+
+Thus, both QuIC and 2-WL recover substantial spectral information, but neither improves upon directly providing the relevant eigenvalue coordinate.
+
+## Stable refinement versus transferable prediction
+
+The stable-only results are near or below the constant-predictor floor for every target:
+
+[
+R^2\approx0.
+]
+
+This occurs despite the fact that the stable histograms distinguish every graph in both censuses.
+
+There is no contradiction.
+
+The final refinement round creates highly graph-specific colors. A test graph may activate coordinates that appear rarely or never among the training graphs. A linear model therefore cannot learn useful coefficients for those coordinates.
+
+The cumulative representation avoids this failure by retaining early-round colors. Those colors are less discriminating but are shared across many graphs and correspond to recurring local or mesoscopic structures.
+
+The experiment therefore demonstrates a direct distinction:
+
+[
+\boxed{
+\text{distinguishing power}
+\neq
+\text{transferable linear accessibility}
+}
+]
+
+A representation can uniquely identify every graph while supporting no useful out-of-sample linear prediction.
+
+Conversely, the less-refined cumulative representation can sacrifice none of the relevant predictive structure because its earlier shared coordinates remain available.
+
+## Representation dimension
+
+The tested representation dimensions are:
+
+### (n=14)
+
+| Representation          | Dimension |
+| ----------------------- | --------: |
+| Ordinary 1-WL histogram |         1 |
+| Adjacency spectrum      |        14 |
+| QuIC                    |    16,384 |
+| 2-WL stable only        |    56,708 |
+| 2-WL cumulative         |   114,965 |
+
+### (n=16)
+
+| Representation          | Dimension |
+| ----------------------- | --------: |
+| Ordinary 1-WL histogram |         1 |
+| Adjacency spectrum      |        16 |
+| QuIC                    |    65,536 |
+| 2-WL stable only        |   757,353 |
+| 2-WL cumulative         | 1,500,961 |
+
+The cumulative 2-WL vocabulary is approximately:
+
+[
+7.0
+]
+
+times larger than the QuIC vector at (n=14), and approximately:
+
+[
+22.9
+]
+
+times larger at (n=16).
+
+The stable-only vocabulary is approximately:
+
+[
+3.5
+]
+
+and
+
+[
+11.6
+]
+
+times larger than QuIC at the two graph orders.
+
+These dimensions describe the ambient synchronized vocabulary. The 2-WL matrices are sparse, whereas the QuIC probability vectors are dense. Dimension alone therefore does not provide a complete storage or runtime comparison.
+
+Nevertheless, the classical baseline is not a compact feature representation. Its strong predictive performance is obtained using a very large census-specific vocabulary whose growth is substantially faster than the fourfold increase in QuIC dimension from (n=14) to (n=16).
+
+## Relationship to the GNN baselines
+
+The result clarifies the earlier E3 GNN comparison.
+
+Constant-feature GIN and GCN fail because their message-passing representations remain within the ordinary 1-WL regime. Their collapse is not evidence that classical graph representations generally lack access to these invariants.
+
+Folklore 2-WL provides the appropriate stronger control:
+
+* it distinguishes every graph;
+* it separates every adjacency-cospectral pair;
+* it nearly saturates (C_3) through (C_6);
+* it predicts diameter and spectral gap more strongly than QuIC.
+
+The QuIC contribution therefore should not be framed as superior expressive power over higher-order classical methods.
+
+The stronger framing is comparative:
+
+* QuIC and folklore 2-WL organize different targets with different linear accessibility;
+* QuIC provides nearly perfect girth and a compact probability-rank hierarchy;
+* 2-WL provides stronger (C_6), diameter, and spectral-gap accessibility;
+* both contain information beyond the adjacency spectrum;
+* their representation sizes and computational constructions are substantially different.
+
+## What the experiment establishes
+
+The completed results support six conclusions.
+
+1. **Ordinary 1-WL is exactly blind on the fixed-order cubic censuses.**
+   Its graph histogram is constant for every graph.
+
+2. **Folklore 2-WL distinguishes every graph at both orders.**
+   All 509 and all 4,060 stable histograms are unique.
+
+3. **Folklore 2-WL separates every exact adjacency-cospectral pair.**
+   It matches QuIC’s 3/3 and 43/43 cospectral-separation record.
+
+4. **The cumulative representation is a strong predictive baseline.**
+   It nearly saturates all cycle-count targets and performs strongly on diameter and spectral gap.
+
+5. **QuIC and 2-WL emphasize different structural quantities.**
+   QuIC is substantially stronger on girth, while 2-WL is substantially stronger on (C_6) and diameter.
+
+6. **Maximal refinement does not imply transferable prediction.**
+   The graph-unique stable histograms distinguish everything but produce near-zero held-out (R^2).
+
+The experiment therefore replaces the weak classical comparison with a meaningful higher-order baseline without eliminating the QuIC contribution.
+
+## Necessary qualifications
+
+The synchronized 2-WL vocabulary is constructed using the complete unlabeled census before the ridge folds are evaluated. No target labels are used, so this is not supervised target leakage. It is nevertheless a transductive feature-construction protocol.
+
+For a strictly inductive evaluation, the color-signature vocabulary should be fitted on the training graphs and then applied to unseen graphs using a deterministic treatment of previously unseen signatures. The present results characterize linear accessibility within the complete censuses under a shared unsupervised vocabulary.
+
+The cumulative representation has extremely high ambient dimension:
+
+[
+114{,}965
+\quad\text{and}\quad
+1{,}500{,}961.
+]
+
+Although the matrices are sparse, comparisons based only on feature count should not imply that QuIC is more computationally efficient. Exact QuIC state-vector construction also scales exponentially.
+
+The experiment evaluates linear probes on histogram counts. Other readouts, normalizations, or kernel functions could change the stable-only and cumulative results.
+
+The stable-only failure is specific to transfer through globally indexed histogram coordinates. It does not mean that the stable 2-WL partition lacks structural information. Its perfect census discrimination proves the opposite.
+
+The comparison does not establish a general expressive ordering between QuIC and folklore 2-WL. Both separate every tested cospectral pair, and no known pair in these censuses distinguishes one representation while tying the other.
+
+The target set is limited to seven graph invariants. In particular, the experiment does not test whether 2-WL’s cospectral differences predict Wiener index, radius, or automorphism-group order, which are the targets used in the QuIC functional cospectral challenge.
+
+The reported uncertainty reflects five graph folds. No paired significance analysis is reported for differences between the QuIC and 2-WL scores.
+
+Finally, the terminology must remain explicit. The implemented method is **folklore 2-WL on ordered pairs**, not the weaker oblivious pair-refinement convention that is sometimes also called 2-WL.
+
+## Overall assessment
+
+Folklore 2-WL is a strong and necessary classical baseline.
+
+It confirms that the failures of constant-feature GNNs arise from the ordinary 1-WL limitation rather than from a general inability of classical graph representations to recover the tested structure.
+
+The cumulative 2-WL representation nearly solves all four cycle counts at (n=16):
+
+[
+1.000,\ 0.999,\ 0.993,\ 0.983,
+]
+
+and it substantially outperforms QuIC on (C_6) and diameter. QuIC remains distinctly stronger on girth and closely matched on the first three cycle-count targets.
+
+The stable-only arm provides a second important result: perfect graph discrimination and perfect cospectral separation do not guarantee transferable linear prediction. Shared intermediate refinement colors, rather than maximally specific final colors, carry the useful predictive structure.
+
+The appropriate central claim is:
+
+> Folklore 2-WL provides a strong higher-order classical baseline for the complete cubic censuses. Its cumulative color histograms distinguish every graph, separate every adjacency-cospectral pair, and nearly saturate cycle-count prediction, substantially exceeding QuIC on 6-cycles and diameter. QuIC remains stronger on girth and comparably effective on shorter cycles. The stable-only 2-WL representation further shows that maximal distinguishing power can coexist with no transferable linear accessibility.
+
 ### E5 - Exploration of linear vs non linear methods.
 
 ##### Experimental design
@@ -4000,6 +4601,9 @@ The only substantive positive result is conditional C5 complementarity in S1 and
 The appropriate central claim is:
 
 > The structural hierarchy observed for flat-start QuIC on cubic graphs is not robust to nonregular fixed-degree-sequence families. Without explicit degree encoding, QuIC loses most standalone linear accessibility to cycle and metric invariants, while classical spectral coordinates remain substantially stronger. QuIC contributes limited complementary C5 information in two maximum-degree-4 strata, but no consistent advantage appears across all four families.
+
+
+
 
 ### E7 - Truncation
 
