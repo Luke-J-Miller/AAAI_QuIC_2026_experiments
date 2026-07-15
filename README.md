@@ -147,144 +147,499 @@ Every dataset is a complete enumeration or a seeded, deduplicated sample. SEED =
 ## Full Description of Experiments
 
 ### E1 - Stratified Residue
-#### N14
+
 ##### Experimental design
 
-The notebook analyzes the complete set of **509 connected 3-regular graphs on 14 vertices**. Each graph is represented by its full, sorted QuIC probability vector of dimension $2^{14}=16{,}384$, generated with one noiseless circuit repetition and fixed canonical angles.
+The experiment analyzes the complete connected cubic-graph censuses at two graph orders:
 
-This is a particularly clean test bed:
+* **509 graphs at (n=14)**;
+* **4,060 graphs at (n=16)**.
 
-- Every graph has the same order and degree sequence.
-- The degree-encoding rotations are therefore identical across graphs.
-- Bitstring identities are discarded by sorting the probabilities.
-- Any geometric separation must arise from topology transmitted through the entangling circuit, rather than vertex degree or labeling.
+Each graph is represented by its full sorted QuIC probability vector:
 
-The experiment compares pairwise $L_1$ distances between QuIC embeddings with absolute differences in triangle, 4-cycle, and 5-cycle counts. Spearman Mantel tests assess whether graphs with more different cycle counts also lie farther apart in embedding space.
+[
+\mathbf p(G)\in\mathbb R^{2^n},
+]
 
-The stratified analyses then remove the dominant structural variables sequentially:
+with dimensions
 
-$$
+[
+2^{14}=16{,}384,
+\qquad
+2^{16}=65{,}536.
+]
+
+The vectors are generated using one noiseless circuit repetition and the same fixed canonical angles at both graph orders.
+
+These censuses provide a particularly clean test bed:
+
+* every graph within a census has the same order;
+* every graph is 3-regular and therefore has the same degree sequence;
+* the degree-encoding rotations are identical across all graphs;
+* bitstring identities are discarded by sorting the output probabilities;
+* any remaining geometric separation must arise from topology transmitted through the entangling circuit rather than from vertex degree or labeling.
+
+The experiment compares pairwise (L_1) distances between QuIC embeddings with absolute differences in:
+
+* triangle count;
+* 4-cycle count;
+* 5-cycle count.
+
+Spearman Mantel tests evaluate whether graphs that differ more strongly in a cycle statistic also lie farther apart in QuIC space.
+
+The analysis then removes the dominant structural variables sequentially:
+
+[
 \text{all graphs}
 \rightarrow
 \text{fixed triangle count}
 \rightarrow
 \text{fixed triangle and 4-cycle counts}.
-$$
+]
 
-This is the central strength of the experiment. It does not merely observe correlations among several mutually correlated graph statistics; it progressively conditions out the stronger statistics and examines the residual geometry.
+This stratified design distinguishes marginal association from residual organization. It does not merely observe that several correlated graph statistics are related to the embedding. It conditions out the stronger statistics and examines how the remaining geometry is organized.
 
 ##### Global results
 
-Across all 509 graphs:
+###### (n=14)
 
-| Structural quantity | Mantel $\rho$ | Permutation $p$ |
-|---|---:|---:|
-| Triangle count | 0.903 | 0.0001 |
-| 4-cycle count | 0.290 | 0.0001 |
-| 5-cycle count | 0.109 | 0.0001 |
-| Random control | 0.005 | 0.3152 |
+| Structural quantity | Mantel (\rho) | Permutation (p) |
+| ------------------- | ------------: | --------------: |
+| Triangle count      |         0.903 |          0.0001 |
+| 4-cycle count       |         0.290 |          0.0001 |
+| 5-cycle count       |         0.109 |          0.0001 |
+| Random control      |         0.005 |          0.3152 |
 
-The embedding geometry is therefore dominated by triangle count. Graphs differing substantially in their number of triangles are almost invariably farther apart in QuIC space.
+###### (n=16)
 
-The weaker global values for 4- and 5-cycles should not be interpreted as weak encoding. Globally, triangle variation dominates the distance ordering and masks lower-order structural effects. The subsequent strata demonstrate this directly.
+| Structural quantity | Mantel (\rho) | Permutation (p) |
+| ------------------- | ------------: | --------------: |
+| Triangle count      |         0.900 |          0.0001 |
+| 4-cycle count       |         0.303 |          0.0001 |
+| 5-cycle count       |         0.079 |          0.0001 |
+| Random control      |      (-0.007) |          0.9720 |
 
-The random-scalar control produces essentially zero correlation and a nonsignificant permutation result. This supports the claim that the observed associations are structural rather than generic consequences of comparing pairwise distance matrices.
+The global geometry is dominated by triangle count at both graph orders:
+
+[
+\rho_{\triangle}
+================
+
+0.903
+\quad\text{and}\quad
+0.900.
+]
+
+The replication is unusually close. Increasing the census from 509 to 4,060 graphs changes the global triangle correlation by only (0.003).
+
+The 4-cycle association is weaker globally but also stable:
+
+[
+0.290
+\rightarrow
+0.303.
+]
+
+The global 5-cycle association remains positive and statistically detectable but is small:
+
+[
+0.109
+\quad\text{at }n=14,
+]
+
+and
+
+[
+0.079
+\quad\text{at }n=16.
+]
+
+These smaller marginal values should not be interpreted as evidence that 4- and 5-cycle information is absent. Triangle differences dominate the pairwise distance ordering and mask the lower structural layers. The stratified analyses expose those layers directly.
+
+The random-scalar controls remain near zero and nonsignificant. This argues against the observed Mantel relationships arising generically from the dependence structure of pairwise distance matrices.
 
 ##### Fixed-triangle strata
 
-Five triangle-count strata contain at least 15 graphs, covering **490 of the 509 graphs**, or approximately **96.3%** of the enumeration.
+###### (n=14)
 
-Within each fixed-triangle stratum, the association with 4-cycle count becomes extremely strong:
+Five triangle-count strata contain at least 15 graphs. Together they include:
 
-| Triangle stratum | $n$ | C4 $\rho$ | C5 $\rho$ | Effective rank |
-|---|---:|---:|---:|---:|
-| 0 triangles | 110 | 0.968 | 0.320 | 2.90 |
-| 1 triangle | 122 | 0.954 | 0.179 | 2.88 |
-| 2 triangles | 139 | 0.926 | 0.200 | 3.06 |
-| 3 triangles | 74 | 0.906 | 0.175 | 2.87 |
-| 4 triangles | 45 | 0.898 | 0.203 | 2.79 |
+[
+490\text{ of }509
+]
 
-Once triangle count is fixed, 4-cycle differences almost completely organize pairwise embedding distances. The consistency is more important than any single value: every sufficiently large triangle stratum produces $\rho$ between 0.898 and 0.968.
+graphs, or approximately:
 
-The PCA results make the geometric claim more concrete. In the four largest strata, PC1 explains approximately 53–56% of the variance and has Spearman correlation between $-0.978$ and $-0.988$ with 4-cycle count. The sign is arbitrary because PCA eigenvectors may be reversed. In magnitude, PC1 is essentially a 4-cycle axis.
+[
+96.3%
+]
 
-This is stronger than saying that 4-cycle count is statistically associated with the embedding. It shows that, after triangle count is held constant, 4-cycle count corresponds almost directly to the leading direction of variation.
+of the complete census.
 
-The effective ranks near 3 are also notable. Although the raw vectors have 16,384 coordinates, most within-stratum variation occupies only a few effective dimensions. This is consistent with a compact structural organization of the probability spectrum. It does not prove that exactly three graph statistics determine the embedding, but it indicates that the observed geometry is highly constrained.
+| Triangle stratum | (n) | C4 (\rho) | C5 (\rho) | Effective rank |
+| ---------------- | --: | --------: | --------: | -------------: |
+| 0 triangles      | 110 |     0.968 |     0.320 |           2.90 |
+| 1 triangle       | 122 |     0.954 |     0.179 |           2.88 |
+| 2 triangles      | 139 |     0.926 |     0.200 |           3.06 |
+| 3 triangles      |  74 |     0.906 |     0.175 |           2.87 |
+| 4 triangles      |  45 |     0.898 |     0.203 |           2.79 |
+
+###### (n=16)
+
+Seven triangle-count strata contain at least 15 graphs. Together they include:
+
+[
+4{,}054\text{ of }4{,}060
+]
+
+graphs, or approximately:
+
+[
+99.85%.
+]
+
+| Triangle stratum |   (n) | C4 (\rho) | C5 (\rho) | Effective rank |
+| ---------------- | ----: | --------: | --------: | -------------: |
+| 0 triangles      |   792 |     0.964 |     0.238 |           2.99 |
+| 1 triangle       | 1,098 |     0.956 |     0.163 |           2.91 |
+| 2 triangles      | 1,094 |     0.928 |     0.139 |           3.06 |
+| 3 triangles      |   613 |     0.907 |     0.133 |           3.04 |
+| 4 triangles      |   319 |     0.900 |     0.169 |           3.01 |
+| 5 triangles      |   101 |     0.883 |     0.312 |           3.05 |
+| 6 triangles      |    37 |     0.853 |     0.503 |           3.04 |
+
+Once triangle count is fixed, 4-cycle differences almost completely organize pairwise QuIC distances.
+
+At (n=14),
+
+[
+\rho_{\mathrm{C4}}
+\in
+[0.898,0.968].
+]
+
+At (n=16),
+
+[
+\rho_{\mathrm{C4}}
+\in
+[0.853,0.964].
+]
+
+The slight decline in the smallest high-triangle strata does not change the central result. Every sufficiently populated triangle stratum at both graph orders shows a very strong positive association between 4-cycle-count difference and embedding distance.
+
+The result is not driven by one dominant triangle class. It persists across:
+
+* triangle-free graphs;
+* low-triangle graphs;
+* and the rarer high-triangle strata.
+
+The direct replication across seven (n=16) strata substantially strengthens the interpretation that 4-cycle count forms the second structural layer of QuIC geometry.
+
+##### Principal-component alignment within fixed-triangle strata
+
+The principal-component analysis asks whether 4-cycle count merely correlates with pairwise distances or directly defines the leading within-stratum direction.
+
+###### (n=14)
+
+In the four largest triangle strata:
+
+* PC1 explains approximately (53%)–(56%) of the variance;
+* its Spearman correlation with 4-cycle count lies between
+  [
+  -0.978
+  \quad\text{and}\quad
+  -0.988.
+  ]
+
+### (n=16)
+
+| Triangle stratum | PC1 variance | PC1–C4 Spearman (\rho) |
+| ---------------- | -----------: | ---------------------: |
+| 0 triangles      |        0.541 |               (-0.985) |
+| 1 triangle       |        0.547 |               (-0.980) |
+| 2 triangles      |        0.536 |               (-0.978) |
+| 3 triangles      |        0.541 |               (-0.981) |
+
+The PCA result replicates almost exactly.
+
+Across the four largest (n=16) strata, PC1 explains:
+
+[
+53.6%\text{--}54.7%
+]
+
+of the within-stratum variance and correlates with 4-cycle count at:
+
+[
+|\rho|
+======
+
+0.978\text{--}0.985.
+]
+
+The sign is arbitrary because PCA eigenvectors may be reversed. In magnitude, PC1 is effectively a 4-cycle axis.
+
+This is stronger than a generic statistical association. After triangle count is fixed, the leading geometric direction in QuIC space is almost a monotone coordinate for 4-cycle count.
+
+The effective-rank results are equally stable. Across both censuses, the fixed-triangle strata have effective ranks near:
+
+[
+3.
+]
+
+Although the raw vectors contain tens of thousands of coordinates, most within-stratum variation occupies only a few effective dimensions.
+
+This does not prove that the embedding is determined by exactly three cycle statistics. It shows that the observed geometry is highly constrained and substantially lower-dimensional than its ambient representation.
 
 ##### Fixed-triangle and fixed-4-cycle strata
 
-The second stratification exposes the 5-cycle signal. Across all 16 joint strata with at least 12 graphs, the association between embedding distance and 5-cycle-count difference is positive:
+The second stratification fixes both triangle and 4-cycle counts and tests whether 5-cycle differences organize the remaining geometry.
 
-$$
-\rho \in [0.316,0.926].
-$$
+###### (n=14)
 
-Several strata show very strong relationships:
+Sixteen joint strata contain at least 12 graphs.
 
-- $(\text{tri}=0,\text{C4}=1)$: $\rho=0.926$
-- $(1,2)$: $\rho=0.893$
-- $(0,2)$: $\rho=0.871$
-- $(1,1)$: $\rho=0.870$
-- $(2,1)$: $\rho=0.836$
+Across these strata:
 
-These joint strata contain **340 graphs**, approximately **66.8%** of the complete enumeration. Thus, the result is not based on a small exceptional subset.
+[
+\rho_{\mathrm{C5}}
+\in
+[0.316,0.926].
+]
 
-This resolves the apparently weak global 5-cycle result. Globally, 5-cycle variation is buried beneath triangle and 4-cycle organization. Once both are fixed, 5-cycle count becomes a substantial residual organizing variable.
+All reported associations are positive.
 
-The resulting interpretation is hierarchical:
+Several strata show particularly strong relationships:
 
-$$
+| ((C_3,C_4)) | (n) | C5 (\rho) |
+| ----------- | --: | --------: |
+| ((0,1))     |   — |     0.926 |
+| ((1,2))     |   — |     0.893 |
+| ((0,2))     |   — |     0.871 |
+| ((1,1))     |   — |     0.870 |
+| ((2,1))     |   — |     0.836 |
+
+The sixteen strata contain:
+
+[
+340
+]
+
+graphs, or approximately:
+
+[
+66.8%
+]
+
+of the complete (n=14) census.
+
+###### (n=16)
+
+Forty-three joint strata contain at least 12 graphs.
+
+Together they include:
+
+[
+3{,}944\text{ of }4{,}060
+]
+
+graphs, or approximately:
+
+[
+97.1%.
+]
+
+Across all 43 strata:
+
+[
+\rho_{\mathrm{C5}}
+\in
+[0.193,0.974].
+]
+
+Every association is positive, and 42 of the 43 strata have permutation:
+
+[
+p<0.05.
+]
+
+The only nonsignificant stratum is the smallest and weakest reported case:
+
+[
+(C_3,C_4)=(5,5),
+\qquad
+n=12,
+\qquad
+\rho=0.193,
+\qquad
+p=0.1463.
+]
+
+Representative strong strata include:
+
+| ((C_3,C_4)) | (n) | C5 (\rho) |
+| ----------- | --: | --------: |
+| ((0,0))     |  49 |     0.974 |
+| ((1,0))     |  64 |     0.964 |
+| ((3,0))     |  51 |     0.958 |
+| ((2,0))     |  80 |     0.955 |
+| ((0,1))     | 107 |     0.950 |
+| ((4,0))     |  23 |     0.950 |
+| ((0,2))     | 184 |     0.912 |
+| ((1,1))     | 199 |     0.888 |
+| ((1,2))     | 301 |     0.843 |
+| ((0,3))     | 170 |     0.805 |
+
+The (n=16) result resolves the weak global C5 correlation decisively.
+
+Globally,
+
+[
+\rho_{\mathrm{C5}}=0.079.
+]
+
+After triangles and 4-cycles are fixed, 5-cycle-count difference becomes a strong residual organizing variable across a broad range of joint strata.
+
+The effect is especially pronounced in strata with few or no 4-cycles. As the fixed 4-cycle count increases, the C5 correlation often becomes weaker, although it generally remains positive. This suggests that the residual geometry becomes more structurally heterogeneous in higher-cycle-density regions rather than following one uniform C5 axis.
+
+##### Replicated structural hierarchy
+
+The combined (n=14) and (n=16) results support the hierarchy:
+
+[
 \boxed{
 \text{triangles}
-\;\rightarrow\;
+\rightarrow
 \text{4-cycles}
-\;\rightarrow\;
+\rightarrow
 \text{5-cycles}
 }
-$$
+]
 
-The QuIC probability spectrum appears to organize these cubic graphs lexicographically or onion-like: shorter-cycle structure dominates first, while longer-cycle information remains recoverable in the residual geometry.
+The hierarchy appears in three distinct forms:
 
-## What the experiment establishes
+1. **Marginal dominance**
+   Triangle count has the strongest global association with embedding distance.
 
-The results provide strong evidence that the QuIC embedding is not merely injective or collision-free. Its metric geometry is meaningfully related to classical graph structure.
+2. **Conditional dominance**
+   Once triangles are fixed, 4-cycle count becomes the dominant within-stratum variable.
+
+3. **Residual organization**
+   Once both triangles and 4-cycles are fixed, 5-cycle count organizes the remaining geometry.
+
+The structure is therefore closer to a lexicographic or onion-like organization than to an undifferentiated mixture of motif statistics.
+
+Shorter-cycle variation controls the largest geometric scale. Longer-cycle information remains present but becomes visible only after the dominant shorter-cycle layers are conditioned out.
+
+The near-identical global, PCA, effective-rank, and stratified results across the two exhaustive censuses indicate that this is not an (n=14) artifact.
+
+##### Relationship to the later decoding experiments
+
+The Mantel analyses establish metric organization rather than direct prediction. The later E2 ridge-probe experiment supplies the missing decodability result.
+
+Using the complete QuIC vectors, linear probes obtain:
+
+| Target    | (n=14) (R^2) | (n=16) (R^2) |
+| --------- | -----------: | -----------: |
+| Triangles |        1.000 |        1.000 |
+| 4-cycles  |        0.998 |        1.000 |
+| 5-cycles  |        0.928 |        0.982 |
+
+The E1 hierarchy is therefore not merely geometric. The same structural quantities can be recovered from held-out embeddings with high predictive accuracy.
+
+E1 and E2 answer complementary questions:
+
+* E1 shows how graph space is organized;
+* E2 shows that the corresponding statistics are decodable.
+
+##### What the experiment establishes
+
+The combined results provide strong evidence that the QuIC embedding is not merely injective or collision-free. Its metric geometry is systematically organized by classical graph structure.
 
 More specifically, the experiment establishes that:
 
-1. The sorted probability vector retains substantial local-cycle information despite discarding bitstring identities.
-2. The representation distinguishes topology beyond graph order and degree sequence.
-3. Short-cycle statistics appear in an ordered hierarchy rather than as an undifferentiated collection of correlated features.
-4. Weak marginal correlation can conceal strong conditional structure.
-5. The embedding geometry is substantially lower-dimensional than its ambient probability-vector dimension.
+1. **The sorted probability vector retains substantial local-cycle information despite discarding bitstring identities.**
 
-This makes the result more interesting than a straightforward cycle-count correlation. The stratification suggests that QuIC has an internally organized structural spectrum.
+2. **The representation distinguishes topology beyond graph order and degree sequence.**
+
+3. **Short-cycle statistics appear in a replicated hierarchy rather than as an undifferentiated collection of correlated features.**
+
+4. **Weak marginal correlations can conceal strong conditional structure.**
+
+5. **Four-cycle count closely aligns with the dominant within-triangle-stratum principal direction.**
+
+6. **Five-cycle count organizes residual geometry after both stronger cycle statistics are fixed.**
+
+7. **The within-stratum geometry has effective rank near three despite ambient dimensions of (16{,}384) and (65{,}536).**
+
+8. **The hierarchy persists across both complete connected cubic-graph censuses.**
+
+The (n=16) replication changes the status of the result. The hierarchy is no longer an observation restricted to one small graph order. It is a stable property across two exhaustive censuses differing eightfold in sample size and fourfold in representation dimension.
 
 ##### Necessary qualifications
 
-The Mantel tests establish **metric organization**, not direct decodability. They show that differences in cycle counts track embedding distances. They do not demonstrate that a decoder can recover the exact count of each cycle type from a previously unseen embedding. A cross-validated regression or classification experiment would be needed for that stronger wording.
+The Mantel tests establish metric organization, not causation or unique coordinate recovery. The later ridge probes demonstrate decodability, but E1 alone does not show that cycle counts uniquely determine the embedding.
 
-The permutation $p$-values have resolution $1/(10{,}000+1)$. Values printed as 0.0001 are therefore at the Monte Carlo floor. Feeding these floor values into Fisher’s method produces extremely small combined values such as $10^{-15}$ and $10^{-40}$, but those numbers imply more precision than the permutation runs provide. The defensible conclusion is overwhelming combined evidence, not the exact reported exponent. More permutations or separate analytical treatment would be needed to emphasize the numerical combined $p$-values.
+The permutation (p)-values have resolution:
 
-The tests are one-sided. That is appropriate for a prespecified hypothesis that greater cycle-count differences should produce greater embedding distances, but it should be stated explicitly.
+[
+\frac{1}{10{,}000+1}.
+]
 
-The same random seed is reused for each stratum’s permutation test. This does not explain the effect sizes, but independent seed streams would be cleaner when the resulting $p$-values are combined using Fisher’s method.
+Values printed as (0.0001) are therefore at the Monte Carlo floor. Fisher combinations such as:
 
-Finally, the study concerns one graph family, one graph size, and one circuit parameterization. It establishes the hierarchy exhaustively for connected cubic graphs at $n=14$; it does not yet establish that the same hierarchy persists across graph orders, degree distributions, circuit angles, or repetitions.
+[
+10^{-20}
+\quad\text{or}\quad
+10^{-101}
+]
+
+should not be interpreted as numerically precise tail probabilities. They indicate overwhelming aggregate evidence under the tested permutation scheme, but their exact exponents are artifacts of replacing unresolved smaller values with the Monte Carlo floor.
+
+The tests are one-sided. This is appropriate for the prespecified hypothesis that larger cycle-count differences should correspond to larger embedding distances, but the directionality should be stated explicitly.
+
+The same random seed is reused across the stratum-level permutation tests. This does not explain the consistently large effect sizes, but independent random streams would be cleaner if Fisher-combined (p)-values are reported.
+
+The pairwise observations within a Mantel test are not independent. The permutation procedure addresses this dependence for each test, but raw pair counts should not be interpreted as the effective sample size.
+
+The joint-stratum threshold is:
+
+[
+n\ge12.
+]
+
+The weakest (n=16) result occurs in a stratum of exactly 12 graphs. Small-stratum estimates should be treated as less stable than the large-stratum results.
+
+The study still concerns one graph family, one circuit depth, and one canonical parameter setting. Replication from (n=14) to (n=16) establishes cross-order stability within connected cubic graphs. It does not establish the same hierarchy across arbitrary degree sequences, angles, or circuit repetitions.
+
+The nonregular E6 experiment shows that the flat-start hierarchy does not automatically transfer outside regular graph families. The degree-encoded E6 run is required to determine whether explicit degree information restores that structure.
+
+Finally, the embedded (n=16) dataset README is stale and incorrectly describes the (n=14), 509-graph dataset. The loaded arrays and stratum counts correspond to the 4,060-graph (n=16) census, but the metadata should be corrected before release.
 
 ##### Overall assessment
 
-This is a strong experiment for the claim that QuIC geometry reflects interpretable graph structure. The global test identifies triangle dominance, while the stratified tests reveal that 4- and 5-cycle information survives underneath that dominant axis. The near-perfect PC1 alignment with 4-cycle count is the clearest result.
+E1 now provides a strong replicated characterization of QuIC geometry.
+
+At both (n=14) and (n=16):
+
+* triangle count dominates global embedding distances;
+* 4-cycle count becomes the leading geometric axis after conditioning on triangles;
+* 5-cycle count organizes the residual geometry after conditioning on both triangles and 4-cycles;
+* the effective within-stratum dimension remains near three.
+
+The (n=16) results are particularly strong because the second-layer analysis covers approximately:
+
+[
+97.1%
+]
+
+of the complete census and finds positive C5 organization in all 43 sufficiently large joint strata.
 
 The appropriate central claim is:
 
-> On the exhaustive set of connected cubic graphs with 14 vertices, QuIC organizes graph space hierarchically by short-cycle structure: triangle count dominates globally, 4-cycle count dominates after conditioning on triangles, and 5-cycle count organizes the remaining geometry after conditioning on both.
+> Across the exhaustive connected cubic-graph censuses at (n=14) and (n=16), QuIC organizes graph space hierarchically by short-cycle structure. Triangle count dominates globally, 4-cycle count defines the leading direction after conditioning on triangles, and 5-cycle count organizes the remaining geometry after conditioning on both. The hierarchy is stable across graph orders and occupies only a few effective dimensions despite the exponentially large ambient representation.
 
-That claim is fully supported by the notebook. Claims of universal hierarchy or exact cycle-count decoding would require additional experiments.
-
-
-#### N16 
-Still broken--working on it.
 
 ### E2 Ridge Probe
 ##### Experimental design
