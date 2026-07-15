@@ -4543,3 +4543,358 @@ The appropriate central claim is:
 
 > Exact integer certification identifies 3 adjacency-cospectral groups at (n=14) and 41 at (n=16), exactly matching the earlier rounded-spectrum census. All groups agree on cycle counts through (C_7), girth, and diameter, but 29 of the 41 (n=16) groups differ in Wiener index, radius, or automorphism-group order. The non-spectral variation available for functional testing is therefore global metric and symmetry structure rather than additional short-cycle information.
 
+
+### E8B  Functional exact-cospectral challenge
+
+### Experimental design
+
+This experiment tests whether QuIC’s numerically certified non-spectral differences are functionally related to graph invariants that vary within exact adjacency-cospectral classes.
+
+The analysis uses the complete connected cubic-graph census at (n=16):
+
+* 4,060 total graphs;
+* 41 exact adjacency-cospectral groups;
+* 83 graphs belonging to those groups;
+* 40 cospectral pairs and one cospectral triple.
+
+Exact cospectrality is established using integer trace tuples
+
+[
+\left(
+	ext{tr}(A),
+	ext{tr}(A^2),
+\ldots,
+	ext{tr}(A^{16})
+\right),
+]
+
+rather than rounded numerical eigenvalues.
+
+The three targets identified by the preceding invariant audit are:
+
+* Wiener index;
+* (\log_2|	ext{Aut}(G)|);
+* radius.
+
+Only groups whose members differ on the target are included. This produces:
+
+| Target       |        Varying groups | Unequal-value pairs |    |    |
+| ------------ | --------------------: | ------------------: | -- | -- |
+| Wiener index |                    25 |                  26 |    |    |
+| (\log_2      | 	ext{Aut}(G) |                   ) | 14 | 14 |
+| Radius       |                     4 |                   4 |    |    |
+
+One equal-Wiener pair inside the cospectral triple is excluded.
+
+For each unequal pair ((G_i,G_j)), the task is to predict
+
+[
+	ext{sign}(y_i-y_j)
+]
+
+from the QuIC difference vector
+
+[
+\mathbf p_k(G_i)-\mathbf p_k(G_j),
+]
+
+where (\mathbf p_k) contains the (k) largest entries of the sorted QuIC probability vector.
+
+The tested truncation depths are:
+
+[
+k\in{100,400,1000,65536}.
+]
+
+Evaluation uses leave-one-cospectral-group-out cross-validation. All members and all pairs from a held-out group remain outside training. Both orientations of each training pair are included, and an intercept-free logistic model ensures that the decision function is antisymmetric:
+
+[
+f(\mathbf p_i-\mathbf p_j)
+==========================
+
+-f(\mathbf p_j-\mathbf p_i).
+]
+
+The regularization parameter is selected using group-wise inner cross-validation on the training groups only.
+
+### Main results
+
+| Target  |                (k) | Correct pairs | Accuracy | Balanced accuracy | Nominal one-sided (p) |       |        |
+| ------- | -----------------: | ------------: | -------: | ----------------: | --------------------: | ----- | ------ |
+| Wiener  |                100 |         18/26 |    0.692 |             0.709 |                0.0378 |       |        |
+| Wiener  |                400 |         18/26 |    0.692 |             0.721 |                0.0378 |       |        |
+| Wiener  |              1,000 |         16/26 |    0.615 |             0.606 |                0.1635 |       |        |
+| Wiener  |             65,536 |         14/26 |    0.538 |             0.539 |                0.4225 |       |        |
+| (\log_2 | 	ext{Aut} |             ) |      100 |             14/14 |                 1.000 | 1.000 | 0.0001 |
+| (\log_2 | 	ext{Aut} |             ) |      400 |             11/14 |                 0.786 | 0.771 | 0.0287 |
+| (\log_2 | 	ext{Aut} |             ) |    1,000 |             10/14 |                 0.714 | 0.688 | 0.0898 |
+| (\log_2 | 	ext{Aut} |             ) |   65,536 |             11/14 |                 0.786 | 0.771 | 0.0287 |
+| Radius  |                100 |           3/4 |    0.750 |             0.500 |                0.3125 |       |        |
+| Radius  |                400 |           4/4 |    1.000 |             1.000 |                0.0625 |       |        |
+| Radius  |              1,000 |           4/4 |    1.000 |             1.000 |                0.0625 |       |        |
+| Radius  |             65,536 |           4/4 |    1.000 |             1.000 |                0.0625 |       |        |
+
+The reported (p)-values are those produced by the notebook’s one-sided binomial test against chance accuracy (0.5).
+
+##### Automorphism-group order
+
+Automorphism-group order provides the strongest functional result.
+
+Using only the first 100 sorted probabilities, QuIC correctly ranks all 14 unequal cospectral pairs:
+
+[
+14/14,
+\qquad
+\text{accuracy}=1.000.
+]
+
+The nominal exact binomial result is
+
+[
+p\approx6.1\times10^{-5},
+]
+
+with a one-sided exact 95% confidence interval beginning at approximately
+
+[
+0.807.
+]
+
+Performance remains above chance at larger truncation depths:
+
+[
+11/14
+]
+
+at (k=400) and for the complete vector, although the (k=1000) result falls to
+
+[
+10/14.
+]
+
+The perfect (k=100) result establishes that QuIC’s within-cospectral differences are aligned with graph symmetry rather than merely providing arbitrary numerical separation.
+
+Because every pair has exactly the same adjacency spectrum, this relationship cannot be recovered from any function of that spectrum alone.
+
+The automorphism result therefore supplies the clearest functional evidence for useful non-spectral information in the QuIC representation.
+
+##### Wiener index
+
+The Wiener-index result is weaker but suggestive.
+
+At both
+
+[
+k=100
+\quad\text{and}\quad
+k=400,
+]
+
+the ranker correctly orders
+
+[
+18/26
+]
+
+pairs:
+
+[
+\text{accuracy}=0.692.
+]
+
+The nominal one-sided binomial value is
+
+[
+p=0.0378,
+]
+
+with balanced accuracies of (0.709) and (0.721).
+
+Performance declines as more coordinates are included:
+
+[
+16/26
+]
+
+at (k=1000), and
+
+[
+14/26
+]
+
+for the complete vector.
+
+This pattern suggests that the Wiener-related signal is concentrated in the leading probability ranks and is diluted by the lower-probability tail.
+
+However, the evidence is marginal. The best QuIC result exceeds the numerical-spectrum control by only one correctly ranked pair:
+
+[
+18/26
+\quad\text{versus}\quad
+17/26.
+]
+
+Moreover, the permutation-null audit does not fully support the claimed exact binomial tail. The empirical null mean is close to one half,
+
+[
+0.5066,
+]
+
+but the empirical 95th percentile is 19 correct pairs, compared with 17 under the nominal binomial model. The observed Wiener result of 18 correct pairs therefore does not lie in the upper 5% of the notebook’s own empirical null distribution.
+
+The current result supports a possible Wiener signal, but it is not yet sufficient for a strong inferential claim.
+
+## Radius
+
+Radius is correctly ranked for all four varying cospectral pairs using:
+
+[
+k=400,\quad
+k=1000,
+\quad\text{and the full vector}.
+]
+
+At (k=100), three of four pairs are correct.
+
+The result is structurally interesting but cannot establish statistical evidence. Even perfect performance on four independent fair-coin comparisons has probability
+
+[
+\frac{1}{2^4}=0.0625.
+]
+
+Radius should therefore be presented as an illustrative exhibit rather than as a primary quantitative result.
+
+## Spectrum control
+
+The same ranking pipeline is applied to differences between the sorted adjacency eigenvalue vectors.
+
+The largest within-group eigenvalue discrepancy is only
+
+[
+5.77\times10^{-15},
+]
+
+consistent with floating-point eigensolver noise.
+
+| Target  |      Correct pairs | Accuracy | Nominal (p) |       |        |
+| ------- | -----------------: | -------: | ----------: | ----- | ------ |
+| Wiener  |              17/26 |    0.654 |      0.0843 |       |        |
+| (\log_2 | 	ext{Aut} |        ) |        9/14 | 0.643 | 0.2120 |
+| Radius  |                3/4 |    0.750 |      0.3125 |       |        |
+
+None of the spectrum controls reaches nominal significance.
+
+This is consistent with the exact-cospectral construction: the complete adjacency spectrum contains no information with which to distinguish members of a group.
+
+The nonzero control accuracies arise from the extremely small numerical eigensolver differences and the small number of evaluated pairs. The appropriate null comparison is ultimately a permutation distribution for the complete ranking pipeline rather than the numerical-spectrum scores alone.
+
+##### Localization within the probability head
+
+The strongest results occur at the smallest tested truncation depth.
+
+At (k=100):
+
+* automorphism order is ranked correctly for all 14 pairs;
+* Wiener index is ranked correctly for 18 of 26 pairs;
+* radius is ranked correctly for 3 of 4 pairs.
+
+Adding more coordinates does not consistently improve any target.
+
+This behavior is consistent with the preceding truncation and precision analyses, which found that the strongest structural and cospectral differences are concentrated disproportionately among the largest sorted probabilities.
+
+The result also reflects the statistical regime. The number of training groups is extremely small relative to the feature dimension. Increasing from 100 to 65,536 coordinates introduces substantial estimation variance without adding enough examples to constrain the additional coefficients.
+
+The experiment therefore demonstrates functional compression rather than a benefit from using the complete exponentially large vector.
+
+## Permutation-null audit
+
+The notebook performs 500 complete sign-flip refits for Wiener index at (k=100).
+
+The empirical null mean is:
+
+[
+0.5066,
+]
+
+close to the expected value (0.5). This provides evidence that the pipeline has no systematic directional bias or direct train/test leakage.
+
+The empirical and nominal null tails do not match exactly:
+
+[
+\text{empirical 5/50/95 percentiles}
+====================================
+
+(9,13,19),
+]
+
+while the binomial values are:
+
+[
+(9,13,17).
+]
+
+This discrepancy matters because leave-one-group-out predictions are generated from heavily overlapping training sets. The correctness indicators are therefore not guaranteed to be mutually independent, even if every held-out label is marginally independent of its prediction.
+
+Consequently, the nominal binomial test should not be described as exact for this pipeline. Target- and truncation-specific sign-flip permutation tests should be used for the final inferential results.
+
+##### What the experiment establishes
+
+The completed results support four conclusions.
+
+1. **QuIC’s non-spectral residue is functionally organized.**
+   Its within-group differences are related to at least one invariant that varies among exact adjacency-cospectral graphs.
+
+2. **Automorphism-group order provides the strongest evidence.**
+   The first 100 probabilities correctly rank all 14 unequal cospectral pairs.
+
+3. **The Wiener-index evidence is suggestive but not yet conclusive.**
+   The nominal (18/26) result is significant under an independent-binomial model but does not exceed the empirical 95th percentile of the notebook’s permutation audit.
+
+4. **The useful signal is concentrated in the probability head.**
+   The (k=100) representation performs as well as or better than longer truncations and the complete vector.
+
+The strongest supported statement is therefore about symmetry rather than shortest-path structure.
+
+##### Necessary qualifications
+
+The nominal binomial (p)-values assume independent pairwise correctness events. This assumption is not guaranteed because the leave-one-group-out models use overlapping training groups. The empirical null’s heavier upper tail confirms that the binomial distribution is not an exact description of the complete pipeline.
+
+A full sign-flip permutation test should be run separately for every reported target and truncation depth. The resulting empirical tail probabilities should replace the nominal binomial values.
+
+Four truncation depths are tested for each target. Unless one depth was designated as primary before examining the outputs, selecting the best result introduces a multiple-comparison issue. The Wiener value
+
+[
+p=0.0378
+]
+
+does not survive even a simple four-arm Bonferroni correction. The automorphism (k=100) result is much stronger and is likely to remain significant, but this should be verified empirically.
+
+The effective sample sizes are small:
+
+* 25 groups for Wiener index;
+* 14 for automorphism order;
+* 4 for radius.
+
+The results characterize the complete (n=16) cubic census, but they do not provide a broad population-level estimate across graph orders or graph families.
+
+The feature dimensions range from 100 to 65,536, while the training set contains at most 25 groups. Regularization and nested group-wise selection reduce overfitting, but the full-vector arms remain statistically extreme.
+
+The task demonstrates QuIC information beyond the adjacency spectrum. It does not establish superiority over other non-spectral classical graph representations such as higher-order Weisfeiler–Lehman features, graph kernels, or explicit symmetry descriptors.
+
+Finally, the inputs are exact ideal QuIC probabilities. The experiment does not test whether these within-cospectral ranking signals survive finite-shot sampling.
+
+##### Overall assessment
+
+This experiment fills the main logical gap left by the exact cospectral and precision audits.
+
+The earlier analyses established that QuIC assigns distinct, numerically genuine vectors to adjacency-cospectral graphs. The present experiment shows that those differences are not entirely arbitrary: the first 100 sorted probabilities correctly rank automorphism-group order for every one of the 14 unequal cospectral pairs.
+
+That is the strongest functional non-spectral result currently available.
+
+The Wiener-index result is less secure. Its nominal significance depends on an independence assumption not reproduced by the empirical permutation tail, and it does not clearly exceed the numerical-spectrum control. It should remain secondary unless a target-specific permutation analysis confirms it.
+
+The appropriate central claim is:
+
+> Within the complete (n=16) cubic census, QuIC’s certified non-spectral residue is functionally related to graph symmetry. A group-preserving ranker using only the first 100 sorted probabilities correctly orders automorphism-group size for all 14 unequal adjacency-cospectral pairs. Wiener-index ranking is suggestive but requires permutation-based confirmation, while radius remains an illustrative four-group exhibit.
+
+
