@@ -3154,3 +3154,495 @@ The appropriate central claim is:
 > Across the complete connected cubic-graph censuses at (n=14) and (n=16), the strong QuIC 5-cycle signal and the weaker 6-cycle signal cannot be reproduced from probability power sums through order eight using linear, RBF-kernel, or MLP readouts. Once the complete probability vector is retained, RBF kernel ridge provides no consistent advantage over linear ridge, indicating that most of the accessible structural information is already organized in approximately linear form.
 
 
+### E6 - Irregular Graphs
+## Experimental design
+
+This experiment tests whether the structural accessibility observed for cubic graphs persists when QuIC is applied to nonregular graphs without explicitly encoding vertex degrees.
+
+The dataset contains four fixed-degree-sequence strata at (n=14), with 400 connected, nonisomorphic graphs per stratum:
+
+| Stratum          | Degree sequence                     | Edges | Maximum degree |
+| ---------------- | ----------------------------------- | ----: | -------------: |
+| S1: near-regular | ((4,4,3^{\times10},2,2))            |    21 |              4 |
+| S2: bimodal      | ((4^{\times7},2^{\times7}))         |    21 |              4 |
+| S3: skewed       | ((5,5,4,4,3^{\times6},2^{\times4})) |    22 |              5 |
+| S4: hub          | ((6,4,4,3^{\times8},2,2,2))         |    22 |              6 |
+
+Graphs are generated using degree-preserving connected double-edge swaps and deduplicated through canonical graph6 representations.
+
+The circuit uses the same flat initialization that arises automatically on cubic graphs:
+
+[
+R_X(2.875)
+]
+
+on every qubit, followed by one round of:
+
+* (R_{ZZ}(2.0)) on each graph edge;
+* a uniform (R_X(0.1)) mixer.
+
+The encoder deliberately ignores vertex degree. This keeps the circuit map consistent with the cubic experiments and prevents nonregular graphs from receiving degree information as an explicit node feature.
+
+For each target, four representations are evaluated:
+
+1. sorted adjacency eigenvalues;
+2. adjacency trace moments
+   [
+   \operatorname{tr}(A^k),\qquad k=3,\ldots,8;
+   ]
+3. the full sorted QuIC probability vector;
+4. QuIC concatenated with a rescaled eigenvalue block.
+
+All analyses are performed separately within each fixed-degree-sequence stratum. Five frozen outer folds and nested ridge regularization are used.
+
+The reported differences are:
+
+[
+\Delta_{\mathrm{QuIC}}
+======================
+
+## R^2_{\mathrm{QuIC}}
+
+\max(R^2_{\mathrm{eig}},R^2_{\mathrm{moments}}),
+]
+
+and
+
+[
+\Delta_{\mathrm{concat}}
+========================
+
+## R^2_{\mathrm{concat}}
+
+\max(R^2_{\mathrm{eig}},R^2_{\mathrm{moments}}).
+]
+
+## Dataset construction and viability
+
+The sampler produced nearly complete uniqueness among its 600 candidates:
+
+| Stratum | Distinct candidates | Retained graphs |
+| ------- | ------------------: | --------------: |
+| S1      |             600/600 |             400 |
+| S2      |             593/600 |             400 |
+| S3      |             600/600 |             400 |
+| S4      |             600/600 |             400 |
+
+All 1,600 retained graphs are connected, have the required degree sequence, and possess distinct canonical graph6 strings.
+
+The live cycle targets have substantial within-stratum variation:
+
+| Stratum | C5 range | C5 standard deviation | C6 range | C6 standard deviation |
+| ------- | -------: | --------------------: | -------: | --------------------: |
+| S1      |      0–9 |                 1.840 |     1–16 |                 2.323 |
+| S2      |     0–13 |                 2.266 |     0–18 |                 3.147 |
+| S3      |     1–14 |                 2.484 |     2–22 |                 3.299 |
+| S4      |     1–14 |                 2.353 |     2–25 |                 3.339 |
+
+No target is constant within any stratum, although girth and radius have relatively little variation in several strata.
+
+The stored vectors pass normalization, sortedness, degree-sequence, and trace-identity checks. Independent NumPy circuit reconstructions agree with the stored vectors to maximum coordinate errors between
+
+[
+4.51\times10^{-17}
+]
+
+and
+
+[
+1.33\times10^{-15}.
+]
+
+The results therefore correspond to the intended flat-encoder circuit.
+
+## Main results
+
+### S1: near-regular
+
+| Target       |      Eigenvalues |         Moments |             QuIC |      QuIC + eig. | (\Delta_{\mathrm{QuIC}}) | (\Delta_{\mathrm{concat}}) |
+| ------------ | ---------------: | --------------: | ---------------: | ---------------: | -----------------------: | -------------------------: |
+| C3           |  (0.990\pm0.002) | (1.000\pm0.000) |  (0.449\pm0.714) |  (0.989\pm0.002) |                 (-0.551) |                   (-0.011) |
+| C4           |  (0.968\pm0.006) | (1.000\pm0.000) |  (0.095\pm0.048) |  (0.967\pm0.006) |                 (-0.905) |                   (-0.033) |
+| C5           |  (0.723\pm0.050) | (0.802\pm0.037) | (-0.017\pm0.056) |  (0.863\pm0.045) |                 (-0.819) |                   (+0.061) |
+| C6           |  (0.669\pm0.052) | (0.757\pm0.015) | (-0.021\pm0.012) |  (0.661\pm0.058) |                 (-0.778) |                   (-0.096) |
+| Girth        |  (0.468\pm0.048) | (0.343\pm0.072) |  (0.007\pm0.228) |  (0.436\pm0.063) |                 (-0.461) |                   (-0.032) |
+| Diameter     |  (0.372\pm0.069) | (0.369\pm0.089) | (-0.093\pm0.122) |  (0.257\pm0.146) |                 (-0.465) |                   (-0.115) |
+| Radius       | (-0.005\pm0.026) | (0.028\pm0.044) | (-0.064\pm0.077) | (-0.033\pm0.018) |                 (-0.092) |                   (-0.061) |
+| Wiener index |  (0.790\pm0.051) | (0.841\pm0.025) |  (0.184\pm0.147) |  (0.754\pm0.083) |                 (-0.657) |                   (-0.087) |
+| Spectral gap |  (1.000\pm0.000) | (0.891\pm0.009) |  (0.389\pm0.061) |  (1.000\pm0.000) |                 (-0.611) |                   (-0.000) |
+
+### S2: bimodal
+
+| Target       |     Eigenvalues |          Moments |             QuIC |      QuIC + eig. | (\Delta_{\mathrm{QuIC}}) | (\Delta_{\mathrm{concat}}) |
+| ------------ | --------------: | ---------------: | ---------------: | ---------------: | -----------------------: | -------------------------: |
+| C3           | (0.987\pm0.004) |  (1.000\pm0.000) |  (0.991\pm0.001) |  (0.991\pm0.002) |                 (-0.009) |                   (-0.009) |
+| C4           | (0.963\pm0.005) |  (1.000\pm0.000) |  (0.295\pm0.137) |  (0.962\pm0.004) |                 (-0.705) |                   (-0.038) |
+| C5           | (0.611\pm0.079) |  (0.716\pm0.088) |  (0.284\pm0.135) |  (0.834\pm0.031) |                 (-0.432) |                   (+0.118) |
+| C6           | (0.667\pm0.058) |  (0.710\pm0.016) |  (0.296\pm0.150) |  (0.693\pm0.109) |                 (-0.415) |                   (-0.018) |
+| Girth        | (0.159\pm0.130) |  (0.045\pm0.297) | (-0.014\pm0.044) |  (0.140\pm0.097) |                 (-0.173) |                   (-0.019) |
+| Diameter     | (0.280\pm0.127) |  (0.316\pm0.128) |  (0.110\pm0.052) |  (0.284\pm0.118) |                 (-0.206) |                   (-0.032) |
+| Radius       | (0.008\pm0.082) | (-0.010\pm0.150) | (-0.070\pm0.323) | (-0.118\pm0.340) |                 (-0.078) |                   (-0.126) |
+| Wiener index | (0.770\pm0.055) |  (0.813\pm0.061) |  (0.409\pm0.120) |  (0.833\pm0.027) |                 (-0.404) |                   (+0.019) |
+| Spectral gap | (1.000\pm0.000) |  (0.870\pm0.043) |  (0.595\pm0.123) |  (1.000\pm0.000) |                 (-0.405) |                   (-0.000) |
+
+### S3: skewed
+
+| Target       |     Eigenvalues |         Moments |             QuIC |     QuIC + eig. | (\Delta_{\mathrm{QuIC}}) | (\Delta_{\mathrm{concat}}) |
+| ------------ | --------------: | --------------: | ---------------: | --------------: | -----------------------: | -------------------------: |
+| C3           | (0.990\pm0.002) | (1.000\pm0.000) | (-0.047\pm0.042) | (0.990\pm0.002) |                 (-1.047) |                   (-0.010) |
+| C4           | (0.966\pm0.005) | (1.000\pm0.000) | (-0.018\pm0.025) | (0.965\pm0.006) |                 (-1.018) |                   (-0.035) |
+| C5           | (0.674\pm0.046) | (0.707\pm0.031) | (-0.019\pm0.017) | (0.687\pm0.034) |                 (-0.726) |                   (-0.020) |
+| C6           | (0.600\pm0.041) | (0.645\pm0.045) | (-0.023\pm0.019) | (0.630\pm0.035) |                 (-0.668) |                   (-0.015) |
+| Girth        | (0.166\pm0.050) | (0.091\pm0.031) | (-0.017\pm0.028) | (0.083\pm0.028) |                 (-0.183) |                   (-0.083) |
+| Diameter     | (0.262\pm0.049) | (0.255\pm0.049) |  (0.019\pm0.062) | (0.249\pm0.051) |                 (-0.243) |                   (-0.013) |
+| Radius       | (0.095\pm0.040) | (0.056\pm0.031) | (-0.013\pm0.038) | (0.071\pm0.054) |                 (-0.108) |                   (-0.024) |
+| Wiener index | (0.792\pm0.053) | (0.798\pm0.052) |  (0.097\pm0.049) | (0.790\pm0.051) |                 (-0.701) |                   (-0.008) |
+| Spectral gap | (1.000\pm0.000) | (0.922\pm0.017) |  (0.153\pm0.128) | (1.000\pm0.000) |                 (-0.847) |                   (-0.000) |
+
+### S4: hub
+
+| Target       |      Eigenvalues |         Moments |             QuIC |      QuIC + eig. | (\Delta_{\mathrm{QuIC}}) | (\Delta_{\mathrm{concat}}) |
+| ------------ | ---------------: | --------------: | ---------------: | ---------------: | -----------------------: | -------------------------: |
+| C3           |  (0.988\pm0.003) | (1.000\pm0.000) |  (0.378\pm0.161) |  (0.987\pm0.004) |                 (-0.622) |                   (-0.013) |
+| C4           |  (0.964\pm0.007) | (1.000\pm0.000) | (-0.034\pm0.079) |  (0.963\pm0.007) |                 (-1.034) |                   (-0.037) |
+| C5           |  (0.569\pm0.076) | (0.625\pm0.060) | (-0.050\pm0.057) |  (0.603\pm0.068) |                 (-0.675) |                   (-0.021) |
+| C6           |  (0.603\pm0.120) | (0.651\pm0.093) | (-0.038\pm0.038) |  (0.604\pm0.132) |                 (-0.688) |                   (-0.046) |
+| Girth        | (-0.008\pm0.240) | (0.009\pm0.222) | (-0.017\pm0.020) | (-0.036\pm0.203) |                 (-0.026) |                   (-0.045) |
+| Diameter     |  (0.214\pm0.092) | (0.182\pm0.082) | (-0.028\pm0.021) |  (0.164\pm0.080) |                 (-0.242) |                   (-0.051) |
+| Radius       |  (0.119\pm0.117) | (0.125\pm0.105) | (-0.035\pm0.023) |  (0.106\pm0.133) |                 (-0.160) |                   (-0.019) |
+| Wiener index |  (0.796\pm0.068) | (0.827\pm0.058) |  (0.075\pm0.075) |  (0.795\pm0.068) |                 (-0.752) |                   (-0.032) |
+| Spectral gap |  (1.000\pm0.000) | (0.884\pm0.028) |  (0.167\pm0.080) |  (1.000\pm0.000) |                 (-0.833) |                   (-0.000) |
+
+## Equal-weight aggregate
+
+The aggregate is the unweighted mean of the four stratum-level means. It is not a pooled regression across all 1,600 graphs.
+
+| Target       | Eigenvalues | Moments |     QuIC | QuIC + eig. | (\Delta_{\mathrm{QuIC}}) | (\Delta_{\mathrm{concat}}) |
+| ------------ | ----------: | ------: | -------: | ----------: | -----------------------: | -------------------------: |
+| C3           |       0.989 |   1.000 |    0.443 |       0.989 |                 (-0.557) |                   (-0.011) |
+| C4           |       0.965 |   1.000 |    0.085 |       0.964 |                 (-0.915) |                   (-0.036) |
+| C5           |       0.644 |   0.712 |    0.050 |       0.747 |                 (-0.663) |                   (+0.035) |
+| C6           |       0.635 |   0.691 |    0.053 |       0.647 |                 (-0.637) |                   (-0.044) |
+| Girth        |       0.196 |   0.122 | (-0.010) |       0.156 |                 (-0.211) |                   (-0.045) |
+| Diameter     |       0.282 |   0.281 |    0.002 |       0.238 |                 (-0.289) |                   (-0.053) |
+| Radius       |       0.054 |   0.050 | (-0.045) |       0.006 |                 (-0.109) |                   (-0.058) |
+| Wiener index |       0.787 |   0.820 |    0.191 |       0.793 |                 (-0.629) |                   (-0.027) |
+| Spectral gap |       1.000 |   0.892 |    0.326 |       1.000 |                 (-0.674) |                   (-0.000) |
+
+## Consistency controls
+
+The classical controls behave as required.
+
+For every graph,
+
+[
+\operatorname{tr}(A^3)=6C_3.
+]
+
+Therefore the moment probe obtains:
+
+[
+R^2=1.000
+]
+
+for triangle count in every stratum.
+
+For general graphs,
+
+[
+\operatorname{tr}(A^4)
+======================
+
+8C_4
++
+2\sum_v d_v^2
+-------------
+
+\sum_v d_v.
+]
+
+Because the complete degree sequence is fixed within each stratum, both degree-dependent terms are constant. The moment probe therefore also obtains:
+
+[
+R^2=1.000
+]
+
+for 4-cycle count in every stratum.
+
+The sorted-eigenvalue probe obtains:
+
+[
+R^2=1.000
+]
+
+for spectral gap in all four strata, as expected.
+
+These rows validate the dataset, target computations, spectral features, and cross-validation pipeline.
+
+They also demonstrate an important coordinate effect. The sorted eigenvalue representation reaches only approximately (0.96)–(0.99) on C3 and C4 despite containing the same spectral information. The moment coordinates expose the relevant power sums directly and make the relationships linear.
+
+## Five-cycle count
+
+C5 is the primary live target because the simple cubic identity relating (\operatorname{tr}(A^5)) to C3 and C5 no longer applies on nonregular graphs.
+
+The spectral baselines remain moderately strong but no longer exact:
+
+[
+R^2_{\mathrm{moments}}
+======================
+
+0.802,\ 0.716,\ 0.707,\ 0.625
+]
+
+across S1 through S4.
+
+The decline from S1 to S4 suggests that the moment coordinates become less sufficient as the degree distribution permits more heterogeneous local configurations. This is descriptive rather than a monotonic theorem, but the pattern is consistent across the selected strata.
+
+QuIC alone does not retain the strong C5 accessibility observed on cubic graphs:
+
+[
+R^2_{\mathrm{QuIC}}
+===================
+
+-0.017,\ 0.284,\ -0.019,\ -0.050.
+]
+
+Only the bimodal stratum contains a meaningful standalone signal.
+
+The concatenated representation gives a more nuanced result.
+
+For the two maximum-degree-4 strata:
+
+[
+\Delta R^2_{\mathrm{concat}}
+============================
+
++0.061
+\quad\text{and}\quad
++0.118.
+]
+
+In S1, QuIC has essentially no standalone C5 accessibility but improves the eigenvalue representation enough to exceed the stronger moment baseline. This indicates conditional or complementary structure that is not useful in isolation.
+
+In S2, QuIC has both a moderate standalone signal and a larger complementary contribution.
+
+The result does not persist in the more degree-skewed strata:
+
+[
+\Delta R^2_{\mathrm{concat}}
+============================
+
+-0.020
+\quad\text{and}\quad
+-0.021.
+]
+
+The aggregate gain is therefore only:
+
+[
++0.035.
+]
+
+The defensible conclusion is that QuIC contributes limited complementary C5 information in two strata, but the effect is not robust across all four fixed-degree-sequence families.
+
+## Six-cycle count
+
+The spectral moment probe remains moderately strong for C6:
+
+[
+R^2=0.645\text{--}0.757.
+]
+
+QuIC alone is near zero in three strata and reaches only:
+
+[
+R^2=0.296
+]
+
+in S2.
+
+The concatenated representation fails to outperform the best spectral baseline in every stratum:
+
+[
+\Delta R^2_{\mathrm{concat}}
+============================
+
+-0.096,\ -0.018,\ -0.015,\ -0.046.
+]
+
+There is therefore no evidence that the flat QuIC representation supplies useful additional C6 information beyond the tested spectral coordinates on these graph families.
+
+This contrasts with the cubic residual experiment, where QuIC recovered part of the spectral residual associated with the C6–diamond decomposition. That effect does not transfer automatically to nonregular fixed-degree-sequence strata.
+
+## Metric targets
+
+### Girth
+
+Girth has little variation within the strata, usually taking only the values three and four.
+
+The best spectral scores range from approximately zero to (0.47). QuIC remains near zero in all four strata, and concatenation does not improve the best spectral result.
+
+The near-perfect cubic girth accessibility therefore disappears under the flat nonregular experiment.
+
+### Diameter
+
+Eigenvalue and moment probes obtain modest scores:
+
+[
+R^2\approx0.18\text{--}0.37.
+]
+
+QuIC is approximately uninformative:
+
+[
+R^2=-0.093,\ 0.110,\ 0.019,\ -0.028.
+]
+
+Concatenation reduces performance in every stratum.
+
+### Radius
+
+Radius is poorly accessible from all tested representations. Spectral scores remain near zero, and QuIC scores are negative in all four strata.
+
+The target also has limited spread, particularly in S1, so these values should be treated as evidence of no detected signal rather than a precise performance hierarchy.
+
+### Wiener index
+
+The Wiener index is strongly linearly accessible from the spectral features:
+
+[
+R^2_{\mathrm{moments}}
+======================
+
+0.798\text{--}0.841.
+]
+
+QuIC alone ranges from:
+
+[
+0.075
+]
+
+to
+
+[
+0.409.
+]
+
+The only positive concatenation difference is the small S2 gain:
+
+[
+\Delta R^2=+0.019.
+]
+
+This does not replicate across the other strata. The aggregate concatenated score remains below the aggregate moment score.
+
+## Spectral gap
+
+The eigenvalue representation recovers spectral gap exactly, while QuIC obtains:
+
+[
+R^2=
+0.389,\ 0.595,\ 0.153,\ 0.167.
+]
+
+These values show that the flat QuIC vector retains some adjacency-spectral information, especially in S2, but far less than it retained on the cubic census.
+
+Adding the exact eigenvalue coordinate restores perfect performance, as expected.
+
+## Comparison with the cubic census
+
+The same flat encoder is used implicitly on cubic graphs because every vertex has the same degree. The change in performance is therefore not caused by changing the initial rotation angle or circuit depth.
+
+| Target       | Cubic (n=14) QuIC | E6 aggregate QuIC |
+| ------------ | ----------------: | ----------------: |
+| C3           |             1.000 |             0.443 |
+| C4           |             0.998 |             0.085 |
+| C5           |             0.928 |             0.050 |
+| C6           |             0.485 |             0.053 |
+| Girth        |             0.993 |          (-0.010) |
+| Diameter     |             0.548 |             0.002 |
+| Spectral gap |             0.944 |             0.326 |
+
+The short-cycle hierarchy observed on cubic graphs does not transfer to these nonregular families under the unchanged flat encoder.
+
+The failure is especially clear for C4 and C5. Both were strongly linearly accessible from cubic QuIC vectors, but their aggregate E6 scores fall to approximately zero.
+
+The S2 triangle result shows that the circuit is not uniformly uninformative on every nonregular family. Instead, accessibility is highly dependent on the degree-sequence stratum.
+
+## Interpretation
+
+The results are consistent with regularity playing a central role in the cubic QuIC geometry.
+
+On cubic graphs:
+
+* all vertices begin with the same encoder angle because their degrees are identical;
+* local walk-count identities simplify;
+* degree-related structural variation is absent;
+* sorted probabilities can organize the remaining topology along a small number of dominant directions.
+
+On nonregular graphs, the flat encoder deliberately treats degree-2, degree-4, degree-5, and degree-6 vertices identically before entanglement. The circuit must infer all degree-role information indirectly through the edge interactions.
+
+After the probabilities are sorted, coordinate identities are also discarded. The resulting representation may therefore lose access to which portions of the amplitude distribution arose from high-degree or low-degree structural roles.
+
+This offers a plausible explanation for the collapse in linear accessibility, but it is an interpretation rather than a causal result. A direct comparison with the degree-proportional encoder would be required to isolate the effect of degree injection.
+
+The experiment should therefore not be interpreted as showing that QuIC generally fails on nonregular graphs. It shows that the **flat-start QuIC representation characterized on cubic graphs is not robustly transferable to nonregular fixed-degree-sequence strata without degree encoding**.
+
+## What the experiment establishes
+
+The completed results support five main conclusions.
+
+1. **The dataset and analysis pipeline behave correctly.**
+   Exact C3 and C4 moment identities and exact spectral-gap decoding are recovered in every stratum.
+
+2. **The strong cubic QuIC hierarchy is not robust off the regular manifold.**
+   Standalone QuIC accessibility collapses for nearly every target across the four nonregular strata.
+
+3. **Classical spectral coordinates remain substantially stronger.**
+   Adjacency moments dominate QuIC for C3 through C6 and the Wiener index, while eigenvalues exactly recover spectral gap.
+
+4. **C5 contains limited conditional QuIC information.**
+   QuIC plus eigenvalues exceeds the strongest spectral baseline in S1 and S2, but the gain disappears in S3 and S4.
+
+5. **No corresponding complementarity appears for C6 or the metric targets.**
+   Concatenation generally matches or degrades the spectral baseline.
+
+The experiment is therefore primarily a negative robustness result, with a restricted positive C5 interaction in two degree-sequence families.
+
+## Necessary qualifications
+
+The four strata are sampled rather than exhaustively enumerated. Each stratum is generated from one degree-preserving swap chain. Canonical deduplication guarantees distinct graphs, but no mixing-time or autocorrelation analysis establishes that the 400 graphs are uniform or statistically independent samples from the realization space.
+
+Only four hand-selected degree sequences at (n=14) are tested. The results should not be generalized to all nonregular graphs or larger graph orders.
+
+The flat encoder is deliberately atypical for practical nonregular use. Degree-proportional encoding may restore substantial accessibility by supplying vertex-degree information. That arm is not evaluated here.
+
+The concatenated representation contains QuIC plus eigenvalues, but not the adjacency moment block. Its score is nevertheless compared against the better of eigenvalues and moments. Positive (\Delta_{\mathrm{concat}}) is therefore conservative, but negative values do not directly establish that QuIC contains no information beyond the full spectral feature set. A cleaner complementarity test would concatenate QuIC with both spectral blocks or fit a cross-fitted residual model.
+
+The run emits repeated ill-conditioned-matrix warnings during ridge fitting. The alpha grid extends to (10^{-14}), and the QuIC feature matrix has 16,384 columns but only 320 training graphs per outer fold. The main negative results are large enough to be qualitatively clear, but the exact QuIC and concatenated scores should be verified with a numerically stable solver or a safer regularization range.
+
+The large S1 triangle variance,
+
+[
+0.449\pm0.714,
+]
+
+is a visible example of fold instability.
+
+No paired statistical tests are reported for the fold-level differences. The C5 gains of (+0.061) and (+0.118) are descriptively meaningful, but their uncertainty should be evaluated directly before making inferential claims.
+
+Finally, several metric targets have low within-stratum variance. In particular, girth is nearly binary and radius occupies a narrow range. Cross-validated (R^2) is correspondingly sensitive to fold composition.
+
+## Overall assessment
+
+This experiment sharply limits the scope of the cubic results.
+
+The flat QuIC circuit retains exceptional short-cycle accessibility on connected cubic graphs, but that structure largely disappears once the graph family becomes nonregular. Across four fixed-degree-sequence strata, QuIC alone is substantially weaker than the spectral baselines on every target and is approximately uninformative for C4, C5, C6, girth, diameter, and radius.
+
+The only substantive positive result is conditional C5 complementarity in S1 and S2. In those strata, adding QuIC to the eigenvalue representation raises performance above the stronger moment baseline by (0.061) and (0.118). The effect does not survive in the skewed and hub strata.
+
+The appropriate central claim is:
+
+> The structural hierarchy observed for flat-start QuIC on cubic graphs is not robust to nonregular fixed-degree-sequence families. Without explicit degree encoding, QuIC loses most standalone linear accessibility to cycle and metric invariants, while classical spectral coordinates remain substantially stronger. QuIC contributes limited complementary C5 information in two maximum-degree-4 strata, but no consistent advantage appears across all four families.
+
