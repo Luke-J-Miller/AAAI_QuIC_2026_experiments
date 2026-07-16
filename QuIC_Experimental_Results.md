@@ -6749,6 +6749,765 @@ The appropriate central claim is:
 > Within the complete (n=16) cubic census, QuIC’s certified non-spectral residue is functionally related to graph symmetry. A group-preserving ranker using only the first 100 sorted probabilities correctly orders automorphism-group size for all 14 unequal adjacency-cospectral pairs. Wiener-index ranking is suggestive but requires permutation-based confirmation, while radius remains an illustrative four-group exhibit.
 
 
+### E9 — Mixer-Angle Expansion and Perturbative Mechanism
+
+#### Experimental design
+
+This experiment tests the perturbative interpretation of the QuIC mixer rather than inferring the mechanism from results obtained only at the canonical mixer angle.
+
+The mixer angle
+
+$$
+\beta
+$$
+
+is varied while all other circuit choices remain fixed:
+
+* degree-proportional (R_X) encoder;
+* entangler angle (2.0);
+* one (R_{ZZ}) gate per graph edge;
+* one entangler–mixer repetition;
+* canonical encoding rotation (2.875);
+* computational-basis measurement;
+* descending probability sorting.
+
+Because every graph is cubic, all vertices receive the same encoding rotation. The tested graph sets are:
+
+* the complete 509-graph census at (n=14);
+* a seeded subset of 500 graphs from the complete (n=16) census.
+
+The (n=16) subset is sampled without replacement using seed 0. It is used as a qualitative replication of the mechanism rather than as a second exhaustive-census result.
+
+The experiment tests four claims:
+
+1. the sorted probability representation collapses to a graph-independent vector at (\beta=0);
+2. the local cut finite differences take the predicted cubic-graph values;
+3. the analytic first-order coefficient matches the numerical derivative of the circuit probabilities;
+4. different graph properties become linearly accessible from different perturbative coefficients.
+
+A separate mixer-angle ladder evaluates:
+
+$$
+\beta\in
+{0.0125,0.025,0.05,0.1,0.2,0.4,0.8}.
+$$
+
+At each angle, the experiment measures:
+
+* median pairwise (L_1) distance between sorted QuIC vectors;
+* ridge-probe (R^2) for seven graph properties.
+
+All probe experiments use the first 1,000 sorted coordinates. The earlier truncation experiment showed that (k=1000) is effectively saturated for the tested targets at (n=14).
+
+#### Collapse at zero mixer angle
+
+At
+
+$$
+\beta=0,
+$$
+
+the circuit contains only the encoder and diagonal (R_{ZZ}) entanglers before measurement.
+
+The entangler changes computational-basis phases but not probability magnitudes. Since the cubic encoder is uniform, the probability of a bitstring depends only on its Hamming weight.
+
+For every graph at both orders, the notebook verifies that:
+
+* all bitstrings within each Hamming-weight level have the same probability;
+* the complete sorted probability vector is identical across graphs to within the (10^{-14}) audit tolerance.
+
+Thus,
+
+$$
+\mathbf p_{\beta=0}(G)
+======================
+
+\mathbf p_{\beta=0}(H)
+$$
+
+for every pair of graphs (G,H) in each tested set.
+
+The graph structure is therefore not directly visible in the zero-mixer measurement distribution. It is stored only in relative phases created by the entangler.
+
+The mixer is the operation that converts those graph-dependent phases into graph-dependent measurement probabilities.
+
+This establishes a clear mechanistic decomposition:
+
+$$
+\boxed{
+\text{entangler stores topology in phase}
+\quad\longrightarrow\quad
+\text{mixer converts phase into probability}
+}
+$$
+
+#### Cubic cut finite differences
+
+For a bitstring (x), write
+
+$$
+z_i\in{-1,+1}
+$$
+
+for the sign associated with bit (i). Flipping bit (i) changes the graph-cut contribution according to
+
+$$
+\Delta_i c(x)
+=============
+
+z_i\sum_{j\in N(i)}z_j.
+$$
+
+Because every vertex has degree three,
+
+$$
+\sum_{j\in N(i)}z_j
+\in
+{-3,-1,+1,+3}.
+$$
+
+The notebook verifies in exact integer arithmetic that
+
+$$
+\Delta_i c(x)
+\in
+{-3,-1,+1,+3}
+$$
+
+for every bitstring, every vertex, and every graph in both tested sets.
+
+This restricts the local phase differences mixed at first order to four discrete cut-change classes.
+
+#### Analytic first-order coefficient
+
+Let
+
+$$
+\phi(y)
+$$
+
+denote the pre-mixer amplitude of computational-basis state (y), after the encoder and entangler.
+
+The proposed first-order probability coefficient is
+
+$$
+D_1(y)
+======
+
+\sum_i
+\operatorname{Im}
+\left[
+\overline{\phi(y)}
+\phi(y\oplus e_i)
+\right],
+$$
+
+where (y\oplus e_i) denotes the bitstring obtained by flipping bit (i).
+
+The notebook independently estimates the derivative using the central difference
+
+$$
+D_1^{(h)}(y)
+============
+
+\frac{
+p_y(+h)-p_y(-h)
+}{
+2h
+},
+\qquad
+h=10^{-3}.
+$$
+
+The analytic and numerical values agree on every graph.
+
+| Graph set                | Worst coordinate error | Richardson-ratio range |
+| ------------------------ | ---------------------: | ---------------------: |
+| (n=14), complete census  |    (4.37\times10^{-6}) |  (3.999987)–(4.000000) |
+| (n=16), 500-graph subset |    (5.39\times10^{-6}) |  (3.999989)–(3.999999) |
+
+Halving the finite-difference step reduces the error by a factor of approximately four. This is the expected behavior of a central difference with error
+
+$$
+O(h^2).
+$$
+
+The result verifies that the analytic expression is the actual first-order coefficient of the implemented Qiskit circuit, rather than merely a qualitative analogy.
+
+#### Derivative representations
+
+The probability vector is degenerate at (\beta=0): all coordinates within the same Hamming-weight level have equal baseline probability.
+
+The ordinary sorted map is therefore not two-sided differentiable at zero. The physically relevant direction is:
+
+$$
+\beta\rightarrow0^+,
+$$
+
+toward the canonical positive mixer angle.
+
+The first-order feature vector is constructed by:
+
+1. ordering Hamming-weight blocks by their common (\beta=0) probability;
+2. ordering coordinates within each block by descending (D_1);
+3. retaining the first 1,000 coefficients.
+
+The second-order coefficient is estimated using:
+
+$$
+D_2(y)
+======
+
+\frac{
+p_y(+h)-2p_y(0)+p_y(-h)
+}{
+h^2
+}
+$$
+
+and placed in the ordering induced by the first-order coefficients.
+
+The resulting representations isolate information available from:
+
+* the first derivative (D_1);
+* the second derivative (D_2).
+
+#### Perturbative-order probe results
+
+##### (n=14): complete census
+
+| Target       | First-order (D_1) (R^2) | Second-order (D_2) (R^2) |
+| ------------ | ----------------------: | -----------------------: |
+| Triangles    |                   0.150 |                    1.000 |
+| 4-cycles     |                   0.204 |                    0.612 |
+| 5-cycles     |                   0.052 |                    0.180 |
+| 6-cycles     |                   0.046 |                    0.166 |
+| Girth        |                   0.025 |                    0.615 |
+| Diameter     |                (-0.008) |                    0.455 |
+| Spectral gap |                   0.419 |                    0.615 |
+
+##### (n=16): seeded 500-graph subset
+
+| Target       | First-order (D_1) (R^2) | Second-order (D_2) (R^2) |
+| ------------ | ----------------------: | -----------------------: |
+| Triangles    |                   0.183 |                    0.999 |
+| 4-cycles     |                   0.149 |                    0.260 |
+| 5-cycles     |                   0.083 |                    0.240 |
+| 6-cycles     |                   0.026 |                    0.204 |
+| Girth        |                   0.031 |                    0.317 |
+| Diameter     |                   0.011 |                    0.321 |
+| Spectral gap |                   0.063 |                    0.479 |
+
+The qualitative pattern is consistent across the two graph sets:
+
+* (D_1) provides limited linear accessibility to most targets;
+* (D_2) is stronger for every tested target;
+* triangle count is essentially exact from (D_2);
+* 5- and 6-cycle counts remain only weakly accessible from either isolated coefficient.
+
+#### Triangle count and second-order accessibility
+
+Triangle count is the clearest perturbative-order result.
+
+At both graph orders:
+
+$$
+R^2_{D_2}
+\approx1,
+$$
+
+while:
+
+$$
+R^2_{D_1}
+\approx0.15\text{--}0.18.
+$$
+
+Thus, triangle count is not linearly organized in the individual first-order coefficient coordinates. It becomes exactly linearly accessible from the second-order probability response.
+
+This is consistent with the previously derived purity mechanism. If
+
+$$
+p_y(\beta)
+==========
+
+p_y(0)
++
+\beta D_1(y)
++
+O(\beta^2),
+$$
+
+then a quadratic probability statistic contains a graph-dependent term proportional to
+
+$$
+\beta^2\sum_yD_1(y)^2.
+$$
+
+Triangle count can therefore enter through a quantity quadratic in the first-order amplitudes while remaining poorly accessible through a linear probe on (D_1) itself.
+
+The experiment refines the perturbative interpretation:
+
+> The mixer creates graph-dependent probability differences at first order, but the dominant linearly accessible triangle coordinate appears in the second-order probability response.
+
+#### Four-cycle count
+
+Four-cycle count also favors the second-order coefficient:
+
+$$
+0.204\rightarrow0.612
+$$
+
+at (n=14), and
+
+$$
+0.149\rightarrow0.260
+$$
+
+on the (n=16) subset.
+
+The effect is weaker and less stable than the triangle result. In particular, the (n=16) second-order score is substantially below the (n=14) score.
+
+The appropriate interpretation is that (D_2) contains meaningful 4-cycle information, but does not by itself reproduce the near-perfect 4-cycle accessibility of the finite-(\beta) sorted vector.
+
+The remaining signal may depend on:
+
+* higher perturbative orders;
+* interactions among derivative coefficients;
+* or changes in coordinate ordering as (\beta) moves away from zero.
+
+#### Five- and six-cycle counts
+
+Neither derivative block strongly predicts the longer-cycle targets.
+
+At (n=14):
+
+$$
+R^2_{D_2}
+=========
+
+0.180
+\quad\text{for }C_5,
+$$
+
+and
+
+$$
+0.166
+\quad\text{for }C_6.
+$$
+
+On the (n=16) subset:
+
+$$
+R^2_{D_2}
+=========
+
+0.240
+\quad\text{and}\quad
+0.204.
+$$
+
+The corresponding first-order scores remain near zero.
+
+This places the deeper cycle layers beyond the isolated first- and second-order linear coefficients. Their finite-angle accessibility must depend on higher-order terms, nonlinear combinations of lower-order coefficients, or both.
+
+The result is consistent with the truncation experiment:
+
+* triangle information appears in the extreme probability head;
+* 4-cycle information follows;
+* 5- and 6-cycle information requires progressively more of the developed finite-(\beta) distribution.
+
+#### Girth, diameter, and spectral gap
+
+Second-order coefficients also contain global structural information.
+
+At (n=14), (D_2) reaches:
+
+$$
+R^2=0.615
+$$
+
+for girth,
+
+$$
+0.455
+$$
+
+for diameter, and
+
+$$
+0.615
+$$
+
+for spectral gap.
+
+The (n=16) subset reproduces the ordering qualitatively, with scores of:
+
+$$
+0.317,\quad0.321,\quad0.479.
+$$
+
+These targets are not fully determined by the second-order response, but they are substantially more accessible from (D_2) than from (D_1).
+
+The (n=14) first-order spectral-gap score of (0.419) does not replicate on the (n=16) subset, where it falls to (0.063). That cell should therefore not be treated as a stable first-order assignment.
+
+#### Small-(\beta) geometric scaling
+
+The mixer-angle ladder directly measures how quickly the graph-dependent geometry emerges from the collapsed representation.
+
+##### Median pairwise (L_1) distance
+
+| (\beta) |  (n=14) median (L_1) | (n=16) subset median (L_1) |
+| ------: | -------------------: | -------------------------: |
+|  0.0125 | (1.230\times10^{-5}) |       (1.136\times10^{-5}) |
+|   0.025 | (2.398\times10^{-5}) |       (2.202\times10^{-5}) |
+|    0.05 | (4.600\times10^{-5}) |       (4.162\times10^{-5}) |
+|     0.1 | (8.493\times10^{-5}) |       (7.779\times10^{-5}) |
+|     0.2 | (1.805\times10^{-4}) |       (1.726\times10^{-4}) |
+|     0.4 | (8.624\times10^{-4}) |       (8.106\times10^{-4}) |
+|     0.8 | (3.119\times10^{-3}) |       (2.799\times10^{-3}) |
+
+Over the three smallest mixer angles, the log-log slopes are:
+
+$$
+0.951
+\quad\text{at }n=14,
+$$
+
+and
+
+$$
+0.937
+$$
+
+on the (n=16) subset.
+
+First-order geometric emergence predicts:
+
+$$
+d(\beta)
+\propto
+\beta.
+$$
+
+The measured slopes are close to one, providing direct evidence that the initial separation of graph embeddings is dominated by the first-order probability response.
+
+At larger angles, the growth becomes nonlinear. From (\beta=0.2) to (0.8), the median geometry increases much faster than the small-(\beta) linear extrapolation.
+
+Thus, the canonical angle
+
+$$
+\beta=0.1
+$$
+
+lies near the end of the approximately perturbative geometric regime, before the much stronger expansion observed at (\beta=0.4) and (0.8).
+
+#### Target accessibility across the mixer-angle ladder
+
+##### (n=14): complete census
+
+| (\beta) | (C_3) | (C_4) | (C_5) | (C_6) | Girth | Diameter | Spectral gap |
+| ------: | ----: | ----: | ----: | ----: | ----: | -------: | -----------: |
+|  0.0125 | 1.000 | 0.995 | 0.856 | 0.612 | 0.992 |    0.554 |        0.939 |
+|   0.025 | 1.000 | 0.994 | 0.789 | 0.522 | 0.992 |    0.539 |        0.936 |
+|    0.05 | 1.000 | 0.990 | 0.832 | 0.536 | 0.992 |    0.537 |        0.921 |
+|     0.1 | 1.000 | 0.998 | 0.928 | 0.484 | 0.993 |    0.548 |        0.944 |
+|     0.2 | 1.000 | 0.999 | 0.954 | 0.500 | 0.993 |    0.547 |        0.915 |
+|     0.4 | 1.000 | 0.999 | 0.971 | 0.500 | 0.990 |    0.550 |        0.942 |
+|     0.8 | 1.000 | 0.997 | 0.962 | 0.876 | 0.991 |    0.684 |        0.947 |
+
+##### (n=16): seeded 500-graph subset
+
+| (\beta) | (C_3) | (C_4) | (C_5) | (C_6) | Girth | Diameter | Spectral gap |
+| ------: | ----: | ----: | ----: | ----: | ----: | -------: | -----------: |
+|  0.0125 | 1.000 | 0.994 | 0.850 | 0.472 | 0.986 |    0.573 |        0.897 |
+|   0.025 | 1.000 | 0.994 | 0.761 | 0.137 | 0.986 |    0.568 |        0.874 |
+|    0.05 | 1.000 | 0.993 | 0.766 | 0.319 | 0.987 |    0.515 |        0.832 |
+|     0.1 | 1.000 | 0.993 | 0.960 | 0.459 | 0.987 |    0.627 |        0.861 |
+|     0.2 | 1.000 | 0.995 | 0.949 | 0.307 | 0.986 |    0.619 |        0.882 |
+|     0.4 | 1.000 | 0.994 | 0.901 | 0.498 | 0.986 |    0.558 |        0.857 |
+|     0.8 | 1.000 | 0.998 | 0.970 | 0.775 | 0.977 |    0.672 |        0.878 |
+
+#### Robust structural targets
+
+Triangle count is completely robust across the entire ladder:
+
+[
+R^2=1.000
+]
+
+at every tested angle and both graph orders.
+
+Four-cycle count is similarly stable:
+
+[
+R^2\ge0.990
+]
+
+at (n=14), and
+
+[
+R^2\ge0.993
+]
+
+on the (n=16) subset.
+
+Girth also remains nearly saturated:
+
+[
+R^2\ge0.990
+]
+
+at (n=14), and approximately:
+
+[
+0.977\text{--}0.987
+]
+
+on the (n=16) subset.
+
+These properties do not depend sensitively on selecting the canonical mixer angle. Their accessibility is stable across a 64-fold range of positive (\beta).
+
+This is a strong parameter-robustness result for the first two cycle layers and girth.
+
+## Five-cycle count
+
+Five-cycle accessibility is high throughout the ladder but varies more than (C_3), (C_4), and girth.
+
+At (n=14), performance ranges from:
+
+[
+0.789
+]
+
+to
+
+[
+0.971.
+]
+
+On the (n=16) subset, it ranges from:
+
+[
+0.761
+]
+
+to
+
+[
+0.970.
+]
+
+The canonical angle performs strongly:
+
+[
+R^2=0.928
+\quad\text{and}\quad
+0.960.
+]
+
+Larger angles generally improve the 5-cycle score, although the relationship is not monotone.
+
+The 5-cycle layer is therefore robustly present but less uniformly exposed than the shallower cycle targets.
+
+## Six-cycle count
+
+Six-cycle count is the most angle-sensitive target.
+
+At (n=14), scores range from:
+
+[
+0.484
+]
+
+to
+
+[
+0.876.
+]
+
+On the (n=16) subset, they range from:
+
+[
+0.137
+]
+
+to
+
+[
+0.775.
+]
+
+The strongest result occurs at:
+
+[
+\beta=0.8
+]
+
+for both graph sets.
+
+Relative to the canonical angle:
+
+[
+0.484\rightarrow0.876
+]
+
+at (n=14), and
+
+[
+0.459\rightarrow0.775
+]
+
+on the (n=16) subset.
+
+Thus, the weak canonical (C_6) result is not an invariant limitation of the circuit topology. A larger mixer angle makes substantially more 6-cycle information linearly accessible.
+
+This also shows that the canonical angle is not universally optimal. It preserves the shallow hierarchy well but underexposes the deepest tested cycle layer.
+
+## Diameter
+
+Diameter shows a smaller version of the same large-angle improvement.
+
+At (n=14):
+
+[
+R^2=0.548
+]
+
+at the canonical angle and
+
+[
+0.684
+]
+
+at (\beta=0.8).
+
+On the (n=16) subset:
+
+[
+0.627\rightarrow0.672.
+]
+
+The effect is weaker than for (C_6), but both graph sets attain their strongest diameter score at the largest tested mixer angle.
+
+## Spectral gap
+
+Spectral-gap prediction remains strong throughout the ladder but exhibits no simple monotone relationship with (\beta).
+
+At (n=14), scores remain within:
+
+[
+0.915\text{--}0.947.
+]
+
+On the (n=16) subset, they range from:
+
+[
+0.832
+]
+
+to
+
+[
+0.897.
+]
+
+The representation therefore retains substantial spectral information across all tested mixer angles.
+
+## Geometry magnitude versus decodability
+
+The small-(\beta) geometry is first-order in magnitude, but this does not imply that target decodability is carried linearly by the isolated first-order coefficient.
+
+For example:
+
+* (D_1) predicts triangle count poorly;
+* the complete sorted vector at (\beta=0.0125) predicts triangle count perfectly.
+
+This is not contradictory.
+
+A ridge model can amplify small higher-order differences when exact probabilities are available. The perturbative order governing the magnitude of the embedding distance is therefore not necessarily the same as the order at which a particular target becomes linearly decodable.
+
+The experiment distinguishes two concepts:
+
+[
+\boxed{
+\text{geometric emergence order}
+\neq
+\text{linear target-accessibility order}
+}
+]
+
+The overall graph geometry emerges at first order in (\beta), while triangle count is most directly organized in the second-order coefficient.
+
+## What the experiment establishes
+
+The completed results support seven conclusions.
+
+1. **QuIC collapses exactly at zero mixer angle.**
+   Before mixing, the sorted probability distribution is graph-independent and determined only by Hamming weight.
+
+2. **The mixer converts graph-dependent phase information into probability information.**
+   All measured structural accessibility is created by interference induced by the mixer.
+
+3. **The analytic first-order coefficient is correct.**
+   It matches the numerical derivative on every tested graph, with the expected second-order finite-difference convergence.
+
+4. **The initial graph geometry emerges linearly in the mixer angle.**
+   The small-(\beta) median-distance slopes are (0.951) and (0.937).
+
+5. **Triangle count is predominantly second-order in linear accessibility.**
+   It is nearly exact from (D_2) but weakly predicted from (D_1).
+
+6. **The shallow structural hierarchy is robust across a broad mixer-angle range.**
+   Triangles, 4-cycles, and girth remain almost perfectly accessible throughout the ladder.
+
+7. **Deeper structural accessibility is mixer-angle dependent.**
+   Six-cycle and diameter prediction improve substantially at (\beta=0.8).
+
+The experiment converts the small-mixer interpretation from a plausible narrative into a directly tested circuit mechanism.
+
+## Necessary qualifications
+
+The derivative features are constructed from unsorted probability derivatives and then block-sorted according to the (\beta\rightarrow0^+) ordering. Because the zero-angle vector contains large degenerate Hamming-weight blocks, the globally sorted representation is not ordinarily differentiable at zero.
+
+The second-order feature vector is evaluated in the ordering induced by (D_1). It is therefore an operational second-order representation rather than a complete coordinate-free decomposition of the sorted map.
+
+Linear accessibility from (D_2) does not prove that a target first appears mathematically at order (\beta^2). A target may be present nonlinearly in (D_1), and higher-order coefficients may also contain the same information.
+
+Conversely, strong (R^2) at very small positive (\beta) does not imply practical observability. At (\beta=0.0125), the median pairwise separation is only approximately:
+
+[
+10^{-5}.
+]
+
+Exact statevector probabilities allow a ridge model to exploit such differences. Finite-shot sampling may not resolve them.
+
+The beta-ladder scores use raw exact probabilities. Since ridge coefficients can rescale arbitrarily small feature differences, the ladder measures representational information rather than shot-efficient information.
+
+The (n=16) results use a seeded 500-graph subset, not the complete 4,060-graph census. They support qualitative replication of the mechanism but should not be presented as exhaustive (n=16) results.
+
+The first 1,000 coordinates are used rather than the full vectors. This is justified by the earlier truncation study at (n=14), but the same full-vector-equivalence guarantee was not independently established on the sampled (n=16) set for every beta value.
+
+The mixer-angle ladder is a finite grid. The result that (\beta=0.8) is best for (C_6) and diameter does not establish that it is globally optimal. Larger angles may improve or degrade performance further.
+
+No circuit angles other than (\beta) are varied. The experiment establishes robustness and mechanism with respect to the mixer, not the encoder or entangler parameters.
+
+Finally, the angle sweep evaluates several targets at seven parameter values. Small score differences should be treated descriptively rather than as separately tested inferential claims.
+
+## Overall assessment
+
+E9 provides the direct mechanistic test missing from the earlier structural experiments.
+
+At zero mixer angle, all cubic graphs produce the same sorted probability distribution. The entangler has encoded the graph only in phase. The mixer converts those phases into measurable probability differences, and the analytic first-order expression matches the implemented circuit derivative on every tested graph.
+
+The resulting graph geometry grows approximately linearly with (\beta) near zero, confirming first-order geometric emergence. The target-level decomposition is more structured: triangle count is nearly perfectly accessible from the second-order coefficient, while 4-cycles, longer cycles, girth, diameter, and spectral gap are only partially captured by the isolated first two orders.
+
+The parameter sweep also shows that the principal QuIC hierarchy is not a fragile consequence of choosing (\beta=0.1). Triangle, 4-cycle, and girth prediction remain nearly saturated over the complete tested range. Five-cycle prediction remains strong, while 6-cycle and diameter accessibility increase substantially at larger mixer angles.
+
+The appropriate central claim is:
+
+> QuIC’s structural geometry is created by mixer-induced conversion of graph-dependent phases into measurement probabilities. The zero-mixer representation collapses across all cubic graphs, the analytic first-order probability coefficient is verified against the implemented circuit, and median graph separation grows linearly with (\beta) near zero. Triangle information is predominantly accessible through the second-order response, while deeper cycle and metric information develops across higher orders and becomes substantially more visible at larger mixer angles.
 
 
 
