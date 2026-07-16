@@ -4902,6 +4902,600 @@ The appropriate central claim is:
 
 > On four fixed-degree-sequence nonregular graph strata, replacing QuIC’s uniform initialization with the canonical degree-proportional encoder does not restore the cubic structural hierarchy. Degree encoding reduces aggregate accessibility for all four cycle-count targets, eliminates the flat encoder’s C5 complementarity with spectral features, and leaves the higher-heterogeneity strata near the prediction floor. The failure of flat QuIC off the regular manifold therefore cannot be explained simply by missing degree information.
 
+### E6R — Circuit-Depth Ablation
+
+#### Experimental design
+
+This experiment tests whether increasing QuIC circuit depth restores the structural accessibility lost on nonregular graph families.
+
+The analysis uses the same 1,600 connected, nonisomorphic (n=14) graphs introduced in E6, divided into four fixed-degree-sequence strata:
+
+| Stratum          | Degree sequence                     | Maximum degree |
+| ---------------- | ----------------------------------- | -------------: |
+| S1: near-regular | ((4,4,3^{\times10},2,2))            |              4 |
+| S2: bimodal      | ((4^{\times7},2^{\times7}))         |              4 |
+| S3: skewed       | ((5,5,4,4,3^{\times6},2^{\times4})) |              5 |
+| S4: hub          | ((6,4,4,3^{\times8},2,2,2))         |              6 |
+
+Each stratum contains 400 graphs.
+
+The graph instances, targets, cross-validation folds, spectral features, encoder, gate angles, and probe protocol are identical to the original flat-encoder E6 experiment. The only changed variable is the number of entangler–mixer repetitions.
+
+##### One-repetition circuit
+
+> $$
+\text{Encoder}
+\rightarrow
+R_{ZZ}(2.0)
+\rightarrow
+R_X(0.1).
+$$
+
+##### Two-repetition circuit
+
+> $$
+\text{Encoder}
+\rightarrow
+R_{ZZ}(2.0)
+\rightarrow
+R_X(0.1)
+\rightarrow
+R_{ZZ}(2.0)
+\rightarrow
+R_X(0.1).
+$
+
+Both arms use the flat initialization
+
+> $$
+R_X(2.875)
+$$
+
+on every qubit.
+
+The two-repetition circuit is not equivalent to simply doubling either gate angle. The second entangler acts on a state already transformed by the first mixer, creating a genuinely deeper interference process.
+
+Nine graph targets are evaluated:
+
+* (C_3);
+* (C_4);
+* (C_5);
+* (C_6);
+* girth;
+* diameter;
+* radius;
+* Wiener index;
+* spectral gap.
+
+The experiment addresses three prespecified questions:
+
+1. Does greater depth improve cycle-count accessibility, particularly (C_5)?
+2. Does the original maximum-degree gradient persist?
+3. Do the positive C5 concatenation results in S1 and S2 persist or strengthen?
+
+#### Validation checks
+
+The comparison is exactly paired at the graph and fold levels.
+
+For every stratum:
+
+* all 400 graph6 identifiers match the one-repetition dataset;
+* graph ordering is identical;
+* targets are identical;
+* the five frozen folds are identical;
+* the two-repetition vectors are sorted and normalized;
+* independently reconstructed Qiskit vectors match the stored vectors exactly to displayed precision.
+
+The eigenvalue and adjacency-moment probes are recomputed and asserted to match the original E6 fold scores within:
+
+> $$
+10^{-6}.
+$$
+
+The classical controls also retain their expected identities:
+
+> $$
+R^2_{\mathrm{moments}}=1.000
+$$
+
+for (C_3) and (C_4), and
+
+> $$
+R^2_{\mathrm{eig}}=1.000
+$$
+
+for spectral gap.
+
+The resulting differences therefore isolate circuit depth rather than graph selection, fold composition, or classical-feature drift.
+
+#### Aggregate results
+
+The aggregate values are equal-weight means over the four degree-sequence strata rather than a pooled regression over all 1,600 graphs.
+
+| Target       | Best spectral | QuIC, 1 rep. | QuIC, 2 reps. | Difference | Concat., 1 rep. | Concat., 2 reps. | Difference |
+| ------------ | ------------: | -----------: | ------------: | ---------: | --------------: | ---------------: | ---------: |
+| (C_3)        |         1.000 |        0.443 |         0.553 |   (+0.110) |           0.989 |            0.990 |   (+0.001) |
+| (C_4)        |         1.000 |        0.085 |         0.064 |   (-0.021) |           0.964 |            0.964 |   (-0.000) |
+| (C_5)        |         0.712 |        0.050 |         0.066 |   (+0.016) |           0.747 |            0.733 |   (-0.014) |
+| (C_6)        |         0.691 |        0.053 |         0.047 |   (-0.006) |           0.647 |            0.653 |   (+0.006) |
+| Girth        |         0.201 |     (-0.010) |      (-0.009) |   (+0.002) |           0.156 |            0.167 |   (+0.011) |
+| Diameter     |         0.291 |        0.002 |         0.046 |   (+0.044) |           0.238 |            0.252 |   (+0.014) |
+| Radius       |         0.064 |     (-0.045) |      (-0.043) |   (+0.002) |           0.006 |         (-0.026) |   (-0.033) |
+| Wiener index |         0.820 |        0.191 |         0.088 |   (-0.103) |           0.793 |            0.801 |   (+0.008) |
+| Spectral gap |         1.000 |        0.326 |         0.236 |   (-0.090) |           1.000 |            1.000 |   (-0.000) |
+
+The second repetition does not broadly restore structural accessibility.
+
+The largest aggregate standalone improvement is for triangle count:
+
+> $$
+0.443\rightarrow0.553.
+$$
+
+Diameter also improves modestly:
+
+> $$
+0.002\rightarrow0.046.
+$$
+
+The remaining changes are small or negative. In particular:
+
+> $$
+C_4:
+0.085\rightarrow0.064,
+$$
+
+> $$
+C_5:
+0.050\rightarrow0.066,
+$$
+
+and
+
+> $$
+C_6:
+0.053\rightarrow0.047.
+$$
+
+The deeper circuit therefore does not recover the cubic hierarchy for (C_4), (C_5), or (C_6).
+
+#### S1: near-regular stratum
+
+| Target       | Best spectral |     QuIC, 1 rep. |    QuIC, 2 reps. | Difference |  Concat., 1 rep. | Concat., 2 reps. | Difference |
+| ------------ | ------------: | ---------------: | ---------------: | ---------: | ---------------: | ---------------: | ---------: |
+| (C_3)        |         1.000 |  (0.449\pm0.714) |  (0.729\pm0.176) |   (+0.280) |  (0.989\pm0.002) |  (0.989\pm0.002) |   (-0.000) |
+| (C_4)        |         1.000 |  (0.095\pm0.048) |  (0.053\pm0.105) |   (-0.042) |  (0.967\pm0.006) |  (0.967\pm0.005) |   (-0.000) |
+| (C_5)        |         0.802 | (-0.017\pm0.056) |  (0.029\pm0.068) |   (+0.045) |  (0.863\pm0.045) |  (0.776\pm0.120) |   (-0.087) |
+| (C_6)        |         0.757 | (-0.021\pm0.012) | (-0.032\pm0.034) |   (-0.011) |  (0.661\pm0.058) |  (0.657\pm0.056) |   (-0.004) |
+| Girth        |         0.468 |  (0.007\pm0.228) | (-0.093\pm0.469) |   (-0.099) |  (0.436\pm0.063) |  (0.417\pm0.069) |   (-0.019) |
+| Diameter     |         0.372 | (-0.093\pm0.122) | (-0.007\pm0.007) |   (+0.086) |  (0.257\pm0.146) |  (0.339\pm0.057) |   (+0.082) |
+| Radius       |         0.028 | (-0.064\pm0.077) | (-0.020\pm0.010) |   (+0.044) | (-0.033\pm0.018) | (-0.041\pm0.026) |   (-0.008) |
+| Wiener index |         0.841 |  (0.184\pm0.147) | (-0.359\pm1.080) |   (-0.543) |  (0.754\pm0.083) |  (0.785\pm0.053) |   (+0.031) |
+| Spectral gap |         1.000 |  (0.389\pm0.061) |  (0.133\pm0.489) |   (-0.256) |  (1.000\pm0.000) |  (1.000\pm0.000) |   (+0.000) |
+
+The main positive result in S1 is triangle count:
+
+$$
+R^2:
+0.449\rightarrow0.729.
+$$
+
+The large one-repetition fold variance also falls substantially:
+
+$$
+0.714\rightarrow0.176.
+$$
+
+Thus, greater depth makes the S1 triangle coordinate both stronger and more stable.
+
+This improvement does not extend to the deeper cycle targets. (C_4) declines, (C_5) remains near zero, and (C_6) remains below the prediction floor.
+
+The original positive C5 concatenation result also disappears. At one repetition:
+
+$$
+R^2_{\mathrm{concat}}=0.863
+
+>
+
+R^2_{\mathrm{moments}}=0.802.
+$$
+
+At two repetitions:
+
+$$
+R^2_{\mathrm{concat}}=0.776
+<
+0.802.
+$$
+
+The S1 Wiener and spectral-gap standalone results are highly unstable. Their large fold standard deviations indicate that the corresponding mean changes should not be treated as reliable structural effects.
+
+#### S2: bimodal stratum
+
+| Target       | Best spectral |     QuIC, 1 rep. |    QuIC, 2 reps. | Difference |  Concat., 1 rep. | Concat., 2 reps. | Difference |
+| ------------ | ------------: | ---------------: | ---------------: | ---------: | ---------------: | ---------------: | ---------: |
+| (C_3)        |         1.000 |  (0.991\pm0.001) |  (0.998\pm0.001) |   (+0.007) |  (0.991\pm0.002) |  (0.996\pm0.001) |   (+0.005) |
+| (C_4)        |         1.000 |  (0.295\pm0.137) |  (0.317\pm0.233) |   (+0.022) |  (0.962\pm0.004) |  (0.962\pm0.005) |   (-0.000) |
+| (C_5)        |         0.716 |  (0.284\pm0.135) |  (0.302\pm0.061) |   (+0.018) |  (0.834\pm0.031) |  (0.879\pm0.023) |   (+0.045) |
+| (C_6)        |         0.710 |  (0.296\pm0.150) |  (0.313\pm0.101) |   (+0.018) |  (0.693\pm0.109) |  (0.746\pm0.075) |   (+0.053) |
+| Girth        |         0.159 | (-0.014\pm0.044) |  (0.132\pm0.280) |   (+0.145) |  (0.140\pm0.097) |  (0.248\pm0.152) |   (+0.108) |
+| Diameter     |         0.316 |  (0.110\pm0.052) |  (0.198\pm0.039) |   (+0.088) |  (0.284\pm0.118) |  (0.291\pm0.106) |   (+0.008) |
+| Radius       |         0.008 | (-0.070\pm0.323) | (-0.112\pm0.345) |   (-0.042) | (-0.118\pm0.340) | (-0.205\pm0.315) |   (-0.086) |
+| Wiener index |         0.813 |  (0.409\pm0.120) |  (0.536\pm0.079) |   (+0.127) |  (0.833\pm0.027) |  (0.829\pm0.036) |   (-0.004) |
+| Spectral gap |         1.000 |  (0.595\pm0.123) |  (0.679\pm0.085) |   (+0.084) |  (1.000\pm0.000) |  (1.000\pm0.000) |   (-0.000) |
+
+S2 remains the healthiest nonregular stratum.
+
+Two repetitions improve every standalone target except radius. The largest stable improvements occur for:
+
+* diameter:
+  $$
+  0.110\rightarrow0.198;
+  $$
+* Wiener index:
+  $$
+  0.409\rightarrow0.536;
+  $$
+* spectral gap:
+  $$
+  0.595\rightarrow0.679.
+  $$
+
+The standalone cycle improvements are smaller:
+
+$$
+C_5:
+0.284\rightarrow0.302,
+$$
+
+and
+
+$$
+C_6:
+0.296\rightarrow0.313.
+$$
+
+The most important result is the C5 concatenation:
+
+$$
+R^2_{\mathrm{concat}}
+=====================
+
+0.879\pm0.023.
+$$
+
+This exceeds the strongest spectral baseline:
+
+$$
+R^2_{\mathrm{moments}}
+======================
+
+0.716
+$$
+
+by:
+
+$$
+\Delta R^2=+0.163.
+$$
+
+The corresponding one-repetition advantage was:
+
+$$
++0.118.
+$$
+
+Greater depth therefore strengthens the C5 complementarity in S2.
+
+The two-repetition concatenation also exceeds the strongest spectral baseline for:
+
+$$
+C_6:
+0.746>0.710,
+$$
+
+and nominally for:
+
+$$
+\text{girth}:
+0.248>0.159,
+$$
+
+and
+
+$$
+\text{Wiener index}:
+0.829>0.813.
+$$
+
+The C6 gain is modest, while the girth estimate has substantial fold variance. C5 remains the clearest positive complementarity result.
+
+#### S3: skewed stratum
+
+| Target       | Best spectral |     QuIC, 1 rep. |    QuIC, 2 reps. | Difference | Concat., 1 rep. | Concat., 2 reps. | Difference |
+| ------------ | ------------: | ---------------: | ---------------: | ---------: | --------------: | ---------------: | ---------: |
+| (C_3)        |         1.000 | (-0.047\pm0.042) | (-0.014\pm0.030) |   (+0.033) | (0.990\pm0.002) |  (0.990\pm0.002) |   (-0.000) |
+| (C_4)        |         1.000 | (-0.018\pm0.025) | (-0.018\pm0.077) |   (+0.000) | (0.965\pm0.006) |  (0.964\pm0.005) |   (-0.001) |
+| (C_5)        |         0.707 | (-0.019\pm0.017) | (-0.019\pm0.017) |   (-0.001) | (0.687\pm0.034) |  (0.684\pm0.033) |   (-0.004) |
+| (C_6)        |         0.645 | (-0.023\pm0.019) | (-0.017\pm0.022) |   (+0.006) | (0.630\pm0.035) |  (0.608\pm0.045) |   (-0.022) |
+| Girth        |         0.166 | (-0.017\pm0.028) | (-0.010\pm0.012) |   (+0.007) | (0.083\pm0.028) |  (0.068\pm0.013) |   (-0.015) |
+| Diameter     |         0.262 |  (0.019\pm0.062) |  (0.027\pm0.079) |   (+0.008) | (0.249\pm0.051) |  (0.214\pm0.056) |   (-0.034) |
+| Radius       |         0.095 | (-0.013\pm0.038) | (-0.015\pm0.023) |   (-0.003) | (0.071\pm0.054) |  (0.059\pm0.023) |   (-0.012) |
+| Wiener index |         0.798 |  (0.097\pm0.049) |  (0.116\pm0.079) |   (+0.019) | (0.790\pm0.051) |  (0.791\pm0.048) |   (+0.001) |
+| Spectral gap |         1.000 |  (0.153\pm0.128) |  (0.150\pm0.130) |   (-0.003) | (1.000\pm0.000) |  (1.000\pm0.000) |   (+0.000) |
+
+Depth has almost no effect in S3.
+
+Standalone QuIC remains near zero for all four cycle counts, girth, diameter, and radius. The small positive changes do not produce useful accessibility.
+
+The concatenated representation is also nearly unchanged or slightly weaker.
+
+This stratum therefore remains effectively inactive under both tested depths.
+
+#### S4: hub stratum
+
+| Target       | Best spectral |     QuIC, 1 rep. |    QuIC, 2 reps. | Difference |  Concat., 1 rep. | Concat., 2 reps. | Difference |
+| ------------ | ------------: | ---------------: | ---------------: | ---------: | ---------------: | ---------------: | ---------: |
+| (C_3)        |         1.000 |  (0.378\pm0.161) |  (0.498\pm0.134) |   (+0.120) |  (0.987\pm0.004) |  (0.986\pm0.004) |   (-0.000) |
+| (C_4)        |         1.000 | (-0.034\pm0.079) | (-0.097\pm0.116) |   (-0.063) |  (0.963\pm0.007) |  (0.963\pm0.007) |   (+0.001) |
+| (C_5)        |         0.625 | (-0.050\pm0.057) | (-0.047\pm0.059) |   (+0.003) |  (0.603\pm0.068) |  (0.592\pm0.069) |   (-0.011) |
+| (C_6)        |         0.651 | (-0.038\pm0.038) | (-0.075\pm0.070) |   (-0.037) |  (0.604\pm0.132) |  (0.600\pm0.113) |   (-0.004) |
+| Girth        |         0.009 | (-0.017\pm0.020) | (-0.063\pm0.058) |   (-0.046) | (-0.036\pm0.203) | (-0.064\pm0.228) |   (-0.028) |
+| Diameter     |         0.214 | (-0.028\pm0.021) | (-0.032\pm0.027) |   (-0.004) |  (0.164\pm0.080) |  (0.164\pm0.079) |   (+0.000) |
+| Radius       |         0.125 | (-0.035\pm0.023) | (-0.026\pm0.017) |   (+0.009) |  (0.106\pm0.133) |  (0.081\pm0.151) |   (-0.025) |
+| Wiener index |         0.827 |  (0.075\pm0.075) |  (0.060\pm0.103) |   (-0.014) |  (0.795\pm0.068) |  (0.798\pm0.070) |   (+0.003) |
+| Spectral gap |         1.000 |  (0.167\pm0.080) | (-0.017\pm0.081) |   (-0.184) |  (1.000\pm0.000) |  (1.000\pm0.000) |   (+0.000) |
+
+S4 gains a stronger triangle coordinate:
+
+$$
+0.378\rightarrow0.498.
+$$
+
+No corresponding improvement appears for (C_4), (C_5), or (C_6).
+
+Spectral-gap accessibility declines to the prediction floor, and the metric targets remain approximately uninformative.
+
+Greater depth therefore strengthens one shallow motif coordinate without repairing the broader structural collapse.
+
+## Cycle-count accessibility
+
+The aggregate cycle results are:
+
+| Target | One repetition | Two repetitions | Difference |
+| ------ | -------------: | --------------: | ---------: |
+| (C_3)  |          0.443 |           0.553 |   (+0.110) |
+| (C_4)  |          0.085 |           0.064 |   (-0.021) |
+| (C_5)  |          0.050 |           0.066 |   (+0.016) |
+| (C_6)  |          0.053 |           0.047 |   (-0.006) |
+
+Depth selectively improves triangle accessibility but does not move the deeper-cycle targets away from the aggregate prediction floor.
+
+This is important because (C_5) was the primary live target. Its aggregate gain is only:
+
+$$
++0.016.
+$$
+
+The improvement is concentrated in S2 and, to a smaller extent, S1. S3 and S4 remain inactive.
+
+The strong cubic hierarchy therefore cannot be recovered merely by adding a second identical entangler–mixer block.
+
+#### Maximum-degree gradient
+
+The original flat E6 experiment showed a pronounced degree-heterogeneity pattern:
+
+* S1 and especially S2 retained some useful QuIC structure;
+* S3 and S4 were largely inactive.
+
+That pattern persists under greater depth.
+
+##### Maximum-degree-4 strata
+
+S1 gains stronger triangle accessibility, while S2 improves across several targets and retains the strongest C5 result.
+
+##### Maximum-degree-5 stratum
+
+S3 remains near zero across nearly every standalone target.
+
+##### Maximum-degree-6 stratum
+
+S4 retains a moderate triangle signal but remains near zero on the other cycle and metric targets.
+
+The gradient therefore neither inverts nor disappears. Greater depth improves selected cells inside the healthier strata but does not make the more heterogeneous strata competitive.
+
+The broad ordering remains:
+
+$$
+\boxed{
+\Delta=4
+\text{ strata}
+;>;
+\Delta=5,6
+\text{ strata}
+}
+$$
+
+for useful standalone structural accessibility.
+
+#### Spectral complementarity
+
+The most important positive E6 result was the C5 improvement obtained by concatenating QuIC with the adjacency eigenvalues.
+
+At one repetition:
+
+$$
+\Delta R^2_{\mathrm{concat}}
+============================
+
++0.061
+$$
+
+in S1 and:
+
+$$
++0.118
+$$
+
+in S2.
+
+At two repetitions, the result separates by stratum.
+
+##### S1
+
+The complementarity disappears:
+
+$$
+0.776<0.802.
+$$
+
+### S2
+
+The complementarity strengthens:
+
+$$
+0.879-0.716
+===========
+
++0.163.
+$$
+
+The two-repetition S2 representation also produces smaller positive margins for C6 and Wiener index.
+
+The aggregate C5 concatenation score nevertheless declines:
+
+$$
+0.747\rightarrow0.733.
+$$
+
+Thus, greater depth does not produce general spectral complementarity. It concentrates a stronger complementary signal in the bimodal stratum while removing the corresponding result from the near-regular stratum.
+
+The S2 C5 result is real and substantial within that family, but it is not robust across degree-sequence strata.
+
+## Metric and spectral targets
+
+Depth produces modest standalone improvements for diameter:
+
+$$
+0.002\rightarrow0.046
+$$
+
+in the aggregate.
+
+This is driven primarily by S1 and S2. The resulting scores remain below the spectral baselines and do not indicate strong metric accessibility.
+
+Wiener index improves in S2:
+
+$$
+0.409\rightarrow0.536,
+$$
+
+but the aggregate score falls because of the unstable S1 result.
+
+Spectral-gap accessibility also improves in S2 but declines in S1 and S4, yielding an aggregate reduction:
+
+$$
+0.326\rightarrow0.236.
+$$
+
+The effects of depth are therefore family-specific rather than consistently beneficial.
+
+#### Interpretation
+
+The experiment rules out insufficient one-layer depth as a complete explanation for QuIC’s failure on nonregular graphs.
+
+A second entangler–mixer repetition changes the representation meaningfully. It improves triangle accessibility in several strata and strengthens C5 complementarity in S2. The circuit is therefore not simply saturated after one repetition.
+
+However, these changes do not produce a broad restoration of the cubic geometry.
+
+The deeper cycle targets remain near zero in the aggregate, the high-heterogeneity strata remain inactive, and the positive complementarity remains confined to one degree-sequence family.
+
+A plausible interpretation is that additional interference amplifies structural directions already present in a favorable graph family but does not create a common topology coordinate across heterogeneous local degree roles.
+
+The supported causal conclusion is narrower:
+
+> Increasing the flat QuIC circuit from one to two entangler–mixer repetitions selectively strengthens some existing signals, especially triangles and S2 C5 complementarity, but does not restore general structural accessibility on nonregular fixed-degree-sequence graphs.
+
+#### What the experiment establishes
+
+The completed depth ablation supports six conclusions.
+
+1. **A second repetition does not restore the cubic hierarchy.**
+   Aggregate (C_4), (C_5), and (C_6) accessibility remains near zero.
+
+2. **Triangle accessibility improves.**
+   Aggregate (C_3) rises from (0.443) to (0.553), with clear gains in S1 and S4.
+
+3. **The maximum-degree gradient persists.**
+   S1 and S2 remain healthier than S3 and S4.
+
+4. **C5 complementarity becomes concentrated in S2.**
+   The S2 concatenated score rises to (0.879), exceeding the spectral baseline by (0.163).
+
+5. **The S1 C5 complementarity disappears.**
+   The positive one-repetition result does not survive greater depth.
+
+6. **Depth produces selective rather than general improvement.**
+   Some target–stratum cells improve, but the aggregate representation remains substantially weaker than the classical spectral baselines.
+
+Together with E6D, the result shows that neither the canonical degree encoder nor one additional circuit repetition repairs the off-regularity collapse.
+
+#### Necessary qualifications
+
+The experiment evaluates only:
+
+$$
+\text{reps}=1
+\quad\text{and}\quad
+\text{reps}=2.
+$$
+
+Failure at two repetitions does not imply that all deeper circuits will behave similarly.
+
+Only the flat encoder is tested at two repetitions. The interaction between degree encoding and additional depth remains unmeasured.
+
+The circuit angles are not retuned after increasing depth. This preserves a clean ablation but may disadvantage the deeper circuit if its optimal angles differ from those of the one-repetition model.
+
+The analysis measures linear accessibility from exact sorted probability vectors. Nonlinear readouts could expose additional information, although the earlier nonlinear-readout experiment found no consistent improvement on the cubic representation.
+
+The QuIC feature matrices contain 16,384 coordinates with only 320 training graphs per outer fold. The alpha grid extends to:
+
+$$
+10^{-14}.
+$$
+
+Several cells exhibit substantial fold instability, most visibly:
+
+$$
+R^2=-0.359\pm1.080
+$$
+
+for S1 Wiener index. Such cells should not be interpreted from their means alone.
+
+No paired statistical tests are reported for the fold-level one- versus two-repetition differences. Large and stable changes are descriptively meaningful, while differences of a few hundredths should be treated cautiously.
+
+The concatenated representation rescales the eigenvalue block to match the QuIC block’s training-fold RMS. Because the QuIC RMS changes with circuit depth, the effective spectral scaling also changes between arms. Small concatenation differences may therefore reflect feature-block scaling as well as new complementary information.
+
+The four degree-sequence strata are sampled graph families at (n=14), not exhaustive nonregular censuses. The findings should not be generalized to all nonregular graphs.
+
+All results use ideal probabilities. E7S shows that much of QuIC’s exact structural accessibility requires very large shot budgets, so these depth effects should not be interpreted as immediately hardware-accessible.
+
+Finally, several notebook comments still refer to the depth dataset as degree encoded. The metadata assertions, graph checks, and Qiskit reconstruction confirm that the actual vectors use the flat encoder with two repetitions, but the stale comments should be corrected before release.
+
+#### Overall assessment
+
+E6R produces a mixed but ultimately negative depth-ablation result.
+
+Adding a second entangler–mixer block does affect the representation. Triangle accessibility improves, the bimodal stratum becomes stronger on several targets, and its C5 concatenation advantage grows from (0.118) to (0.163).
+
+These gains do not extend across the full experiment. The deeper cycle targets remain near the aggregate prediction floor, S3 and S4 remain largely inactive, and the near-regular C5 complementarity disappears.
+
+The result therefore strengthens the scope conclusion established by E6 and E6D. QuIC’s strong cubic organization is not recovered on these nonregular families by either explicit degree encoding or a second circuit repetition.
+
+The appropriate central claim is:
+
+> Increasing flat QuIC from one to two entangler–mixer repetitions selectively strengthens triangle accessibility and amplifies C5 complementarity in the bimodal degree-sequence stratum, but it does not restore the broader cubic hierarchy. Four-, five-, and six-cycle accessibility remains near the aggregate prediction floor, and the higher-heterogeneity strata remain largely inactive. The off-regularity collapse therefore cannot be attributed solely to insufficient circuit depth.
+
 
 ### E7 - Truncation
 
