@@ -4603,6 +4603,461 @@ The appropriate central claim is:
 > The structural hierarchy observed for flat-start QuIC on cubic graphs is not robust to nonregular fixed-degree-sequence families. Without explicit degree encoding, QuIC loses most standalone linear accessibility to cycle and metric invariants, while classical spectral coordinates remain substantially stronger. QuIC contributes limited complementary C5 information in two maximum-degree-4 strata, but no consistent advantage appears across all four families.
 
 
+# E6D — Degree-Encoding Ablation
+
+## Experimental design
+
+This experiment tests whether explicit degree encoding restores the structural accessibility that the flat QuIC encoder lost on nonregular graphs.
+
+The analysis uses the same 1,600 connected, nonisomorphic (n=14) graphs from E6, divided into four fixed-degree-sequence strata:
+
+| Stratum          | Degree sequence                     | Maximum degree |
+| ---------------- | ----------------------------------- | -------------: |
+| S1: near-regular | ((4,4,3^{\times10},2,2))            |              4 |
+| S2: bimodal      | ((4^{\times7},2^{\times7}))         |              4 |
+| S3: skewed       | ((5,5,4,4,3^{\times6},2^{\times4})) |              5 |
+| S4: hub          | ((6,4,4,3^{\times8},2,2,2))         |              6 |
+
+Each stratum contains 400 graphs.
+
+The graph instances, target values, cross-validation folds, spectral features, ridge probes, and circuit depth are identical to the flat-encoder experiment. The only changed component is the initial single-qubit encoding.
+
+### Flat encoder
+
+Every qubit receives the same rotation:
+
+[
+R_X(2.875).
+]
+
+### Degree encoder
+
+Vertex (i) receives:
+
+[
+R_X\left(
+2.875\frac{d_i}{\Delta}
+\right),
+]
+
+where (d_i) is its degree and (\Delta) is the maximum degree within the graph.
+
+The highest-degree vertices therefore receive the full (2.875) rotation, while lower-degree vertices receive proportionally smaller rotations.
+
+Both encoders then use:
+
+* (R_{ZZ}(2.0)) on every edge;
+* a uniform (R_X(0.1)) mixer;
+* one entangler–mixer repetition;
+* the full sorted ideal probability vector.
+
+The comparison evaluates nine targets:
+
+* (C_3);
+* (C_4);
+* (C_5);
+* (C_6);
+* girth;
+* diameter;
+* radius;
+* Wiener index;
+* spectral gap.
+
+Four probe columns are considered:
+
+1. the strongest classical spectral baseline;
+2. flat QuIC;
+3. degree-encoded QuIC;
+4. QuIC concatenated with the sorted eigenvalue vector.
+
+Because the graph sets and folds are identical, the flat-to-degree differences are paired comparisons at the fold level.
+
+## Validation checks
+
+The degree-encoded and flat datasets contain exactly the same canonical graph6 strings in the same order.
+
+For every stratum:
+
+* all 400 graph identities match;
+* the stored degree-encoded vectors are sorted and normalized;
+* the frozen five-fold splits exactly match the flat experiment;
+* the eigenvalue and adjacency-moment scores reproduce the flat analysis to within (10^{-6});
+* an independent Qiskit reconstruction of one vector per stratum matches the stored vector exactly to displayed precision.
+
+The ablation therefore changes only the initial degree-dependent rotation.
+
+## Aggregate results
+
+The aggregate values are equal-weight means over the four degree-sequence strata.
+
+| Target       | Best spectral | Flat QuIC | Degree QuIC | Degree − flat | Flat concat. | Degree concat. | Degree − flat |
+| ------------ | ------------: | --------: | ----------: | ------------: | -----------: | -------------: | ------------: |
+| (C_3)        |         1.000 |     0.443 |       0.057 |      (-0.386) |        0.989 |          0.975 |      (-0.014) |
+| (C_4)        |         1.000 |     0.085 |       0.031 |      (-0.054) |        0.964 |          0.920 |      (-0.044) |
+| (C_5)        |         0.712 |     0.050 |    (-0.003) |      (-0.053) |        0.747 |          0.600 |      (-0.147) |
+| (C_6)        |         0.691 |     0.053 |    (-0.005) |      (-0.058) |        0.647 |          0.560 |      (-0.087) |
+| Girth        |         0.201 |  (-0.010) |    (-0.018) |      (-0.008) |        0.156 |          0.032 |      (-0.124) |
+| Diameter     |         0.291 |     0.002 |       0.033 |      (+0.031) |        0.238 |          0.169 |      (-0.069) |
+| Radius       |         0.064 |  (-0.045) |    (-0.029) |      (+0.016) |        0.006 |       (-0.020) |      (-0.026) |
+| Wiener index |         0.820 |     0.191 |       0.085 |      (-0.106) |        0.793 |          0.691 |      (-0.102) |
+| Spectral gap |         1.000 |     0.326 |       0.123 |      (-0.203) |        1.000 |          0.996 |      (-0.004) |
+
+Explicit degree encoding does not restore the cubic structural hierarchy.
+
+Across the four cycle-count targets, standalone degree-encoded QuIC performs worse than the flat encoder:
+
+[
+\Delta R^2=
+-0.386,\ -0.054,\ -0.053,\ -0.058.
+]
+
+The degree-encoded representation is approximately uninformative for:
+
+[
+C_4,\quad C_5,\quad C_6.
+]
+
+It also reduces the QuIC contribution to Wiener index and spectral gap.
+
+The only aggregate improvements occur for diameter and radius:
+
+[
++0.031
+\quad\text{and}\quad
++0.016.
+]
+
+Both degree-encoded scores remain near zero and far below the spectral baselines. These changes do not constitute a useful recovery of metric information.
+
+## S1: near-regular stratum
+
+| Target       | Best spectral |        Flat QuIC |      Degree QuIC | Difference |     Flat concat. |   Degree concat. | Difference |
+| ------------ | ------------: | ---------------: | ---------------: | ---------: | ---------------: | ---------------: | ---------: |
+| (C_3)        |         1.000 |  (0.449\pm0.714) |  (0.260\pm0.080) |   (-0.189) |  (0.989\pm0.002) |  (0.982\pm0.004) |   (-0.007) |
+| (C_4)        |         1.000 |  (0.095\pm0.048) |  (0.035\pm0.086) |   (-0.061) |  (0.967\pm0.006) |  (0.933\pm0.010) |   (-0.034) |
+| (C_5)        |         0.802 | (-0.017\pm0.056) | (-0.015\pm0.014) |   (+0.001) |  (0.863\pm0.045) |  (0.759\pm0.066) |   (-0.104) |
+| (C_6)        |         0.757 | (-0.021\pm0.012) | (-0.022\pm0.017) |   (-0.001) |  (0.661\pm0.058) |  (0.588\pm0.049) |   (-0.073) |
+| Girth        |         0.468 |  (0.007\pm0.228) |  (0.015\pm0.033) |   (+0.008) |  (0.436\pm0.063) |  (0.252\pm0.051) |   (-0.184) |
+| Diameter     |         0.372 | (-0.093\pm0.122) | (-0.003\pm0.011) |   (+0.090) |  (0.257\pm0.146) |  (0.241\pm0.032) |   (-0.016) |
+| Radius       |         0.028 | (-0.064\pm0.077) | (-0.016\pm0.035) |   (+0.048) | (-0.033\pm0.018) | (-0.009\pm0.031) |   (+0.023) |
+| Wiener index |         0.841 |  (0.184\pm0.147) |  (0.009\pm0.077) |   (-0.175) |  (0.754\pm0.083) |  (0.698\pm0.047) |   (-0.057) |
+| Spectral gap |         1.000 |  (0.389\pm0.061) |  (0.072\pm0.051) |   (-0.317) |  (1.000\pm0.000) |  (0.996\pm0.001) |   (-0.004) |
+
+The degree encoder reduces the extreme variance of the flat (C_3) probe:
+
+[
+0.449\pm0.714
+\rightarrow
+0.260\pm0.080.
+]
+
+It therefore stabilizes that cell numerically, but only by lowering its mean performance.
+
+No cycle target improves materially. The flat encoder’s positive C5 concatenation result also disappears. The degree-encoded concatenation reaches:
+
+[
+R^2=0.759,
+]
+
+below the moment baseline:
+
+[
+R^2=0.802.
+]
+
+## S2: bimodal stratum
+
+| Target       | Best spectral |        Flat QuIC |      Degree QuIC | Difference |     Flat concat. |   Degree concat. | Difference |
+| ------------ | ------------: | ---------------: | ---------------: | ---------: | ---------------: | ---------------: | ---------: |
+| (C_3)        |         1.000 |  (0.991\pm0.001) |  (0.038\pm0.045) |   (-0.953) |  (0.991\pm0.002) |  (0.976\pm0.005) |   (-0.015) |
+| (C_4)        |         1.000 |  (0.295\pm0.137) |  (0.072\pm0.074) |   (-0.223) |  (0.962\pm0.004) |  (0.922\pm0.014) |   (-0.041) |
+| (C_5)        |         0.716 |  (0.284\pm0.135) |  (0.083\pm0.036) |   (-0.201) |  (0.834\pm0.031) |  (0.549\pm0.083) |   (-0.286) |
+| (C_6)        |         0.710 |  (0.296\pm0.150) |  (0.068\pm0.090) |   (-0.228) |  (0.693\pm0.109) |  (0.631\pm0.064) |   (-0.062) |
+| Girth        |         0.159 | (-0.014\pm0.044) | (-0.020\pm0.018) |   (-0.006) |  (0.140\pm0.097) | (-0.009\pm0.017) |   (-0.149) |
+| Diameter     |         0.316 |  (0.110\pm0.052) |  (0.117\pm0.039) |   (+0.006) |  (0.284\pm0.118) |  (0.315\pm0.060) |   (+0.031) |
+| Radius       |         0.008 | (-0.070\pm0.323) | (-0.056\pm0.201) |   (+0.014) | (-0.118\pm0.340) | (-0.024\pm0.214) |   (+0.094) |
+| Wiener index |         0.813 |  (0.409\pm0.120) |  (0.238\pm0.063) |   (-0.171) |  (0.833\pm0.027) |  (0.783\pm0.038) |   (-0.050) |
+| Spectral gap |         1.000 |  (0.595\pm0.123) |  (0.270\pm0.094) |   (-0.325) |  (1.000\pm0.000) |  (1.000\pm0.000) |   (-0.000) |
+
+S2 produced the strongest flat-encoder results in E6. Degree encoding removes nearly all of that advantage.
+
+The most dramatic change is triangle count:
+
+[
+R^2:
+0.991
+\rightarrow
+0.038.
+]
+
+The C4–C6 scores also fall sharply.
+
+The flat concatenated representation exceeded the strongest spectral C5 baseline:
+
+[
+0.834>0.716.
+]
+
+With degree encoding, the concatenated score falls to:
+
+[
+0.549.
+]
+
+Thus, the strongest positive complementarity result in the flat experiment does not survive the encoder change.
+
+## S3: skewed stratum
+
+| Target       | Best spectral |        Flat QuIC |      Degree QuIC | Difference |    Flat concat. |   Degree concat. | Difference |
+| ------------ | ------------: | ---------------: | ---------------: | ---------: | --------------: | ---------------: | ---------: |
+| (C_3)        |         1.000 | (-0.047\pm0.042) | (-0.024\pm0.036) |   (+0.023) | (0.990\pm0.002) |  (0.968\pm0.007) |   (-0.022) |
+| (C_4)        |         1.000 | (-0.018\pm0.025) |  (0.037\pm0.056) |   (+0.055) | (0.965\pm0.006) |  (0.901\pm0.016) |   (-0.063) |
+| (C_5)        |         0.707 | (-0.019\pm0.017) | (-0.011\pm0.010) |   (+0.008) | (0.687\pm0.034) |  (0.575\pm0.014) |   (-0.112) |
+| (C_6)        |         0.645 | (-0.023\pm0.019) | (-0.023\pm0.023) |   (-0.000) | (0.630\pm0.035) |  (0.477\pm0.058) |   (-0.152) |
+| Girth        |         0.166 | (-0.017\pm0.028) | (-0.006\pm0.004) |   (+0.011) | (0.083\pm0.028) | (-0.006\pm0.004) |   (-0.089) |
+| Diameter     |         0.262 |  (0.019\pm0.062) |  (0.053\pm0.034) |   (+0.034) | (0.249\pm0.051) |  (0.072\pm0.044) |   (-0.177) |
+| Radius       |         0.095 | (-0.013\pm0.038) | (-0.018\pm0.020) |   (-0.006) | (0.071\pm0.054) | (-0.018\pm0.020) |   (-0.089) |
+| Wiener index |         0.798 |  (0.097\pm0.049) |  (0.105\pm0.067) |   (+0.008) | (0.790\pm0.051) |  (0.602\pm0.048) |   (-0.188) |
+| Spectral gap |         1.000 |  (0.153\pm0.128) |  (0.105\pm0.116) |   (-0.048) | (1.000\pm0.000) |  (0.994\pm0.001) |   (-0.006) |
+
+The standalone differences in S3 are small because both encoders are approximately uninformative.
+
+Degree encoding produces minor positive changes for C3, C4, C5, girth, diameter, and Wiener index, but none reaches a competitive score.
+
+The concatenated representation becomes weaker for every target.
+
+## S4: hub stratum
+
+| Target       | Best spectral |        Flat QuIC |      Degree QuIC | Difference |     Flat concat. |   Degree concat. | Difference |
+| ------------ | ------------: | ---------------: | ---------------: | ---------: | ---------------: | ---------------: | ---------: |
+| (C_3)        |         1.000 |  (0.378\pm0.161) | (-0.045\pm0.108) |   (-0.423) |  (0.987\pm0.004) |  (0.974\pm0.006) |   (-0.013) |
+| (C_4)        |         1.000 | (-0.034\pm0.079) | (-0.020\pm0.030) |   (+0.014) |  (0.963\pm0.007) |  (0.924\pm0.012) |   (-0.039) |
+| (C_5)        |         0.625 | (-0.050\pm0.057) | (-0.069\pm0.062) |   (-0.019) |  (0.603\pm0.068) |  (0.519\pm0.072) |   (-0.084) |
+| (C_6)        |         0.651 | (-0.038\pm0.038) | (-0.043\pm0.031) |   (-0.005) |  (0.604\pm0.132) |  (0.543\pm0.083) |   (-0.061) |
+| Girth        |         0.009 | (-0.017\pm0.020) | (-0.062\pm0.080) |   (-0.045) | (-0.036\pm0.203) | (-0.109\pm0.157) |   (-0.074) |
+| Diameter     |         0.214 | (-0.028\pm0.021) | (-0.034\pm0.036) |   (-0.006) |  (0.164\pm0.080) |  (0.049\pm0.081) |   (-0.115) |
+| Radius       |         0.125 | (-0.035\pm0.023) | (-0.026\pm0.019) |   (+0.010) |  (0.106\pm0.133) | (-0.029\pm0.038) |   (-0.134) |
+| Wiener index |         0.827 |  (0.075\pm0.075) | (-0.012\pm0.106) |   (-0.087) |  (0.795\pm0.068) |  (0.680\pm0.092) |   (-0.115) |
+| Spectral gap |         1.000 |  (0.167\pm0.080) |  (0.045\pm0.062) |   (-0.122) |  (1.000\pm0.000) |  (0.995\pm0.001) |   (-0.005) |
+
+Degree encoding does not rescue the most heterogeneous stratum.
+
+Standalone scores remain at or below zero for nearly every structural target, and the remaining flat C3 signal disappears:
+
+[
+0.378
+\rightarrow
+-0.045.
+]
+
+The degree-encoded concatenated representation is weaker than the flat concatenation on every target.
+
+## Cycle-count results
+
+The central question was whether explicit degree rotations would restore cycle accessibility.
+
+They do not.
+
+### Aggregate standalone QuIC
+
+| Target |  Flat | Degree encoded |
+| ------ | ----: | -------------: |
+| (C_3)  | 0.443 |          0.057 |
+| (C_4)  | 0.085 |          0.031 |
+| (C_5)  | 0.050 |       (-0.003) |
+| (C_6)  | 0.053 |       (-0.005) |
+
+The cubic hierarchy:
+
+[
+C_3\rightarrow C_4\rightarrow C_5
+]
+
+does not reappear.
+
+The degree encoder is not merely unable to recover the deeper-cycle targets. It also removes much of the limited triangle signal retained by the flat representation.
+
+The result is especially clear in the two strata where the flat encoder had meaningful cycle accessibility:
+
+* S2 (C_3):
+  [
+  0.991\rightarrow0.038;
+  ]
+* S2 (C_5):
+  [
+  0.284\rightarrow0.083;
+  ]
+* S2 (C_6):
+  [
+  0.296\rightarrow0.068;
+  ]
+* S4 (C_3):
+  [
+  0.378\rightarrow-0.045.
+  ]
+
+Explicit degree information therefore does not provide the missing ingredient needed to transfer the cubic cycle geometry.
+
+## Complementarity with the adjacency spectrum
+
+The flat experiment contained two positive C5 concatenation results:
+
+[
+\Delta R^2_{\mathrm{concat}}
+============================
+
++0.061
+\quad\text{in S1},
+]
+
+and
+
+[
++0.118
+\quad\text{in S2}.
+]
+
+Neither persists under degree encoding.
+
+For S1:
+
+[
+R^2_{\mathrm{degree+eig}}=0.759
+<
+R^2_{\mathrm{moments}}=0.802.
+]
+
+For S2:
+
+[
+R^2_{\mathrm{degree+eig}}=0.549
+<
+R^2_{\mathrm{moments}}=0.716.
+]
+
+Across all strata and targets, the degree-encoded concatenated representation generally performs worse than the flat concatenated representation.
+
+The aggregate concatenation losses are largest for:
+
+* C5:
+  [
+  -0.147;
+  ]
+* girth:
+  [
+  -0.124;
+  ]
+* Wiener index:
+  [
+  -0.102;
+  ]
+* C6:
+  [
+  -0.087.
+  ]
+
+Degree encoding therefore weakens not only standalone linear accessibility but also the useful interaction between QuIC and the spectral coordinates.
+
+## Degree-heterogeneity gradient
+
+The flat experiment suggested that the representation was healthiest in the two (\Delta=4) strata and largely inactive in the more heterogeneous (\Delta=5) and (\Delta=6) strata.
+
+Degree encoding does not invert that pattern.
+
+The (\Delta=4) strata retain slightly more nonzero signal than S3 and S4 on some targets, but their strongest flat effects are substantially reduced. The result is therefore not a successful flattening of the degree-heterogeneity gradient.
+
+Instead, degree encoding makes the representation weak across nearly all four strata.
+
+The distinction between low- and high-maximum-degree families becomes less visible largely because the useful signal in S1 and S2 has been removed, not because S3 and S4 have improved.
+
+## Interpretation
+
+The negative result is informative because the degree encoder was a natural proposed explanation for the failure of flat QuIC on nonregular graphs.
+
+The cubic experiments use degree-proportional encoding, but all cubic vertices have degree three. The encoder is therefore uniform:
+
+[
+R_X(2.875)
+]
+
+on every qubit.
+
+It was plausible that nonregular graphs failed under the flat encoder because vertices of different degrees received identical initial rotations.
+
+The ablation rejects that simple explanation.
+
+Within every E6 stratum, the degree multiset is already fixed. Explicit degree encoding therefore does not add graph-level degree-sequence information. It changes how degree roles are distributed through the circuit and how those roles interact with the graph topology.
+
+The resulting probability geometry is generally less aligned with the tested graph invariants.
+
+One plausible interpretation is that the uniform initialization creates a comparatively clean topology-only interference pattern. Degree-dependent rotations introduce additional local heterogeneity that is not aligned with the dominant cycle and metric directions. Once the output probabilities are sorted, that heterogeneity may disperse rather than clarify the structural signal.
+
+This interpretation is consistent with the results but is not directly established by the experiment. The causal statement supported by the ablation is narrower:
+
+> Replacing the uniform encoder with the canonical degree-proportional encoder does not restore linear structural accessibility on these fixed-degree-sequence nonregular graph families and generally reduces it.
+
+## What the experiment establishes
+
+The completed ablation supports five conclusions.
+
+1. **Degree encoding does not restore the cubic QuIC hierarchy on nonregular graphs.**
+   Cycle-count scores remain near zero and generally decline relative to the flat encoder.
+
+2. **The strongest flat effects are removed rather than generalized.**
+   S2 triangle prediction falls from (0.991) to (0.038).
+
+3. **The flat C5 complementarity does not survive.**
+   The positive S1 and S2 concatenation gains disappear under degree encoding.
+
+4. **The degree-heterogeneity gradient is not repaired.**
+   The higher-degree strata do not improve, while the healthier lower-degree strata become weaker.
+
+5. **The flat encoder is the stronger of the two tested encoders for these strata.**
+   It retains more standalone and complementary structural information despite ignoring degree explicitly.
+
+The result therefore rules out the simplest proposed repair for E6.
+
+## Necessary qualifications
+
+The experiment compares only two encoder choices:
+
+* a uniform (R_X(2.875)) encoder;
+* a linear degree-proportional encoder normalized by maximum degree.
+
+Failure of the proportional encoder does not imply that all attribute-aware encoders will fail.
+
+Alternative constructions could include:
+
+* centered degree rotations;
+* nonlinear degree maps;
+* separately optimized feature channels;
+* degree-dependent phase rotations;
+* repeated data reuploading;
+* or jointly encoded degree and topology features.
+
+No circuit parameters are retuned after changing the encoder. This is desirable for a controlled ablation, but it means the canonical entangler and mixer angles may be poorly matched to the new degree-dependent initialization.
+
+The graph families remain limited to four sampled fixed-degree-sequence strata at (n=14). The result does not establish behavior across all nonregular graphs.
+
+The probes measure linear accessibility from exact sorted probability vectors. A different nonlinear readout could recover information that ridge regression does not expose, although the earlier E5 analysis found no consistent nonlinear advantage on the cubic vectors.
+
+The ridge grid extends to extremely small regularization values in a regime with 16,384 features and 320 training graphs per fold. Ill-conditioning warnings occurred in the original flat analysis. The large negative encoder differences are unlikely to be explained entirely by numerical instability, but exact small differences should be treated cautiously.
+
+No paired significance tests are reported for the foldwise flat-to-degree changes. The largest effects, such as the S2 C3 decline of (0.953), are descriptively unambiguous. Smaller changes near zero should not be overinterpreted.
+
+Finally, the result concerns predictive accessibility, not injectivity. The degree-encoded vectors may still distinguish graphs even when the tested invariants are not linearly recoverable.
+
+## Overall assessment
+
+The degree-encoding ablation produces a clear negative result.
+
+Explicitly rotating each qubit according to vertex degree does not recover the strong structural organization observed on cubic graphs. Instead, it reduces aggregate cycle-count accessibility, weakens spectral complementarity, and removes the strongest positive cells from the flat nonregular experiment.
+
+The result changes the interpretation of E6. The flat encoder did not fail merely because it omitted vertex degree. The cubic behavior appears to depend more fundamentally on the regular graph family and the geometry induced by uniform initialization.
+
+The appropriate central claim is:
+
+> On four fixed-degree-sequence nonregular graph strata, replacing QuIC’s uniform initialization with the canonical degree-proportional encoder does not restore the cubic structural hierarchy. Degree encoding reduces aggregate accessibility for all four cycle-count targets, eliminates the flat encoder’s C5 complementarity with spectral features, and leaves the higher-heterogeneity strata near the prediction floor. The failure of flat QuIC off the regular manifold therefore cannot be explained simply by missing degree information.
 
 
 ### E7 - Truncation
