@@ -8049,3 +8049,1028 @@ The appropriate central claim is:
 
 > Independent SVD and dual ridge implementations, exact (n=14) sklearn reproduction, and full-pipeline shuffled-target controls confirm that QuIC’s triangle, 5-cycle, and diamond probe results are not numerical or high-dimensional chance artifacts. These signals require near-interpolation regularization because they occupy low-singular-value feature directions. The (n=16) 6-cycle result does not survive a change in the inner cross-validation partition and should be treated as protocol sensitive rather than validated.
 
+
+
+### E13 - Truncation Decomposition and Completed Cospectral Tracer
+
+#### Experimental design
+
+E7 established that QuIC’s cycle-count information is concentrated within the leading portion of the sorted probability vector. It did not determine whether the predictive signal came from:
+
+* the relative shape of the retained probabilities;
+* the cumulative probability mass retained by the head;
+* or a combination of both.
+
+E7 also planned, but did not complete, an analysis of how exact adjacency-cospectral separations accumulate across the sorted probability ranks.
+
+E13 addresses both questions.
+
+The experiment uses the complete connected cubic-graph censuses at:
+
+* **509 graphs at (n=14)**;
+* **4,060 graphs at (n=16)**.
+
+For each graph, the complete sorted QuIC representation is:
+
+$$
+\mathbf p(G)
+============
+
+\left(
+p_{(1)},p_{(2)},\ldots,p_{(2^n)}
+\right),
+$$
+
+where:
+
+$$
+p_{(1)}
+\ge
+p_{(2)}
+\ge
+\cdots.
+$$
+
+The tested truncation depths are:
+
+$$
+k\in
+{25,50,100,200,400,1000}.
+$$
+
+For each depth, four representations are constructed.
+
+1. **Raw head**
+
+   $$
+   \mathbf h_k
+   ===========
+
+   \left(
+   p_{(1)},\ldots,p_{(k)}
+   \right).
+   $$
+
+2. **Normalized head**
+
+   $$
+   \widetilde{\mathbf h}_k
+   =======================
+
+   \frac{\mathbf h_k}
+   {\sum_{i=1}^{k}p_{(i)}}.
+   $$
+
+   This retains the shape of the probability head while removing its cumulative mass.
+
+3. **Retained mass only**
+
+   $$
+   m_k
+   ===
+
+   \sum_{i=1}^{k}p_{(i)}.
+   $$
+
+   This is a one-dimensional concentration feature.
+
+4. **Normalized head plus retained mass**
+
+   $$
+   \left[
+   \widetilde{\mathbf h}_k,
+   m_k
+   \right].
+   $$
+
+The comparison provides an operational decomposition of linearly accessible information.
+
+* When the normalized head matches the raw head, the relative shape is sufficient.
+* When retained mass alone performs strongly, cumulative concentration is sufficient at that cutoff.
+* When normalized shape plus mass exceeds either component, the two provide complementary linear coordinates.
+
+The ridge targets are:
+
+* triangle count ((C_3));
+* 4-cycle count ((C_4));
+* 5-cycle count ((C_5));
+* 6-cycle count ((C_6));
+* diamond count;
+* girth.
+
+The models use the standing probe protocol:
+
+$$
+\alpha\in
+{10^{-14},10^{-13},\ldots,10^2},
+$$
+
+with `RidgeCV(cv=5)` inside the frozen shuffled seed-0 outer folds.
+
+A separate group-preserving ranking experiment decomposes the automorphism-order signal previously observed among exact adjacency-cospectral graphs.
+
+The ranking target is:
+
+$$
+\log_2|\operatorname{Aut}(G)|.
+$$
+
+For every unequal cospectral pair ((G_i,G_j)), the model predicts:
+
+$$
+\operatorname{sign}
+\left(
+\log_2|\operatorname{Aut}(G_i)|
+-------------------------------
+
+\log_2|\operatorname{Aut}(G_j)|
+\right)
+$$
+
+from the difference between their truncated representations.
+
+This arm uses:
+
+* leave-one-cospectral-group-out evaluation;
+* an intercept-free antisymmetric logistic model;
+* fixed (C=1.0);
+* both orientations of every training pair.
+
+Finally, the completed cospectral tracer measures, at every depth:
+
+* raw-head (L_1) separation;
+* normalized-head (L_1) separation;
+* retained-mass difference;
+* fraction of the complete-vector separation retained by the head;
+* percentile among graph pairs sharing the same ((C_3,C_4,C_5,C_6)) tuple.
+
+#### Validation checks
+
+The graph targets are recomputed directly from the adjacency matrices.
+
+The following cubic identities hold exactly for every graph:
+
+$$
+\operatorname{tr}(A^3)
+======================
+
+6C_3,
+$$
+
+$$
+\operatorname{tr}(A^4)
+======================
+
+8C_4+15n,
+$$
+
+and:
+
+$$
+\operatorname{tr}(A^6)
+======================
+
+87n
++
+6C_3
++
+96C_4
++
+12(C_6+D),
+$$
+
+where (D) is diamond count.
+
+Exact adjacency-cospectral groups are reconstructed through integer trace tuples:
+
+$$
+\left(
+\operatorname{tr}(A),
+\operatorname{tr}(A^2),
+\ldots,
+\operatorname{tr}(A^n)
+\right).
+$$
+
+The resulting censuses contain:
+
+* 3 exact cospectral groups at (n=14);
+* 41 exact cospectral groups at (n=16).
+
+These correspond to:
+
+* 3 within-group pairs at (n=14);
+* 43 within-group pairs at (n=16), including the pairs from one cospectral triple.
+
+The sorted probability vectors are normalized and monotonically nonincreasing to numerical tolerance.
+
+#### Triangle-count decomposition
+
+##### (n=14)
+
+|   (k) |        Raw head | Normalized head |       Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | --------------: | ----------------: |
+|    25 | (1.000\pm0.000) | (0.999\pm0.000) | (0.996\pm0.000) |   (1.000\pm0.000) |
+|    50 | (1.000\pm0.000) | (1.000\pm0.000) | (0.088\pm0.020) |   (1.000\pm0.000) |
+|   100 | (1.000\pm0.000) | (1.000\pm0.000) | (0.965\pm0.004) |   (1.000\pm0.000) |
+|   200 | (1.000\pm0.000) | (1.000\pm0.000) | (0.946\pm0.017) |   (1.000\pm0.000) |
+|   400 | (1.000\pm0.000) | (1.000\pm0.000) | (0.531\pm0.033) |   (1.000\pm0.000) |
+| 1,000 | (1.000\pm0.000) | (1.000\pm0.000) | (0.916\pm0.014) |   (1.000\pm0.000) |
+
+##### (n=16)
+
+|   (k) |        Raw head | Normalized head |       Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | --------------: | ----------------: |
+|    25 | (1.000\pm0.000) | (0.997\pm0.001) | (0.995\pm0.000) |   (1.000\pm0.000) |
+|    50 | (1.000\pm0.000) | (1.000\pm0.000) | (0.229\pm0.023) |   (1.000\pm0.000) |
+|   100 | (1.000\pm0.000) | (1.000\pm0.000) | (0.966\pm0.002) |   (1.000\pm0.000) |
+|   200 | (1.000\pm0.000) | (1.000\pm0.000) | (0.951\pm0.002) |   (1.000\pm0.000) |
+|   400 | (1.000\pm0.000) | (1.000\pm0.000) | (0.964\pm0.003) |   (1.000\pm0.000) |
+| 1,000 | (1.000\pm0.000) | (1.000\pm0.000) | (0.946\pm0.002) |   (1.000\pm0.000) |
+
+Triangle count is perfectly accessible from both the raw and normalized probability head at every tested depth.
+
+Thus, the triangle signal is not dependent on retaining cumulative probability mass. The relative shape of only the first 25 probabilities is already sufficient.
+
+Retained mass is also nearly sufficient at several cutoffs:
+
+$$
+R^2_{\mathrm{mass}}
+\approx
+0.995
+$$
+
+at (k=25), and approximately:
+
+$$
+0.95\text{--}0.97
+$$
+
+at most cutoffs of (k\ge100).
+
+The mass-only result is not monotone. It falls sharply at:
+
+$$
+k=50
+$$
+
+for both graph orders and at:
+
+$$
+k=400
+$$
+
+for (n=14).
+
+The correct interpretation is therefore not that triangle count is always encoded by total head mass. Instead, triangle count has multiple redundant carriers:
+
+* the normalized shape is uniformly sufficient;
+* cumulative mass is nearly sufficient at selected rank boundaries.
+
+The dependence of mass-only performance on the exact cutoff indicates that cumulative concentration changes differently when the boundary crosses different probability plateaus.
+
+#### Four-cycle decomposition
+
+##### (n=14)
+
+|   (k) |        Raw head | Normalized head |        Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | ---------------: | ----------------: |
+|    25 | (0.957\pm0.009) | (0.822\pm0.026) | (-0.008\pm0.006) |   (0.957\pm0.008) |
+|    50 | (0.988\pm0.004) | (0.988\pm0.004) |  (0.742\pm0.020) |   (0.988\pm0.004) |
+|   100 | (0.993\pm0.004) | (0.993\pm0.003) |  (0.060\pm0.041) |   (0.994\pm0.004) |
+|   200 | (0.995\pm0.003) | (0.995\pm0.004) |  (0.009\pm0.018) |   (0.995\pm0.003) |
+|   400 | (0.998\pm0.002) | (0.998\pm0.002) |  (0.276\pm0.047) |   (0.998\pm0.002) |
+| 1,000 | (0.998\pm0.002) | (0.998\pm0.001) | (-0.007\pm0.006) |   (0.998\pm0.001) |
+
+##### (n=16)
+
+|   (k) |        Raw head | Normalized head |        Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | ---------------: | ----------------: |
+|    25 | (0.968\pm0.011) | (0.789\pm0.052) | (-0.002\pm0.002) |   (0.968\pm0.011) |
+|    50 | (0.981\pm0.003) | (0.981\pm0.004) |  (0.674\pm0.013) |   (0.981\pm0.003) |
+|   100 | (0.996\pm0.001) | (0.997\pm0.001) |  (0.050\pm0.015) |   (0.998\pm0.001) |
+|   200 | (0.998\pm0.002) | (0.998\pm0.002) |  (0.054\pm0.016) |   (0.998\pm0.002) |
+|   400 | (0.998\pm0.003) | (0.999\pm0.001) | (-0.001\pm0.002) |   (1.000\pm0.000) |
+| 1,000 | (1.000\pm0.000) | (1.000\pm0.000) |  (0.072\pm0.017) |   (1.000\pm0.000) |
+
+Four-cycle count is primarily carried by the shape of the probability head.
+
+From:
+
+$$
+k=50
+$$
+
+onward, normalized-head performance essentially matches the raw representation at both graph orders.
+
+At:
+
+$$
+k=25,
+$$
+
+normalization reduces performance:
+
+$$
+0.957
+\rightarrow
+0.822
+$$
+
+at (n=14), and:
+
+$$
+0.968
+\rightarrow
+0.789
+$$
+
+at (n=16).
+
+Mass alone is uninformative at this depth, but normalized shape plus mass restores the complete raw-head score. Thus, the very shallow 4-cycle signal depends on a combination of shape and cumulative scale, even though mass by itself is insufficient.
+
+At:
+
+$$
+k=50,
+$$
+
+mass alone becomes moderately predictive:
+
+$$
+R^2=0.742
+$$
+
+and:
+
+$$
+R^2=0.674.
+$$
+
+This mass result disappears at most later cutoffs. As with triangle count, cumulative-mass accessibility is therefore rank-boundary specific rather than monotonic.
+
+#### Five-cycle decomposition
+
+##### (n=14)
+
+|   (k) |         Raw head |  Normalized head |        Mass only | Normalized + mass |
+| ----: | ---------------: | ---------------: | ---------------: | ----------------: |
+|    25 |  (0.034\pm0.062) | (-0.022\pm0.030) | (-0.010\pm0.010) |   (0.035\pm0.059) |
+|    50 | (-0.026\pm0.036) |  (0.046\pm0.077) |  (0.059\pm0.100) |   (0.057\pm0.089) |
+|   100 |  (0.272\pm0.142) |  (0.182\pm0.186) | (-0.013\pm0.013) |   (0.248\pm0.135) |
+|   200 |  (0.920\pm0.081) |  (0.925\pm0.085) |  (0.056\pm0.016) |   (0.930\pm0.075) |
+|   400 |  (0.927\pm0.092) |  (0.913\pm0.087) |  (0.012\pm0.051) |   (0.911\pm0.089) |
+| 1,000 |  (0.928\pm0.092) |  (0.938\pm0.073) | (-0.013\pm0.013) |   (0.941\pm0.069) |
+
+##### (n=16)
+
+|   (k) |        Raw head |  Normalized head |        Mass only | Normalized + mass |
+| ----: | --------------: | ---------------: | ---------------: | ----------------: |
+|    25 | (0.169\pm0.031) | (-0.001\pm0.001) | (-0.001\pm0.001) |   (0.163\pm0.022) |
+|    50 | (0.167\pm0.032) |  (0.167\pm0.033) |  (0.047\pm0.010) |   (0.167\pm0.032) |
+|   100 | (0.335\pm0.041) |  (0.294\pm0.062) | (-0.001\pm0.001) |   (0.346\pm0.062) |
+|   200 | (0.743\pm0.060) |  (0.783\pm0.010) |  (0.003\pm0.005) |   (0.780\pm0.014) |
+|   400 | (0.981\pm0.015) |  (0.984\pm0.013) |  (0.024\pm0.005) |   (0.984\pm0.012) |
+| 1,000 | (0.982\pm0.015) |  (0.984\pm0.015) | (-0.001\pm0.001) |   (0.986\pm0.014) |
+
+Five-cycle count provides the cleanest shape-dominated result.
+
+At both graph orders, retained mass remains at or near the prediction floor across every tested depth.
+
+By contrast, normalized-head performance follows the raw-head transition closely.
+
+At (n=14):
+
+$$
+R^2_{\mathrm{normalized}}
+=========================
+
+0.925
+$$
+
+by (k=200), and:
+
+$$
+0.938
+$$
+
+at (k=1000).
+
+At (n=16):
+
+$$
+R^2_{\mathrm{normalized}}
+=========================
+
+0.783
+$$
+
+at (k=200), and:
+
+$$
+0.984
+$$
+
+at (k=400).
+
+Adding retained mass produces no meaningful improvement over normalized shape.
+
+The 5-cycle signal is therefore carried by the detailed relative arrangement of probabilities within the head rather than by cumulative concentration.
+
+This agrees with the earlier probability-moment result. Low-order concentration summaries did not recover the strong full-vector 5-cycle signal, while retaining the detailed head shape does.
+
+#### Six-cycle decomposition
+
+##### (n=14)
+
+|   (k) |        Raw head | Normalized head |       Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | --------------: | ----------------: |
+|    25 | (0.163\pm0.056) | (0.158\pm0.050) | (0.150\pm0.053) |   (0.153\pm0.055) |
+|    50 | (0.228\pm0.077) | (0.232\pm0.097) | (0.125\pm0.092) |   (0.232\pm0.098) |
+|   100 | (0.235\pm0.079) | (0.242\pm0.083) | (0.114\pm0.045) |   (0.239\pm0.086) |
+|   200 | (0.391\pm0.083) | (0.372\pm0.104) | (0.081\pm0.053) |   (0.373\pm0.105) |
+|   400 | (0.478\pm0.113) | (0.483\pm0.116) | (0.226\pm0.091) |   (0.486\pm0.111) |
+| 1,000 | (0.484\pm0.327) | (0.638\pm0.159) | (0.143\pm0.036) |   (0.666\pm0.145) |
+
+##### (n=16)
+
+|   (k) |        Raw head | Normalized head |       Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | --------------: | ----------------: |
+|    25 | (0.126\pm0.014) | (0.112\pm0.017) | (0.101\pm0.018) |   (0.134\pm0.017) |
+|    50 | (0.179\pm0.013) | (0.180\pm0.014) | (0.131\pm0.018) |   (0.178\pm0.013) |
+|   100 | (0.184\pm0.011) | (0.186\pm0.010) | (0.077\pm0.014) |   (0.186\pm0.010) |
+|   200 | (0.190\pm0.027) | (0.180\pm0.018) | (0.067\pm0.013) |   (0.181\pm0.019) |
+|   400 | (0.363\pm0.023) | (0.394\pm0.043) | (0.126\pm0.018) |   (0.394\pm0.043) |
+| 1,000 | (0.640\pm0.121) | (0.786\pm0.166) | (0.067\pm0.013) |   (0.817\pm0.151) |
+
+Six-cycle count is also primarily shape carried, but its deepest result differs from the C5 pattern.
+
+At:
+
+$$
+k\le400,
+$$
+
+raw and normalized heads perform similarly.
+
+At:
+
+$$
+k=1000,
+$$
+
+normalization substantially improves the score:
+
+$$
+0.484
+\rightarrow
+0.638
+$$
+
+at (n=14), and:
+
+$$
+0.640
+\rightarrow
+0.786
+$$
+
+at (n=16).
+
+Adding retained mass raises the results further to:
+
+$$
+0.666
+$$
+
+and:
+
+$$
+0.817.
+$$
+
+Thus, the deep C6 signal is most linearly accessible when head shape and cumulative mass are exposed as separate coordinates.
+
+The improvement also reduces the extreme (n=14) fold variation:
+
+$$
+0.484\pm0.327
+$$
+
+for the raw head, compared with:
+
+$$
+0.666\pm0.145
+$$
+
+for normalized shape plus mass.
+
+This suggests that multiplicatively combining shape and scale in the raw probabilities obscures part of the C6 coordinate. Separating them improves linear accessibility.
+
+The result should nevertheless remain qualified by E10. The full-vector (n=16) C6 probe was sensitive to the inner cross-validation partition. E13 uses the standing `RidgeCV` protocol and does not resolve that protocol sensitivity.
+
+#### Diamond-count decomposition
+
+##### (n=14)
+
+|   (k) |        Raw head | Normalized head |       Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | --------------: | ----------------: |
+|    25 | (0.930\pm0.004) | (0.917\pm0.017) | (0.447\pm0.047) |   (0.931\pm0.003) |
+|    50 | (0.981\pm0.005) | (0.977\pm0.009) | (0.110\pm0.011) |   (0.971\pm0.004) |
+|   100 | (0.990\pm0.004) | (0.986\pm0.008) | (0.407\pm0.068) |   (0.995\pm0.007) |
+|   200 | (0.993\pm0.003) | (0.993\pm0.003) | (0.406\pm0.078) |   (0.993\pm0.003) |
+|   400 | (0.994\pm0.004) | (0.994\pm0.004) | (0.334\pm0.008) |   (0.994\pm0.004) |
+| 1,000 | (0.993\pm0.003) | (0.993\pm0.003) | (0.474\pm0.043) |   (0.993\pm0.003) |
+
+##### (n=16)
+
+|   (k) |        Raw head | Normalized head |       Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | --------------: | ----------------: |
+|    25 | (0.943\pm0.013) | (0.940\pm0.015) | (0.419\pm0.017) |   (0.943\pm0.013) |
+|    50 | (0.974\pm0.005) | (0.973\pm0.005) | (0.216\pm0.017) |   (0.974\pm0.005) |
+|   100 | (0.993\pm0.004) | (0.997\pm0.005) | (0.404\pm0.019) |   (0.999\pm0.001) |
+|   200 | (0.995\pm0.005) | (0.995\pm0.005) | (0.391\pm0.023) |   (0.995\pm0.005) |
+|   400 | (0.995\pm0.005) | (0.997\pm0.004) | (0.464\pm0.025) |   (0.998\pm0.003) |
+| 1,000 | (0.996\pm0.004) | (0.996\pm0.004) | (0.379\pm0.015) |   (0.996\pm0.004) |
+
+Diamond count is shallow and predominantly shape carried.
+
+Using only the first 25 normalized probabilities produces:
+
+$$
+R^2=0.917
+$$
+
+at (n=14), and:
+
+$$
+R^2=0.940
+$$
+
+at (n=16).
+
+By:
+
+$$
+k=100,
+$$
+
+normalized-head performance reaches:
+
+$$
+0.986
+$$
+
+and:
+
+$$
+0.997.
+$$
+
+Mass alone contains moderate diamond information, typically producing:
+
+$$
+R^2\approx0.3\text{--}0.47,
+$$
+
+but never approaches the normalized-head score.
+
+Adding mass to the normalized head provides little additional value. Diamond accessibility is therefore primarily determined by the relative head shape.
+
+This is evidence about coordinate accessibility, not information beyond the complete adjacency spectrum. E8A found no diamond variation among the exact cospectral groups in these censuses.
+
+#### Girth decomposition
+
+##### (n=14)
+
+|   (k) |        Raw head | Normalized head |       Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | --------------: | ----------------: |
+|    25 | (0.917\pm0.035) | (0.910\pm0.040) | (0.373\pm0.037) |   (0.918\pm0.034) |
+|    50 | (0.921\pm0.034) | (0.921\pm0.034) | (0.067\pm0.046) |   (0.922\pm0.034) |
+|   100 | (0.987\pm0.014) | (0.984\pm0.014) | (0.316\pm0.040) |   (0.986\pm0.015) |
+|   200 | (0.992\pm0.013) | (0.992\pm0.013) | (0.337\pm0.058) |   (0.992\pm0.013) |
+|   400 | (0.993\pm0.014) | (0.993\pm0.014) | (0.211\pm0.053) |   (0.993\pm0.014) |
+| 1,000 | (0.993\pm0.014) | (0.993\pm0.014) | (0.273\pm0.063) |   (0.993\pm0.014) |
+
+##### (n=16)
+
+|   (k) |        Raw head | Normalized head |       Mass only | Normalized + mass |
+| ----: | --------------: | --------------: | --------------: | ----------------: |
+|    25 | (0.945\pm0.008) | (0.942\pm0.009) | (0.348\pm0.038) |   (0.945\pm0.008) |
+|    50 | (0.951\pm0.007) | (0.951\pm0.007) | (0.099\pm0.020) |   (0.951\pm0.007) |
+|   100 | (0.996\pm0.003) | (0.994\pm0.004) | (0.281\pm0.006) |   (0.996\pm0.003) |
+|   200 | (0.999\pm0.003) | (0.999\pm0.003) | (0.308\pm0.010) |   (0.999\pm0.003) |
+|   400 | (0.999\pm0.003) | (0.999\pm0.003) | (0.359\pm0.017) |   (0.999\pm0.003) |
+| 1,000 | (0.999\pm0.003) | (0.999\pm0.003) | (0.340\pm0.012) |   (0.999\pm0.003) |
+
+Girth is also shallow and shape dominated.
+
+The first 25 normalized probabilities already obtain:
+
+$$
+R^2=0.910
+$$
+
+at (n=14), and:
+
+$$
+R^2=0.942
+$$
+
+at (n=16).
+
+By:
+
+$$
+k=100,
+$$
+
+the scores reach:
+
+$$
+0.984
+$$
+
+and:
+
+$$
+0.994.
+$$
+
+Mass alone provides moderate information at selected cutoffs but remains substantially weaker than normalized shape.
+
+The normalized-plus-mass representation does not materially improve upon shape alone. Girth accessibility therefore depends primarily on the relative organization of the largest probabilities.
+
+#### Cross-target shape and mass summary
+
+The decomposition identifies distinct carrier patterns.
+
+| Target   | Primary carrier                                          | Interpretation                                                  |
+| -------- | -------------------------------------------------------- | --------------------------------------------------------------- |
+| (C_3)    | Shape, with redundant mass signal at selected cutoffs    | Both shape and concentration can independently expose triangles |
+| (C_4)    | Shape; shallow shape–mass interaction at (k=25)          | Mass helps only at specific head boundaries                     |
+| (C_5)    | Shape                                                    | Cumulative mass is essentially uninformative                    |
+| (C_6)    | Deep shape, with modest mass complementarity at (k=1000) | Separating shape and scale improves linear accessibility        |
+| Diamonds | Shallow shape                                            | Nearly saturated by the first 100 normalized probabilities      |
+| Girth    | Shallow shape                                            | Nearly saturated by the first 100 normalized probabilities      |
+
+The dominant general result is that the raw-head hierarchy is not primarily a cumulative-mass effect.
+
+Normalized probability shape preserves almost all useful performance for:
+
+* (C_4);
+* (C_5);
+* diamonds;
+* girth.
+
+Triangle count has redundant access through both shape and mass at selected cutoffs. Six-cycle count benefits from explicitly separating the two at the deepest tested truncation.
+
+#### Automorphism-order ranking decomposition
+
+##### (n=14)
+
+The (n=14) census contains only three automorphism-varying cospectral pairs.
+
+|   (k) | Raw head | Normalized head | Mass only | Normalized + mass |
+| ----: | -------: | --------------: | --------: | ----------------: |
+|    25 |      1/3 |             1/3 |       3/3 |               1/3 |
+|    50 |      1/3 |             1/3 |       2/3 |               1/3 |
+|   100 |      1/3 |             1/3 |       1/3 |               1/3 |
+|   200 |      1/3 |             1/3 |       3/3 |               1/3 |
+|   400 |      1/3 |             0/3 |       0/3 |               0/3 |
+| 1,000 |      1/3 |             0/3 |       1/3 |               0/3 |
+
+The sample is too small to support a meaningful decomposition.
+
+Mass alone correctly ranks all three pairs at (k=25) and (k=200), while the shape-based representations generally rank only one pair. With only three held-out groups, these changes are descriptive exhibits rather than statistical evidence.
+
+##### (n=16)
+
+The (n=16) ranking contains 14 unequal pairs from 14 distinct cospectral groups.
+
+|   (k) | Raw head | Normalized head | Mass only | Normalized + mass |
+| ----: | -------: | --------------: | --------: | ----------------: |
+|    25 |     7/14 |            7/14 |      6/14 |              6/14 |
+|    50 |    11/14 |           12/14 |      9/14 |             12/14 |
+|   100 |    11/14 |           11/14 |      9/14 |             11/14 |
+|   200 |    13/14 |           13/14 |     10/14 |             13/14 |
+|   400 |    12/14 |           12/14 |      7/14 |             12/14 |
+| 1,000 |    11/14 |           11/14 |      8/14 |             11/14 |
+
+The automorphism-order signal is primarily carried by head shape.
+
+At:
+
+$$
+k=200,
+$$
+
+both the raw and normalized heads correctly rank:
+
+$$
+13/14
+$$
+
+pairs.
+
+Mass alone reaches:
+
+$$
+10/14.
+$$
+
+At every depth, adding mass to the normalized head fails to improve upon normalized shape.
+
+The strongest result is therefore not a cumulative-concentration effect. It depends on the relative arrangement of the leading probabilities.
+
+The signal is also localized within an intermediate head rather than improving monotonically with dimension:
+
+$$
+7/14
+\rightarrow
+12/14
+\rightarrow
+11/14
+\rightarrow
+13/14
+\rightarrow
+12/14
+\rightarrow
+11/14.
+$$
+
+This resembles the rank-specific accessibility observed for the cycle targets. Adding more of the probability tail does not necessarily improve generalization in a very small group-level sample.
+
+The ranking counts should remain descriptive because no permutation audit is performed in E13 and the leave-one-group-out predictions are generated from overlapping training sets.
+
+#### Completed cospectral tracer
+
+The tracer compares every exact cospectral pair with all graph pairs sharing the complete cycle-count tuple:
+
+$$
+(C_3,C_4,C_5,C_6).
+$$
+
+The reference classes contain:
+
+* 114 count-identical pairs at (n=14);
+* 8,474 count-identical pairs at (n=16).
+
+##### (n=14)
+
+|   (k) | Median raw-head (L_1) | Median fraction of full separation retained | Median count-identical percentile |
+| ----: | --------------------: | ------------------------------------------: | --------------------------------: |
+|    25 |  (9.422\times10^{-8}) |                                       0.155 |                              29.8 |
+|    50 |  (1.155\times10^{-7}) |                                       0.335 |                              35.1 |
+|   100 |  (1.299\times10^{-7}) |                                       0.472 |                              33.3 |
+|   200 |  (1.488\times10^{-7}) |                                       0.585 |                              20.2 |
+|   400 |  (2.938\times10^{-7}) |                                       0.752 |                              22.8 |
+| 1,000 |  (3.731\times10^{-7}) |                                       0.955 |                              18.4 |
+
+##### (n=16)
+
+|   (k) | Median raw-head (L_1) | Median fraction of full separation retained | Median count-identical percentile |
+| ----: | --------------------: | ------------------------------------------: | --------------------------------: |
+|    25 |  (7.516\times10^{-9}) |                                       0.058 |                              19.5 |
+|    50 |  (2.265\times10^{-8}) |                                       0.175 |                              19.5 |
+|   100 |  (3.535\times10^{-8}) |                                       0.259 |                              16.5 |
+|   200 |  (1.459\times10^{-7}) |                                       0.397 |                              24.0 |
+|   400 |  (1.593\times10^{-7}) |                                       0.630 |                              23.0 |
+| 1,000 |  (3.439\times10^{-7}) |                                       0.895 |                              23.1 |
+
+Cospectral separations accumulate more deeply than the strongest cycle signals.
+
+At (n=16), the first 25 coordinates retain only:
+
+$$
+5.8%
+$$
+
+of the median complete-vector separation.
+
+The first 100 retain:
+
+$$
+25.9%.
+$$
+
+The retained fraction reaches:
+
+$$
+63.0%
+$$
+
+at (k=400), and:
+
+$$
+89.5%
+$$
+
+at (k=1000).
+
+At (n=14), the corresponding progression is:
+
+$$
+15.5%,
+\quad
+47.2%,
+\quad
+75.2%,
+\quad
+95.5%.
+$$
+
+Thus, most complete cospectral separation is eventually captured by the first 1,000 probabilities, but it is not concentrated in the extreme head in the same manner as triangle, 4-cycle, diamond, or girth information.
+
+The percentile results provide a second distinction.
+
+Median cospectral-pair percentiles remain between approximately:
+
+$$
+16.5
+\quad\text{and}\quad
+35.1.
+$$
+
+They do not increase monotonically with truncation.
+
+Cospectral mates are therefore not unusually far apart relative to other graph pairs with the same ((C_3,C_4,C_5,C_6)) counts. Their separations generally lie below the median of that reference class.
+
+The non-spectral residue is numerically genuine, but it is subtle:
+
+* its absolute separations are small;
+* its head concentration varies by pair;
+* and its relative percentile does not systematically improve as more coordinates are retained.
+
+This result is consistent with the earlier precision and finite-shot audits. The residue exists well above numerical error but remains small relative to both ordinary graph variation and sampling noise.
+
+#### Relationship to E7 and E8B
+
+E13 refines both earlier conclusions.
+
+E7 established that cycle information is rank stratified:
+
+$$
+C_3
+\rightarrow
+C_4
+\rightarrow
+C_5
+\rightarrow
+C_6.
+$$
+
+E13 shows that this hierarchy is primarily a hierarchy in probability-head shape, not merely a hierarchy in retained probability mass.
+
+In particular:
+
+* (C_5) remains strong after normalization and disappears in the mass-only representation;
+* diamonds and girth are already strong in the normalized extreme head;
+* (C_6) benefits from separating shape and mass at deeper truncation.
+
+E8B established that QuIC’s exact cospectral differences are functionally aligned with graph symmetry. E13 localizes that signal to the relative shape of approximately the first 50–200 probabilities.
+
+The tracer adds an important counterbalance. Although symmetry ranking can use an intermediate head, the total geometric separation between cospectral mates accumulates more gradually and remains modest relative to count-identical graph pairs.
+
+Functional usefulness and total metric concentration are therefore different properties.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **QuIC’s truncation hierarchy is primarily shape carried.**
+
+   Normalizing the probability head preserves nearly all (C_4), (C_5), diamond, and girth performance.
+
+2. **Triangle count has redundant carriers.**
+
+   The normalized shape is always sufficient, while cumulative mass is also nearly sufficient at several rank cutoffs.
+
+3. **Five-cycle accessibility is not a retained-mass effect.**
+
+   Mass-only probes remain at the prediction floor while normalized-head performance reaches approximately (0.94)–(0.98).
+
+4. **Deep six-cycle accessibility improves when shape and mass are separated.**
+
+   At (k=1000), normalized shape plus mass reaches (0.666) at (n=14) and (0.817) at (n=16).
+
+5. **Diamond and girth information is concentrated in the extreme shape of the head.**
+
+   Both are already strongly decodable from the first 25 normalized probabilities.
+
+6. **The automorphism-order cospectral signal is primarily shape based.**
+
+   The normalized head correctly ranks 13 of 14 unequal (n=16) pairs at (k=200), while mass alone reaches 10 of 14.
+
+7. **Cospectral separations are deeper than shallow cycle signals.**
+
+   At (n=16), only 25.9% of the median complete separation is retained by the first 100 probabilities, compared with 89.5% by the first 1,000.
+
+8. **Cospectral separations are not unusually large among cycle-count-identical pairs.**
+
+   Their median percentile remains below 36 at every tested depth.
+
+E13 therefore distinguishes three properties that the raw truncation experiment had conflated:
+
+* cumulative concentration;
+* detailed probability-head shape;
+* and the rank depth at which different structural signals accumulate.
+
+#### Necessary qualifications
+
+The four representations provide an operational decomposition for linear probes, not an information-theoretic partition.
+
+The raw head combines shape and mass multiplicatively:
+
+$$
+\mathbf h_k
+===========
+
+m_k\widetilde{\mathbf h}_k.
+$$
+
+A linear model on:
+
+$$
+\left[
+\widetilde{\mathbf h}_k,m_k
+\right]
+$$
+
+cannot reconstruct that product without interaction terms. Consequently, differences between the raw and decomposed representations reflect both information content and coordinate geometry.
+
+The mass-only feature is one scalar whose meaning changes with (k). Its strongly nonmonotonic results should not be interpreted as inconsistencies. Different rank cutoffs cross different probability plateaus and produce different cumulative statistics.
+
+The representation blocks are not standardized fold by fold before ridge fitting. Ridge regularization depends on feature scale, and E10 showed that QuIC probe results can depend strongly on very small regularization values. Comparisons among raw, normalized, and mass coordinates therefore characterize the standing probe protocol rather than a scale-invariant notion of information.
+
+The full ridge grid uses `RidgeCV(cv=5)` with the same inner-fold behavior as the earlier probe experiments. E13 does not independently validate the protocol-sensitive (n=16) C6 result identified by E10.
+
+The automorphism-order ranking contains only:
+
+* 3 varying pairs at (n=14);
+* 14 varying pairs at (n=16).
+
+The (n=14) decomposition is too small for inference. The (n=16) counts are more informative but still have high finite-sample uncertainty.
+
+No target-specific permutation test is run for the automorphism-ranking grid. Testing six depths and four representations also creates a model-selection issue if the best cell is highlighted after observing the complete table.
+
+The tracer percentile is descriptive rather than inferential. Reference pairs are not independent, and large cycle-signature classes contribute more pairs than small classes.
+
+The count-identical reference class fixes:
+
+$$
+(C_3,C_4,C_5,C_6),
+$$
+
+but does not fix:
+
+* the complete adjacency spectrum;
+* diameter;
+* Wiener index;
+* automorphism order;
+* or other graph structure.
+
+A low percentile therefore means that the cospectral separation is small relative to this particular reference class, not relative to every possible structural control.
+
+The tracer summarizes medians. Earlier experiments showed substantial pair-to-pair variation in where cospectral separation appears within the probability vector. Median retained fractions should not be interpreted as applying uniformly to every pair.
+
+All results use exact ideal probabilities. E7S showed that the same head geometry is not practically resolved at ordinary shot budgets.
+
+Finally, the truncation grid is coarse. A result at (k=200) or (k=1000) identifies the first tested depth with that behavior, not a mathematically minimal sufficient dimension.
+
+#### Overall assessment
+
+E13 resolves the two main ambiguities left by the original truncation experiment.
+
+The cycle hierarchy is not principally caused by cumulative retained probability mass. The normalized shape of the head preserves nearly all of the useful information for 4-cycles, 5-cycles, diamonds, and girth. Five-cycle count provides the cleanest example: mass-only prediction remains at the floor, while normalized-head prediction reaches approximately:
+
+$$
+0.94
+\quad\text{at }n=14,
+$$
+
+and:
+
+$$
+0.98
+\quad\text{at }n=16.
+$$
+
+Triangle count has redundant access through both head shape and cumulative mass at selected cutoffs. Six-cycle count is deeper and becomes more linearly accessible when shape and mass are separated.
+
+The automorphism-order result is also predominantly shape carried, reaching:
+
+$$
+13/14
+$$
+
+correct cospectral rankings from the first 200 normalized probabilities.
+
+The completed tracer shows that total cospectral separation behaves differently from the shallow structural hierarchy. Only a minority of the separation lies in the first 25–100 ranks, and its percentile among cycle-count-identical pairs remains low and nonmonotonic. The residue is real, but geometrically subtle and distributed more deeply through the probability head.
+
+The appropriate central claim is:
+
+> QuIC’s rank-stratified structural hierarchy is primarily encoded in the relative shape of its leading probabilities rather than in cumulative retained mass. Five-cycle, diamond, and girth accessibility survives head normalization, while six-cycle accessibility improves when shape and mass are exposed separately. The functional automorphism-order signal is likewise shape dominated. Exact cospectral separations accumulate more gradually, reaching most of their complete-vector magnitude only near the first 1,000 probabilities and remaining modest relative to other cycle-count-identical graph pairs.
+
+
+
