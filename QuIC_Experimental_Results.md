@@ -9073,4 +9073,576 @@ The appropriate central claim is:
 > QuIC’s rank-stratified structural hierarchy is primarily encoded in the relative shape of its leading probabilities rather than in cumulative retained mass. Five-cycle, diamond, and girth accessibility survives head normalization, while six-cycle accessibility improves when shape and mass are exposed separately. The functional automorphism-order signal is likewise shape dominated. Exact cospectral separations accumulate more gradually, reaching most of their complete-vector magnitude only near the first 1,000 probabilities and remaining modest relative to other cycle-count-identical graph pairs.
 
 
+### E16 / E17 - Readout Quotient and Label Control
+
+#### Experimental design
+
+E16 and E17 test two related properties of the sorted QuIC readout:
+
+1. whether sorting removes dependence on vertex labeling;
+2. whether the resulting label-invariant quotient collapses structurally distinct graphs.
+
+The analysis uses two complete graph censuses:
+
+* **11,117 connected graphs at (n=8)**;
+* **509 connected cubic graphs at (n=14)**.
+
+Each graph is mapped to its complete descending-sorted probability vector:
+
+$$
+\mathbf p(G)
+============
+
+\operatorname{sort}*{\downarrow}
+\left(
+|\langle z|\psi_G\rangle|^2
+\right)*{z\in{0,1}^n}.
+$$
+
+The circuit uses the fixed canonical configuration:
+
+* maximum encoding rotation (2.875);
+* entangler angle (2.0);
+* mixer angle (0.1);
+* one entangler–mixer repetition.
+
+The degree-proportional encoder is used in both censuses. On the cubic census, every vertex has degree three, so the encoder reduces to the uniform rotation:
+
+$$
+R_X(2.875)
+$$
+
+on every qubit.
+
+The (n=8) census is degree heterogeneous and therefore uses genuinely different rotations for vertices of different degrees.
+
+The experiment contains four components.
+
+1. **Deterministic relabeling control**
+
+   Every graph is evaluated under:
+
+   * its canonical nauty labeling;
+   * a deterministic nonidentity cyclic relabeling;
+   * one seeded-random relabeling.
+
+   The complete sorted statevector distributions must agree to floating-point precision.
+
+   An additional sample of 200 graphs at each order is tested under 20 further random relabelings per graph.
+
+2. **Sampled relabeling control**
+
+   At a single shot budget:
+
+   $$
+   S=2^{20}=1{,}048{,}576,
+   $$
+
+   the distance between independently sampled readouts from two labelings of the same graph is compared with the distance between two independent samples from the same labeling.
+
+3. **Readout quotient**
+
+   Graphs are grouped by their sorted readout vectors.
+
+   For each target (y), the planned quotient statistic is:
+
+   $$
+   \eta_y
+   ======
+
+   \frac{
+   \text{collision sets preserving }y
+   }{
+   \text{all multi-graph collision sets}
+   }.
+   $$
+
+   A value of one would indicate that every observed collision is benign for target (y), while a value below one would indicate target information lost by the quotient.
+
+4. **Distance-ordering agreement**
+
+   On 4,000 sampled graph pairs, the experiment computes the Spearman correlation between readout-space (L_1) distance and target-space distance.
+
+   For scalar graph invariants, target distance is the absolute difference. For the sorted degree sequence, it is the Hamming distance between the two degree tuples.
+
+The target lists are:
+
+##### (n=8)
+
+* degree sequence;
+* triangle count;
+* 4-cycle count;
+* vertex connectivity.
+
+##### (n=14)
+
+* triangle count;
+* 4-cycle count;
+* 5-cycle count;
+* 6-cycle count;
+* diamond count.
+
+Diamond count is certified through the cubic identity:
+
+$$
+\operatorname{tr}(A^6)
+======================
+
+87n
++
+6C_3
++
+96C_4
++
+12(C_6+D).
+$$
+
+#### Why sorting is label invariant
+
+Let (P) be a permutation matrix representing a relabeling of the graph.
+
+The relabeled adjacency matrix is:
+
+$$
+A'
+==
+
+PAP^\top.
+$$
+
+The degree encoder, edge entanglers, and mixer are permuted consistently with the qubits. The resulting computational-basis probabilities are therefore permuted among bitstring coordinates.
+
+Sorting discards those coordinate identities:
+
+$$
+\operatorname{sort}_{\downarrow}
+\mathbf p(PGP^\top)
+===================
+
+\operatorname{sort}_{\downarrow}
+\mathbf p(G).
+$$
+
+Permutation invariance is therefore a mathematical property of the readout construction. The experiment tests whether the implemented circuit and numerical pipeline preserve that equality in practice.
+
+#### Deterministic relabeling results
+
+| Census | Graphs checked under fixed alternates | Worst cross-label (L_1) | Graphs in extended check | Random relabelings per graph | Worst extended (L_1) |
+| ------ | ------------------------------------: | ----------------------: | -----------------------: | ---------------------------: | -------------------: |
+| (n=8)  |                                11,117 |    (1.86\times10^{-15}) |                      200 |                           20 | (1.69\times10^{-15}) |
+| (n=14) |                                   509 |    (1.74\times10^{-15}) |                      200 |                           20 | (1.75\times10^{-15}) |
+
+Every tested relabeling satisfies the prespecified tolerance:
+
+$$
+L_1<10^{-12}.
+$$
+
+The largest discrepancies are approximately:
+
+$$
+10^{-15},
+$$
+
+which is the expected floating-point accumulation scale for independently constructed but mathematically identical statevectors.
+
+The result holds across:
+
+* all 11,117 connected graphs at (n=8);
+* all 509 connected cubic graphs at (n=14);
+* 8,000 additional random-relabeling comparisons.
+
+The implemented sorted readout is therefore invariant to vertex relabeling to machine precision on both complete censuses.
+
+#### Sampled relabeling results
+
+At:
+
+$$
+S=2^{20},
+$$
+
+the experiment reports:
+
+$$
+R
+=
+
+\frac{
+L_1(\text{sample from canonical labeling},
+\text{sample from relabeled graph})
+}{
+L_1(\text{two independent samples from canonical labeling})
+}.
+$$
+
+| Census | Graphs | Mean ratio | Median ratio | 95th percentile | Maximum |
+| ------ | -----: | ---------: | -----------: | --------------: | ------: |
+| (n=8)  |    200 |      1.028 |        0.999 |           1.286 |   1.860 |
+| (n=14) |    200 |      1.088 |        0.983 |           2.074 |   2.635 |
+
+The median ratio is essentially one at both graph orders:
+
+$$
+0.999
+\quad\text{and}\quad
+0.983.
+$$
+
+Thus, the typical empirical difference between two labelings is the same size as the difference between two independent samples of one labeling.
+
+The ratio has a wider upper tail at (n=14). This is expected because it divides two random distances, and unusually small denominator values can produce large ratios.
+
+The result supports the narrower statement:
+
+> At (2^{20}) shots, empirical differences between labelings are consistent with ordinary same-graph multinomial resampling variability.
+
+The experiment does not show that independently sampled histograms from two labelings are numerically identical. They should not be identical because they are independent random samples from the same underlying distribution.
+
+#### Readout discrimination
+
+The quotient grouping uses coordinate-wise rounding to 12 decimal places before hashing the sorted vectors.
+
+| Census | Distinct readouts | Census size | Multi-graph collision sets |
+| ------ | ----------------: | ----------: | -------------------------: |
+| (n=8)  |            11,117 |      11,117 |                          0 |
+| (n=14) |               509 |         509 |                          0 |
+
+Every graph receives a distinct computed readout at both graph orders.
+
+Because no multi-graph collision sets exist, the target-preservation statistics are undefined:
+
+##### (n=8)
+
+$$
+\eta_{\mathrm{degree}},
+\eta_{C_3},
+\eta_{C_4},
+\eta_{\mathrm{connectivity}}
+============================
+
+\text{not applicable}.
+$$
+
+##### (n=14)
+
+$$
+\eta_{C_3},
+\eta_{C_4},
+\eta_{C_5},
+\eta_{C_6},
+\eta_D
+======
+
+\text{not applicable}.
+$$
+
+There is no observed collapse whose target preservation must be classified as benign or lossy.
+
+Distinct 12-decimal keys also rule out literal equality of the computed floating-point vectors: two exactly equal arrays would necessarily produce the same rounded key.
+
+The experiment therefore establishes census-level injectivity of the computed readout at the tested angles. It does not prove universal injectivity for arbitrary graph orders, graph families, or parameter choices.
+
+#### Effective rank
+
+| Census | Readout dimension | Centered numerical rank |
+| ------ | ----------------: | ----------------------: |
+| (n=8)  |               256 |                     255 |
+| (n=14) |            16,384 |                     508 |
+
+The numerical rank uses the threshold:
+
+$$
+s_i
+
+>
+
+10^{-10}s_{\max}.
+$$
+
+Both values attain the maximum rank permitted by the corresponding data geometry.
+
+At (n=8), every probability vector sums to one. After centering, all vectors lie in the hyperplane:
+
+$$
+\sum_z x_z=0,
+$$
+
+whose dimension is:
+
+$$
+256-1=255.
+$$
+
+The observed rank is exactly 255.
+
+At (n=14), the centered matrix contains 509 graph rows, so its maximum possible rank is:
+
+$$
+509-1=508.
+$$
+
+The observed rank is exactly 508.
+
+Thus, the complete census readouts are not confined to a lower-dimensional linear subspace beyond the unavoidable normalization and centering constraints.
+
+This does not contradict the effective ranks near three observed within the E1 fixed-cycle strata. The full census can span the maximum available rank while individual structurally conditioned regions remain locally low dimensional.
+
+#### Candidate nearest-readout distances
+
+The notebook orders graphs by their largest probability and searches the 25 neighboring positions on either side for a close readout.
+
+The reported local-search distances are:
+
+| Census | Minimum candidate (L_1) |       5th percentile |               Median |
+| ------ | ----------------------: | -------------------: | -------------------: |
+| (n=8)  |    (2.159\times10^{-5}) | (4.400\times10^{-3}) | (3.126\times10^{-2}) |
+| (n=14) |    (5.868\times10^{-8}) | (2.015\times10^{-7}) | (1.061\times10^{-6}) |
+
+The scales differ substantially.
+
+At (n=8), nearby readouts are typically separated by approximately:
+
+$$
+10^{-2}.
+$$
+
+At (n=14), nearby cubic-graph readouts are separated at approximately:
+
+$$
+10^{-6},
+$$
+
+with the smallest candidate distance near:
+
+$$
+6\times10^{-8}.
+$$
+
+This agrees in scale with the previously observed precision wall among close cubic and cospectral graph pairs.
+
+However, the notebook does not compute an exhaustive nearest-neighbor search. It examines only a local window after ordering graphs by the first probability coordinate.
+
+The reported minimum is therefore the smallest distance found by that candidate search, not a certified global nearest-neighbor minimum.
+
+The zero-collision result does not depend on this approximation. The stronger statement that:
+
+$$
+5.868\times10^{-8}
+$$
+
+is the global separation floor of the complete cubic census requires an exhaustive or certified nearest-neighbor computation.
+
+#### Distance-ordering agreement
+
+##### (n=8)
+
+| Target              | Spearman (\rho) |
+| ------------------- | --------------: |
+| Degree sequence     |           0.091 |
+| Triangle count      |           0.064 |
+| 4-cycle count       |           0.076 |
+| Vertex connectivity |           0.095 |
+
+##### (n=14)
+
+| Target         | Spearman (\rho) |
+| -------------- | --------------: |
+| Triangle count |           0.906 |
+| 4-cycle count  |           0.301 |
+| 5-cycle count  |           0.118 |
+| 6-cycle count  |           0.174 |
+| Diamonds       |           0.448 |
+
+The cubic results closely reproduce the global geometric ordering observed in E1.
+
+Triangle count dominates:
+
+$$
+\rho=0.906.
+$$
+
+Four-cycle count has a weaker but clear marginal association:
+
+$$
+\rho=0.301.
+$$
+
+Five-cycle count remains weak globally:
+
+$$
+\rho=0.118,
+$$
+
+consistent with E1’s result that its stronger organization becomes visible only after conditioning on triangles and 4-cycles.
+
+Diamond count has the second-largest observed association:
+
+$$
+\rho=0.448.
+$$
+
+This indicates that diamond differences are strongly reflected in global readout distances, although the result does not establish information beyond the complete adjacency spectrum.
+
+The (n=8) correlations are uniformly small:
+
+$$
+\rho\in
+[0.064,0.095].
+$$
+
+The readout distinguishes every graph in the complete heterogeneous census, but its global metric is only weakly organized by the four tested targets.
+
+This provides an important distinction:
+
+$$
+\boxed{
+\text{injectivity}
+\neq
+\text{target-aligned geometry}
+}
+$$
+
+A representation can retain every graph-level distinction without arranging graphs according to a small set of simple invariants.
+
+#### Relationship to the earlier experiments
+
+E16/E17 connects several earlier observations.
+
+E1 showed that the cubic readout geometry is hierarchically organized by:
+
+$$
+C_3
+\rightarrow
+C_4
+\rightarrow
+C_5.
+$$
+
+The current sampled-pair correlations reproduce the same global ordering.
+
+E2 and E13 showed that cycle, diamond, and girth information is linearly accessible from the probability head. E16/E17 shows that sorting does not destroy graph-level discrimination while creating that invariant representation.
+
+E6 showed that the same circuit construction does not produce comparably organized geometry on heterogeneous-degree graph families. The weak (n=8) ordering correlations are consistent with that limitation.
+
+E7S showed that finite-shot structural decoding is difficult. The sampled-label control addresses a different issue: permutation invariance survives sampling even when subtle graph-to-graph structural differences remain below the sampling-noise floor.
+
+The experiment therefore separates three properties:
+
+1. **label invariance**;
+2. **graph discrimination**;
+3. **target-aligned geometry**.
+
+They are related but not equivalent.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The implemented sorted QuIC readout is permutation invariant to machine precision.**
+
+   Across both complete censuses and the extended relabeling checks, the worst deterministic discrepancy is below:
+
+   $$
+   2\times10^{-15}.
+   $$
+
+2. **Sampled relabeling differences are consistent with same-graph resampling noise.**
+
+   At (2^{20}) shots, the median cross-label-to-resample ratio is approximately one at both graph orders.
+
+3. **No computed readout collisions occur in either complete census.**
+
+   All 11,117 (n=8) graphs and all 509 (n=14) cubic graphs receive distinct sorted vectors.
+
+4. **No target-specific quotient loss is observed.**
+
+   The planned (\eta_y) statistics are unnecessary because there are no collision sets.
+
+5. **The census readout matrices attain their maximum possible numerical ranks.**
+
+   The observed ranks are 255 at (n=8) and 508 at (n=14).
+
+6. **Graph discrimination does not imply universal target organization.**
+
+   The cubic geometry strongly tracks triangles and diamonds, while the heterogeneous (n=8) geometry is only weakly aligned with the tested invariants.
+
+7. **The cubic distance-ordering hierarchy replicates under a separate sampled-pair analysis.**
+
+   Triangle count again dominates globally, followed by diamonds and 4-cycles.
+
+The readout quotient is therefore empirically lossless on the two tested finite censuses, while the organization of the surviving geometry remains graph-family dependent.
+
+#### Necessary qualifications
+
+Permutation invariance is a property of the construction rather than a newly discovered empirical phenomenon. The deterministic experiment validates the implementation and rules out labeling bugs; it does not supply the primary mathematical reason for invariance.
+
+The quotient grouping uses 12-decimal coordinate rounding. It is not an arbitrary-precision equality test.
+
+The absence of rounded collisions is sufficient to rule out literal floating-point equality, but the result should be described as empirical census-level injectivity rather than a proof of exact real-arithmetic injectivity.
+
+The candidate nearest-neighbor computation is not exhaustive. Graphs are ordered by their largest probability, and only a local window of 25 positions on each side is searched.
+
+Consequently, the reported minimum distances are upper bounds on the true nearest-neighbor minima. The claim that the (n=14) value is the global census separation floor is not established by the current implementation.
+
+The sampled-regime ratio is descriptive. No formal equivalence test compares the cross-label and same-label distance distributions, and ratios can have heavy upper tails when the denominator is small.
+
+Only one shot budget is tested:
+
+$$
+S=2^{20}.
+$$
+
+The result establishes consistency with resampling noise at that budget, not across the full finite-shot regime.
+
+The sampled ordering analysis uses 4,000 randomly generated pairs. Pairs can share graphs or repeat in opposite orientations, so they are not independent observations.
+
+No permutation significance tests or confidence intervals accompany the ordering correlations. They should be interpreted as descriptive effect sizes.
+
+The (n=8) and (n=14) censuses differ in both graph order and graph family. The (n=8) circuit also uses a genuinely degree-dependent encoder, whereas the cubic encoder is uniform. Differences between their geometries cannot be attributed to graph order alone.
+
+The numerical-rank result depends on the relative threshold:
+
+$$
+10^{-10}s_{\max}.
+$$
+
+It establishes full rank at that numerical resolution, not a scale-independent effective dimension.
+
+No result in E16/E17 establishes:
+
+* efficient decodability;
+* finite-shot graph discrimination;
+* hardware advantage;
+* or universal injectivity.
+
+Finally, all collision and rank results use ideal statevector probabilities. E7S shows that exact graph distinctions can remain operationally inaccessible under realistic sampling budgets.
+
+#### Overall assessment
+
+E16/E17 confirms that sorting performs its intended role.
+
+Across every graph in both complete censuses, relabeling changes the sorted statevector probabilities only at the floating-point floor. At one million shots, independently sampled readouts from two labelings differ by approximately the same amount as two independent samples of one labeling.
+
+The quotient also shows no observed loss of graph identity:
+
+$$
+11{,}117/11{,}117
+$$
+
+(n=8) graphs and:
+
+$$
+509/509
+$$
+
+(n=14) graphs have distinct computed readouts.
+
+The centered readout matrices attain their maximum possible ranks, indicating that sorting does not collapse the censuses into a small global linear subspace.
+
+The geometric consequences differ sharply by graph family. The cubic readout strongly respects triangle and diamond differences and reproduces the hierarchy observed in E1. The heterogeneous (n=8) readout is injective but only weakly organized by degree sequence, short cycles, or connectivity.
+
+The appropriate central claim is:
+
+> The descending-sorted QuIC probability vector is permutation invariant to machine precision and produces no observed graph collisions on the complete connected (n=8) census or the complete connected cubic (n=14) census. The resulting readout matrices attain their maximum possible numerical ranks, so the label quotient discards no observed graph distinction at these orders. However, injectivity does not guarantee target-aligned geometry: the cubic census retains strong cycle and diamond organization, while the heterogeneous census does not.
 
