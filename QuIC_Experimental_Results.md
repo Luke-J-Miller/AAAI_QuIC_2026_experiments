@@ -6749,3 +6749,544 @@ The appropriate central claim is:
 > Within the complete (n=16) cubic census, QuIC’s certified non-spectral residue is functionally related to graph symmetry. A group-preserving ranker using only the first 100 sorted probabilities correctly orders automorphism-group size for all 14 unequal adjacency-cospectral pairs. Wiener-index ranking is suggestive but requires permutation-based confirmation, while radius remains an illustrative four-group exhibit.
 
 
+
+
+
+### E10 - High-Dimensional Probe Validation and Shuffled-Target Control
+
+#### Experimental design
+
+E10 tests whether the strongest full-vector ridge-probe results are genuine properties of the QuIC representation or artifacts of:
+
+* one numerical solver;
+* the high-dimensional regime;
+* extremely small regularization values;
+* or a pipeline capable of manufacturing positive out-of-sample scores from noise.
+
+The analysis uses the complete connected cubic-graph censuses at:
+
+* **509 graphs at (n=14)**;
+* **4,060 graphs at (n=16)**.
+
+Each graph is represented by its complete sorted QuIC probability vector:
+
+$$
+\mathbf p(G)\in\mathbb R^{2^n},
+$$
+
+with dimensions:
+
+$$
+2^{14}=16{,}384,
+\qquad
+2^{16}=65{,}536.
+$$
+
+No truncation is applied.
+
+Four representative targets are selected:
+
+* triangle count ((C_3)), as a near-exact positive control;
+* 5-cycle count ((C_5)), as a strong nontrivial structural target;
+* 6-cycle count ((C_6)), as a weaker and less stable target;
+* diamond count, as the strongest result from the spectral-residual experiment.
+
+Diamond count is computed directly and checked through the cubic sixth-moment identity:
+
+$$
+\operatorname{tr}(A^6)
+======================
+
+87n
++
+6C_3
++
+96C_4
++
+12(C_6+D),
+$$
+
+where (D) is the number of diamonds.
+
+The identity is verified exactly for every graph at both orders.
+
+The experiment contains three principal arms.
+
+1. **Independent solver agreement**
+
+   The ridge predictions are recomputed through:
+
+   * a centered economy-SVD implementation;
+   * an independent dual Gram-matrix implementation.
+
+   Both implementations use the same outer folds, inner folds, selected regularization parameter, and centered training data.
+
+2. **Regularization-grid ablation**
+
+   The complete grid is:
+
+   $$
+   \alpha\in
+   {10^{-14},10^{-13},\ldots,10^2}.
+   $$
+
+   It is compared with a conservative grid beginning at:
+
+   $$
+   \alpha=10^{-8}.
+   $$
+
+3. **Shuffled-target control**
+
+   The target values are permuted and the complete nested pipeline is rerun, including inner-fold selection of (\alpha).
+
+   The shuffled control therefore tests the entire model-selection procedure rather than evaluating one fixed estimator after hyperparameter selection.
+
+The outer folds are the frozen shuffled seed-0 folds used by the earlier probe experiments.
+
+One implementation difference is important. The original recorded results were produced by `RidgeCV(cv=5)`, whose internal folds are unshuffled. The custom SVD and dual pipeline uses shuffled seed-0 inner folds. The custom arms therefore reproduce the same ridge estimator under a different inner-fold partition, not the exact original model-selection path.
+
+#### Numerical implementation checks
+
+Before the graph data are used, both custom ridge implementations are tested on synthetic data against sklearn ridge regression.
+
+Across the tested synthetic regularization values, both implementations match sklearn predictions within:
+
+$$
+10^{-8}.
+$$
+
+On the complete QuIC datasets, the SVD and dual predictions agree to substantially tighter than the prespecified:
+
+$$
+10^{-6}
+$$
+
+tolerance.
+
+##### (n=14)
+
+| Target   | Worst SVD–dual prediction difference |
+| -------- | -----------------------------------: |
+| (C_3)    |                  (6.7\times10^{-13}) |
+| (C_5)    |                  (9.9\times10^{-11}) |
+| (C_6)    |                  (9.6\times10^{-10}) |
+| Diamonds |                  (1.1\times10^{-11}) |
+
+##### (n=16)
+
+| Target   | Worst SVD–dual prediction difference |
+| -------- | -----------------------------------: |
+| (C_3)    |                  (8.3\times10^{-12}) |
+| (C_5)    |                   (3.9\times10^{-9}) |
+| (C_6)    |                   (5.6\times10^{-9}) |
+| Diamonds |                  (7.2\times10^{-11}) |
+
+The agreement establishes that the custom results do not depend on choosing either the primal SVD formulation or the dual sample-space formulation.
+
+It does not by itself establish agreement with the original `RidgeCV` protocol, because the inner-fold partitions differ.
+
+#### Solver and regularization results
+
+##### (n=14)
+
+| Target   | Recorded sklearn (R^2) | Live sklearn (R^2) | Custom SVD (R^2) | Custom dual (R^2) | Conservative grid (R^2) |
+| -------- | ---------------------: | -----------------: | ---------------: | ----------------: | ----------------------: |
+| (C_3)    |                  1.000 |              1.000 |            1.000 |             1.000 |                   0.953 |
+| (C_5)    |                  0.928 |              0.928 |            0.937 |             0.937 |                   0.058 |
+| (C_6)    |                  0.485 |              0.485 |            0.553 |             0.553 |                   0.192 |
+| Diamonds |                  0.993 |              0.993 |            0.997 |             0.997 |                   0.562 |
+
+The live sklearn arm exactly reproduces all four recorded (n=14) results.
+
+This is the cleanest validation in E10. It confirms that the prior values can be regenerated from:
+
+* the stored vectors;
+* the stored targets;
+* the original folds;
+* the original alpha grid;
+* and the original sklearn estimator.
+
+The custom SVD and dual paths produce the same qualitative conclusions. Their values differ slightly because their inner folds are shuffled rather than matching sklearn’s unshuffled internal partitions.
+
+The differences are small for:
+
+* (C_3);
+* (C_5);
+* diamonds.
+
+The custom (C_6) score is somewhat higher:
+
+$$
+0.553
+\quad\text{versus}\quad
+0.485.
+$$
+
+Both values indicate moderate but fold-sensitive accessibility.
+
+##### (n=16)
+
+| Target   | Recorded sklearn (R^2) | Custom SVD (R^2) | Custom dual (R^2) | Conservative grid (R^2) |
+| -------- | ---------------------: | ---------------: | ----------------: | ----------------------: |
+| (C_3)    |                  1.000 |            1.000 |             1.000 |                   0.996 |
+| (C_5)    |                  0.982 |            0.893 |             0.893 |                   0.083 |
+| (C_6)    |                  0.642 |         (-0.127) |          (-0.127) |                   0.174 |
+| Diamonds |                  0.996 |            0.995 |             0.995 |                   0.629 |
+
+No live sklearn arm is run at (n=16). The table compares the stored original results with the custom SVD and dual pipeline.
+
+The custom results reproduce:
+
+* exact triangle accessibility;
+* near-exact diamond accessibility;
+* strong, although reduced, 5-cycle accessibility.
+
+For (C_5), the score changes from:
+
+$$
+0.982
+\rightarrow
+0.893.
+$$
+
+This is a meaningful numerical difference, but both inner-fold protocols support the qualitative conclusion that (C_5) is strongly decodable.
+
+The (C_6) result does not reproduce:
+
+$$
+0.642
+\rightarrow
+-0.127.
+$$
+
+This is not a minor solver discrepancy. The SVD and dual implementations agree on the negative score, so the disagreement is not caused by choosing one linear-algebra formulation over the other.
+
+The principal protocol difference is the inner-fold partition used to select (\alpha). The result therefore shows that the (n=16) (C_6) probe is highly sensitive to the model-selection path.
+
+The original (R^2=0.642) value cannot be described as independently validated by E10.
+
+#### Dependence on near-zero regularization
+
+The full-grid models consistently select values near the bottom of the alpha grid.
+
+##### (n=14)
+
+| Target   | Selected full-grid values          | Selected conservative value |
+| -------- | ---------------------------------- | --------------------------- |
+| (C_3)    | (10^{-14}), (10^{-13}), (10^{-12}) | (10^{-8})                   |
+| (C_5)    | (10^{-14}), (10^{-13})             | (10^{-8})                   |
+| (C_6)    | (10^{-14}), (10^{-13})             | (10^{-8})                   |
+| Diamonds | (10^{-14}), (10^{-13}), (10^{-12}) | (10^{-8})                   |
+
+##### (n=16)
+
+| Target   | Selected full-grid values | Selected conservative value |
+| -------- | ------------------------- | --------------------------- |
+| (C_3)    | (10^{-14})                | (10^{-8})                   |
+| (C_5)    | (10^{-14}), (10^{-12})    | (10^{-8})                   |
+| (C_6)    | (10^{-13}), (10^{-12})    | (10^{-8})                   |
+| Diamonds | (10^{-14}), (10^{-13})    | (10^{-8})                   |
+
+The conservative grid does not reproduce the principal structural scores.
+
+At (n=14):
+
+$$
+C_5:
+0.937
+\rightarrow
+0.058,
+$$
+
+and:
+
+$$
+D:
+0.997
+\rightarrow
+0.562.
+$$
+
+At (n=16):
+
+$$
+C_5:
+0.893
+\rightarrow
+0.083,
+$$
+
+and:
+
+$$
+D:
+0.995
+\rightarrow
+0.629.
+$$
+
+The experiment therefore does not support a claim that the probe conclusions are robust to ordinary regularization scales.
+
+Instead, the useful signal occupies low-variance directions that are strongly suppressed once (\alpha) reaches (10^{-8}).
+
+#### Singular-spectrum diagnostic
+
+The singular values of the centered training matrices explain the regularization behavior.
+
+##### (n=14)
+
+The fold-1 singular-value percentiles are:
+
+|     Percentile |                   1 |                   5 |                  25 |                  50 |                  75 |                  95 |                  99 |
+| -------------: | ------------------: | ------------------: | ------------------: | ------------------: | ------------------: | ------------------: | ------------------: |
+| Singular value | (2.93\times10^{-9}) | (4.88\times10^{-9}) | (2.09\times10^{-8}) | (9.34\times10^{-8}) | (3.33\times10^{-7}) | (1.15\times10^{-5}) | (6.62\times10^{-5}) |
+
+The fraction of singular directions satisfying:
+
+$$
+s_i^2>\alpha
+$$
+
+is:
+
+| (\alpha)   | Retained fraction |
+| ---------- | ----------------: |
+| (10^{-12}) |             0.135 |
+| (10^{-8})  |             0.005 |
+| (10^{-4})  |             0.000 |
+
+##### (n=16)
+
+|     Percentile |                    1 |                    5 |                   25 |                  50 |                  75 |                  95 |                  99 |
+| -------------: | -------------------: | -------------------: | -------------------: | ------------------: | ------------------: | ------------------: | ------------------: |
+| Singular value | (5.92\times10^{-11}) | (9.19\times10^{-11}) | (4.43\times10^{-10}) | (1.74\times10^{-9}) | (9.98\times10^{-9}) | (5.88\times10^{-7}) | (1.59\times10^{-5}) |
+
+The retained fractions are:
+
+| (\alpha)   | Retained fraction |
+| ---------- | ----------------: |
+| (10^{-12}) |             0.034 |
+| (10^{-8})  |             0.002 |
+| (10^{-4})  |             0.000 |
+
+Ridge regression shrinks singular direction (i) according to:
+
+$$
+\frac{s_i^2}{s_i^2+\alpha}.
+$$
+
+At:
+
+$$
+\alpha=10^{-8},
+$$
+
+almost every graph-varying direction is strongly suppressed.
+
+The dependence on very small (\alpha) is therefore consistent with the numerical scale of the QuIC representation. It is not, by itself, evidence of a software error.
+
+It does mean that the probe operates close to the interpolation regime and that its conclusions require explicit controls for overfitting and model-selection artifacts.
+
+#### Shuffled-target results
+
+The shuffled-target arm repeats the complete nested custom-SVD pipeline after independently permuting each target.
+
+##### (n=14)
+
+| Target   | Observed (R^2) | Null mean | Null 95th percentile | Null maximum | Permutations | Empirical (p) |
+| -------- | -------------: | --------: | -------------------: | -----------: | -----------: | ------------: |
+| (C_3)    |          1.000 |  (-0.014) |             (-0.004) |     (-0.002) |           25 |        0.0385 |
+| (C_5)    |          0.937 |  (-0.016) |             (-0.003) |        0.000 |          100 |        0.0099 |
+| (C_6)    |          0.553 |  (-0.018) |             (-0.005) |     (-0.005) |           25 |        0.0385 |
+| Diamonds |          0.997 |  (-0.019) |             (-0.003) |        0.002 |           25 |        0.0385 |
+
+Every observed (n=14) score exceeds every corresponding shuffled-target run.
+
+The null scores remain at or below the constant-predictor floor even though the null models have access to the same near-zero alpha values as the observed models.
+
+This is strong evidence that the large positive (n=14) scores are not automatically generated by:
+
+* the high feature dimension;
+* the near-interpolation alpha grid;
+* or the nested model-selection procedure.
+
+##### (n=16)
+
+| Target   | Observed (R^2) | Null mean | Null 95th percentile | Null maximum | Permutations | Empirical (p) |
+| -------- | -------------: | --------: | -------------------: | -----------: | -----------: | ------------: |
+| (C_3)    |          1.000 |  (-0.002) |             (-0.000) |     (-0.000) |           25 |        0.0385 |
+| (C_5)    |          0.893 |  (-0.002) |             (-0.000) |        0.001 |           25 |        0.0385 |
+| (C_6)    |       (-0.127) |  (-0.002) |             (-0.000) |        0.001 |           25 |        1.0000 |
+| Diamonds |          0.995 |  (-0.002) |             (-0.001) |     (-0.000) |           25 |        0.0385 |
+
+The (n=16) shuffled controls validate the custom-pipeline results for:
+
+* (C_3);
+* (C_5);
+* diamonds.
+
+Each observed score exceeds every shuffled run.
+
+The (C_6) result fails:
+
+$$
+R^2_{\mathrm{observed}}=-0.127,
+$$
+
+while the shuffled null is centered near:
+
+$$
+-0.002.
+$$
+
+The empirical result is:
+
+$$
+p=1.000.
+$$
+
+Thus, under the custom inner-fold protocol, (C_6) performs worse than the shuffled-target distribution.
+
+This failure should not be hidden by a checklist restricted to (C_3), (C_5), and diamonds. It is direct evidence that the recorded (n=16) (C_6) result is protocol sensitive.
+
+#### Interpretation of the permutation control
+
+The permutation results answer a narrower question than the conservative-grid ablation.
+
+They show that making near-zero regularization available does not automatically produce high positive out-of-sample (R^2) from arbitrary labels.
+
+The results therefore support the statement:
+
+> The strong (C_3), (C_5), and diamond probes exploit repeatable alignment between QuIC features and the graph targets rather than a generic tendency of the high-dimensional ridge pipeline to fit shuffled labels.
+
+They do not support the stronger statement that:
+
+> The results are insensitive to regularization or cross-validation choices.
+
+That stronger statement is false.
+
+The informative directions require near-zero regularization, and the (n=16) (C_6) score changes qualitatively when the inner-fold partition is changed.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The original (n=14) probe results are exactly reproducible.**
+
+   A live sklearn rerun recovers the recorded values for all four targets.
+
+2. **Independent ridge formulations agree numerically.**
+
+   The SVD and dual predictions agree to approximately (10^{-9}) or better on the real QuIC matrices.
+
+3. **The strongest probe results are not generic high-dimensional artifacts.**
+
+   Shuffled targets remain at or below the prediction floor under the same nested pipeline and alpha grid.
+
+4. **The structural signal requires near-interpolation regularization.**
+
+   Raising the alpha floor to (10^{-8}) removes most of the (C_5), (C_6), and diamond accessibility.
+
+5. **The strong (n=16) (C_5) conclusion survives a change in inner-fold partition.**
+
+   Its score decreases from (0.982) to (0.893) but remains strongly positive.
+
+6. **The diamond result is highly stable.**
+
+   It remains near exact under both custom solvers and at both graph orders.
+
+7. **The recorded (n=16) (C_6) result is not validated.**
+
+   Under the custom nested protocol, its score falls from (0.642) to (-0.127) and does not exceed the shuffled null.
+
+E10 therefore validates the principal triangle, 5-cycle, and diamond probe results while exposing a genuine weakness in the 6-cycle result.
+
+#### Necessary qualifications
+
+The custom SVD and dual paths do not use the same inner folds as the original `RidgeCV(cv=5)` implementation.
+
+Their agreement establishes estimator and numerical consistency under one common protocol. It does not constitute an exact independent reproduction of the original protocol.
+
+A complete validation of the (n=16) recorded values requires either:
+
+* a live sklearn rerun at (n=16);
+* or custom SVD and dual paths using the exact unshuffled inner folds used by sklearn.
+
+The synthetic sklearn validation tests alpha values down to:
+
+$$
+10^{-6},
+$$
+
+but not the:
+
+$$
+10^{-14}\text{--}10^{-12}
+$$
+
+range selected on the QuIC data.
+
+The real-data SVD–dual agreement provides a stronger check at those scales, but both custom paths still use the same centered data and selected alpha values.
+
+Most shuffled-target arms use only 25 permutations. Their empirical (p)-values therefore have minimum resolution:
+
+$$
+\frac{1}{25+1}
+==============
+
+0.0385.
+$$
+
+The C5 arm at (n=14) uses 100 permutations and has minimum resolution:
+
+$$
+\frac{1}{100+1}
+===============
+
+0.0099.
+$$
+
+These controls are adequate for detecting gross pipeline failure but do not provide precise tail probabilities.
+
+The shuffled-target runs validate the custom SVD pipeline, not the exact original sklearn inner-fold protocol.
+
+The conservative-grid failure should not be reframed as robustness. The observed signal is genuinely concentrated in low-singular-value directions.
+
+The diamond result is a strong validation of QuIC accessibility beyond a linear spectral readout. It should not be described as proof of information beyond the complete adjacency spectrum. The exact cospectral audit found no diamond variation within the available cospectral groups.
+
+The experiment uses ideal complete probability vectors. It does not address the finite-shot inaccessibility established by E7S.
+
+Finally, E10 validates probe behavior rather than strengthening the underlying structural interpretation. It establishes that several large (R^2) values are genuine and repeatable under controlled estimators; it does not independently explain why the representation contains those targets.
+
+#### Overall assessment
+
+E10 provides a valuable but mixed validation result.
+
+The strongest outcomes are clear:
+
+* the complete (n=14) sklearn results reproduce exactly;
+* independent SVD and dual implementations agree to high precision;
+* shuffled targets remain at the prediction floor;
+* triangle, 5-cycle, and diamond accessibility remains strong under the custom pipeline.
+
+The experiment also establishes that the useful information occupies exceptionally low-variance directions. The strong structural scores disappear when the regularization floor is increased to (10^{-8}). Near-interpolation regularization is therefore a required feature of the analysis rather than an incidental implementation choice.
+
+The principal negative result is the (n=16) 6-cycle probe. Its score changes from the recorded:
+
+$$
+0.642
+$$
+
+to:
+
+$$
+-0.127
+$$
+
+when the inner-fold partition changes. It also fails the shuffled-target comparison.
+
+The appropriate central claim is:
+
+> Independent SVD and dual ridge implementations, exact (n=14) sklearn reproduction, and full-pipeline shuffled-target controls confirm that QuIC’s triangle, 5-cycle, and diamond probe results are not numerical or high-dimensional chance artifacts. These signals require near-interpolation regularization because they occupy low-singular-value feature directions. The (n=16) 6-cycle result does not survive a change in the inner cross-validation partition and should be treated as protocol sensitive rather than validated.
+
