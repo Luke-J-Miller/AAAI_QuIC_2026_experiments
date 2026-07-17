@@ -15207,3 +15207,841 @@ The appropriate central claim is:
 
 > QuIC’s strong structural accessibility transfers beyond cubic graphs to the complete connected 4-regular (n=12) census. Triangle and 4-cycle counts remain essentially exact, while 5-cycle, 6-cycle, and diamond counts remain strongly decodable, although their relative ordering changes across regularities. The same canonical circuit collapses on the complete mixed-degree (n=8) census even under full-vector decoding. Regularity therefore appears to support the organized probability geometry, but it does not impose one universal cycle hierarchy. A QAOA-style baseline shows the same broad regularity dependence, while QuIC provides stronger target-specific accessibility within the regular regime.
 
+
+
+### E24 - Folklore 2-WL Baseline
+
+#### Experimental design
+
+E24 compares QuIC with folklore 2-dimensional Weisfeiler–Leman refinement on the exact adjacency-cospectral graph classes identified at:
+
+* **(n=18)**;
+* **471 exact cospectral groups**;
+* **958 total members**.
+
+The experiment has three components.
+
+1. **E24 producer**
+
+   Computes folklore 2-WL representations for all 958 members of the exact cospectral groups and carries forward the existing QuIC representations from E14.
+
+2. **E24a ranking**
+
+   Compares QuIC and folklore 2-WL on held-out ranking of:
+
+   * Wiener index;
+   * automorphism-group order.
+
+3. **E24b witnesses**
+
+   Compares their ability to:
+
+   * distinguish the six exact cospectral diamond and 6-cycle witnesses;
+   * rank the diamond direction under leave-one-witness-out evaluation.
+
+The experiment addresses a narrower question than whether QuIC contains information beyond the adjacency spectrum.
+
+E14 already established that the relevant graph properties vary within exact adjacency-cospectral classes. E24 asks whether that non-spectral structure is also accessible to a strong classical higher-order refinement.
+
+#### Input data
+
+The producer reuses the validated E14 artifact.
+
+The complete connected cubic census contains:
+
+$$41{,}301$$
+
+graphs, from which the exact spectral partition contains:
+
+$$471\text{ groups and }958\text{ members}.$$
+
+Full QuIC probability vectors are available for:
+
+$$906=625\text{ qualifying members}+281\text{ control members}.$$
+
+These members cover:
+
+$$445$$
+
+of the 471 exact cospectral groups.
+
+The qualifying set contains every group varying in:
+
+* diamond count;
+* Wiener index;
+* automorphism-group order.
+
+Consequently, QuIC is available for every member used in the E24 ranking and witness experiments, although it is not available for all 471 groups in the census-wide expressivity table.
+
+The QuIC representation used by E24 is the first:
+
+$$k=100$$
+
+coordinates of the canonical descending-sorted probability vector.
+
+#### Integrity checks
+
+The producer repeats the E14 validation gates.
+
+The stored graph invariants satisfy:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+$$\text{tr}(A^4)=8C_4+15n,$$
+
+$$\text{tr}(A^5)=10C_5+10\text{tr}(A^3),$$
+
+and:
+
+$$\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).$$
+
+The 471 exact cospectral groups are independently reconstructed from integer trace tuples and match the E14 record.
+
+The varying-group sets are also reproduced:
+
+| Invariant    | Varying exact cospectral groups |    |    |
+| ------------ | ------------------------------: | -- | -- |
+| Diamonds     |                               6 |    |    |
+| 6-cycles     |                               6 |    |    |
+| 7-cycles     |                              18 |    |    |
+| Wiener index |                             283 |    |    |
+| Radius       |                              75 |    |    |
+| Diameter     |                              53 |    |    |
+| $$\log_2     |                   \text{Aut}(G) | $$ | 90 |
+
+All 958 cospectral members are reconstructed from their graph6 strings.
+
+The full graph-invariant suite is recomputed for the 906 members represented in the E14 artifact and matches the stored values.
+
+Three QuIC vectors are independently rebuilt through Qiskit. Their worst coordinate discrepancy is below:
+
+$$10^{-12}.$$
+
+The folklore 2-WL analysis therefore operates on the same validated graph classes and targets as E14 and E14N.
+
+#### Folklore 2-WL construction
+
+The representation is folklore 2-WL on ordered vertex pairs.
+
+The initial pair colors distinguish:
+
+* diagonal pairs;
+* edges;
+* nonedges.
+
+For each ordered pair ((u,v)), one refinement round replaces its color with a content-addressed digest of:
+
+* its previous color;
+* the sorted multiset of color pairs:
+
+$${(c(u,w),c(w,v)):w\in V}.$$
+
+The implementation uses 128-bit BLAKE2b digests rather than Python’s process-dependent `hash()` function.
+
+Every graph is refined synchronously. A common structural signature therefore receives the same digest across different graphs.
+
+Two graph representations are retained.
+
+1. **Stable folklore 2-WL**
+
+   Uses only the histogram from the final refining round.
+
+2. **Cumulative folklore 2-WL**
+
+   Concatenates the normalized color histograms from every stored refinement round.
+
+The cumulative representation preserves the path by which the stable partition is reached rather than retaining only the final partition.
+
+#### Refinement behavior
+
+The full 958-member refinement stabilizes after round four.
+
+| Round | Global distinct colors |
+| ----: | ---------------------: |
+|     0 |                      3 |
+|     1 |                      8 |
+|     2 |                  1,497 |
+|     3 |                250,232 |
+|     4 |                262,375 |
+
+The next refinement produces no increase in the number of color classes, so round four is retained as the stable representation.
+
+The complete sparse representation contains:
+
+$$639{,}485$$
+
+nonzero member-round entries.
+
+No pair of members within one exact cospectral group has the same cumulative folklore 2-WL fingerprint.
+
+The producer therefore finds:
+
+$$0$$
+
+within-group cumulative ties.
+
+Because there are no ties, the planned 256-bit recheck has no candidate collisions to reevaluate.
+
+#### Census-level expressivity
+
+| Representation           | Exact cospectral groups fully separated | Groups evaluated |
+| ------------------------ | --------------------------------------: | ---------------: |
+| Stable folklore 2-WL     |                                     471 |              471 |
+| Cumulative folklore 2-WL |                                     471 |              471 |
+| QuIC top-100             |                                     445 |              445 |
+
+Both folklore 2-WL representations distinguish every member within every one of the 471 exact cospectral groups.
+
+QuIC also distinguishes every evaluated group using only its first 100 probabilities.
+
+The coverage differs.
+
+Folklore 2-WL is evaluated on:
+
+$$471/471$$
+
+groups.
+
+QuIC is evaluated on:
+
+$$445/471$$
+
+groups because full QuIC vectors were not produced for the remaining 26 groups.
+
+The result therefore establishes perfect separation for each representation over its available coverage. It does not establish a complete 471-group QuIC comparison.
+
+Among the 445 commonly covered groups, both QuIC and folklore 2-WL fully separate every group.
+
+#### Expressivity does not imply inductive ranking
+
+The stable folklore 2-WL histogram distinguishes every cospectral group, but this does not mean that its color coordinates transfer across unrelated groups.
+
+At stabilization, many colors describe highly graph-specific structural signatures. A final-round color appearing only in a held-out graph has no corresponding coefficient in a model whose vocabulary was constructed from training graphs.
+
+E24a therefore builds the folklore 2-WL feature vocabulary from the training partition only.
+
+Test-only colors are discarded and receive implicit weight zero.
+
+This inductive protocol separates two questions:
+
+* whether the representation distinguishes graphs when both are available;
+* whether shared coordinates support a ranking rule that transfers to unseen cospectral groups.
+
+The stable and cumulative representations behave very differently under this distinction.
+
+#### Held-out ranking protocol
+
+The ranking targets are:
+
+* Wiener index across 283 varying exact cospectral groups;
+* $$\log_2|\text{Aut}(G)|$$ across 90 varying exact cospectral groups.
+
+Every relevant member has both:
+
+* a QuIC top-100 vector;
+* folklore 2-WL histogram blocks.
+
+Four representations are compared:
+
+1. QuIC top-100;
+2. stable folklore 2-WL;
+3. cumulative folklore 2-WL;
+4. QuIC top-100 concatenated with cumulative folklore 2-WL.
+
+The deterministic group partition from E14N is reused.
+
+| Target       |   Partition 0 | Partition 1 |           |           |
+| ------------ | ------------: | ----------: | --------- | --------- |
+| Wiener index |    131 groups |  152 groups |           |           |
+| $$\log_2     | \text{Aut}(G) |          $$ | 40 groups | 50 groups |
+
+Both directions are evaluated:
+
+* train on partition 0 and test on partition 1;
+* train on partition 1 and test on partition 0.
+
+No graph from a test cospectral group appears in the corresponding training set.
+
+#### Ranking model
+
+For each unequal-target pair ((G_i,G_j)), the feature is the representation difference:
+
+$$\mathbf x_{ij}=\phi(G_i)-\phi(G_j).$$
+
+The label is:
+
+$$y_{ij}=\text{sign}(t(G_i)-t(G_j)).$$
+
+The model is:
+
+* intercept-free logistic regression;
+* (L_2) regularization;
+* dual-form `liblinear`;
+* fixed (C=1);
+* both pair orientations included.
+
+For concatenation, QuIC and folklore 2-WL are independently scaled by their training-set pairwise root-mean-square block energies.
+
+The same scaling procedure is also applied to each standalone representation.
+
+The primary score is group-balanced accuracy:
+
+$$A_{\text{group}}=\frac{1}{|\mathcal G_{\text{test}}|}\sum_{g\in\mathcal G_{\text{test}}}A_g.$$
+
+Each exact cospectral group therefore receives equal weight.
+
+The null permutes target assignments within each held-out group while keeping the fitted decision margins fixed.
+
+Each direction uses:
+
+$$100{,}000$$
+
+permutation draws.
+
+The add-one resolution is:
+
+$$\frac{1}{100{,}001}\approx10^{-5}.$$
+
+The two directional values are summarized by:
+
+$$p_{\text{Bonferroni}}=2\min(p_A,p_B).$$
+
+This is an omnibus test for evidence in at least one direction. It is not, by itself, a test of replication across both directions.
+
+#### Null calibration
+
+The fixed-margin permutation procedure is tested on synthetic group data.
+
+* Perfectly aligned margins reach the permutation floor.
+* Independent noise produces approximately uniform (p)-values.
+
+The validation passes the notebook’s prespecified tolerances.
+
+#### Wiener-index ranking
+
+| Representation            | Train 0, test 1 | Permutation (p) | Train 1, test 0 | Permutation (p) | Bonferroni (p) |
+| ------------------------- | --------------: | --------------: | --------------: | --------------: | -------------: |
+| QuIC top-100              |           0.533 |          0.2070 |           0.551 |          0.1237 |         0.2473 |
+| Stable folklore 2-WL      |           0.000 |          1.0000 |           0.000 |          1.0000 |         1.0000 |
+| Cumulative folklore 2-WL  |           0.817 |       (<0.0001) |           0.837 |       (<0.0001) |      (<0.0001) |
+| QuIC plus cumulative 2-WL |           0.800 |       (<0.0001) |           0.830 |       (<0.0001) |      (<0.0001) |
+
+Cumulative folklore 2-WL strongly ranks Wiener index in both directions.
+
+Its group-balanced accuracies are:
+
+$$0.817\quad\text{and}\quad0.837.$$
+
+Both results lie far beyond their within-group permutation nulls.
+
+QuIC performs only modestly above chance:
+
+$$0.533\quad\text{and}\quad0.551,$$
+
+and neither direction is significant under the E24 model configuration.
+
+The concatenated representation also ranks Wiener index strongly, but it does not improve upon cumulative folklore 2-WL:
+
+$$0.800<0.817,$$
+
+and:
+
+$$0.830<0.837.$$
+
+The primary classical baseline is therefore substantially stronger than QuIC on this target.
+
+#### Stable folklore 2-WL on Wiener index
+
+Stable folklore 2-WL obtains:
+
+$$0.000$$
+
+in both directions.
+
+This should not be interpreted as inverse ranking.
+
+The scoring rule treats a zero decision margin as a failure. Under the inductive vocabulary, final-round colors are sufficiently graph specific that the held-out stable histograms provide no usable shared coordinates to the trained model.
+
+The result therefore means:
+
+> The stable histogram is maximally discriminative when graphs are compared directly, but its final color identities do not support transferable ranking under the train-only vocabulary.
+
+The cumulative representation succeeds because the earlier refinement rounds retain shared structural coordinates across graph groups.
+
+#### Wiener error overlap
+
+A group is counted as correct in the overlap table only when every unequal pair in that group is correctly ranked.
+
+| Outcome                               | Groups |
+| ------------------------------------- | -----: |
+| QuIC and cumulative 2-WL both correct |    131 |
+| QuIC only                             |     18 |
+| Cumulative 2-WL only                  |    100 |
+| Neither                               |     34 |
+
+The categories sum to:
+
+$$283$$
+
+Wiener-varying groups.
+
+QuIC and cumulative folklore 2-WL do not make identical errors.
+
+QuIC uniquely solves 18 groups, while cumulative folklore 2-WL uniquely solves 100.
+
+The concatenated model correctly handles 102 groups belonging to one of the two exclusive-success categories.
+
+This demonstrates representational complementarity at the level of individual groups.
+
+It does not demonstrate an aggregate concatenation advantage. The concatenated mean accuracy remains slightly below cumulative folklore 2-WL.
+
+#### Wiener aggregate comparison
+
+Combining each group’s held-out result across the two split directions gives:
+
+| Representation            | Mean group-balanced accuracy |
+| ------------------------- | ---------------------------: |
+| QuIC                      |                        0.541 |
+| Cumulative folklore 2-WL  |                        0.827 |
+| QuIC plus cumulative 2-WL |                        0.814 |
+
+The bootstrap interval for:
+
+$$T_{\text{QuIC}}-T_{\text{2WL}}$$
+
+is:
+
+$$[-0.352,-0.218].$$
+
+The interval lies entirely below zero.
+
+Cumulative folklore 2-WL therefore has a clear aggregate advantage over QuIC under the E24 ranking protocol.
+
+The bootstrap interval for:
+
+$$T_{\text{concat}}-\max(T_{\text{QuIC}},T_{\text{2WL}})$$
+
+is:
+
+$$[-0.042,0.015].$$
+
+This interval contains zero.
+
+The experiment provides no evidence that simple concatenation improves upon the stronger cumulative folklore 2-WL baseline.
+
+#### Automorphism-order ranking
+
+| Representation            | Train 0, test 1 | Permutation (p) | Train 1, test 0 | Permutation (p) | Bonferroni (p) |
+| ------------------------- | --------------: | --------------: | --------------: | --------------: | -------------: |
+| QuIC top-100              |           0.660 |          0.0144 |           0.425 |          0.8392 |         0.0288 |
+| Stable folklore 2-WL      |           0.000 |          1.0000 |           0.000 |          1.0000 |         1.0000 |
+| Cumulative folklore 2-WL  |           0.700 |          0.0030 |           0.604 |          0.0956 |         0.0061 |
+| QuIC plus cumulative 2-WL |           0.700 |          0.0027 |           0.629 |          0.0519 |         0.0054 |
+
+The automorphism result is split asymmetric for every informative representation.
+
+##### QuIC
+
+One direction reaches:
+
+$$A_{\text{group}}=0.660,\qquad p=0.0144.$$
+
+The reverse direction falls below chance:
+
+$$A_{\text{group}}=0.425,\qquad p=0.8392.$$
+
+The Bonferroni omnibus value is:
+
+$$p=0.0288.$$
+
+This establishes evidence in one prespecified direction, not replication across both halves.
+
+##### Cumulative folklore 2-WL
+
+One direction reaches:
+
+$$A_{\text{group}}=0.700,\qquad p=0.0030.$$
+
+The reverse direction reaches:
+
+$$A_{\text{group}}=0.604,\qquad p=0.0956.$$
+
+The reverse effect is positive but does not meet a conventional (0.05) threshold.
+
+##### Concatenated representation
+
+The concatenated model obtains:
+
+$$0.700,\qquad p=0.0027$$
+
+in one direction and:
+
+$$0.629,\qquad p=0.0519$$
+
+in the other.
+
+The reverse value narrowly misses (0.05), but it remains nonsignificant under that threshold.
+
+The notebook’s `same_direction_replication` flag checks only whether both observed accuracies exceed their null means. That condition is not sufficient to establish inferential replication.
+
+The appropriate conclusion is that cumulative folklore 2-WL and the concatenated representation show strong one-direction evidence with weaker reverse-direction support.
+
+#### Automorphism error overlap
+
+| Outcome                               | Groups |
+| ------------------------------------- | -----: |
+| QuIC and cumulative 2-WL both correct |     38 |
+| QuIC only                             |     12 |
+| Cumulative 2-WL only                  |     20 |
+| Neither                               |     20 |
+
+The categories sum to:
+
+$$90$$
+
+automorphism-varying groups.
+
+The concatenated representation recovers 19 groups from the two exclusive-success categories.
+
+As with Wiener index, the overlap shows that QuIC and folklore 2-WL are not structurally identical.
+
+#### Automorphism aggregate comparison
+
+| Representation            | Mean group-balanced accuracy |
+| ------------------------- | ---------------------------: |
+| QuIC                      |                        0.556 |
+| Cumulative folklore 2-WL  |                        0.657 |
+| QuIC plus cumulative 2-WL |                        0.669 |
+
+The bootstrap interval for:
+
+$$T_{\text{QuIC}}-T_{\text{2WL}}$$
+
+is:
+
+$$[-0.220,0.022].$$
+
+The interval includes zero.
+
+The experiment therefore does not establish a reliable aggregate difference between QuIC and cumulative folklore 2-WL for automorphism order.
+
+The concatenated model has the highest point estimate:
+
+$$0.669.$$
+
+However, the interval for:
+
+$$T_{\text{concat}}-\max(T_{\text{QuIC}},T_{\text{2WL}})$$
+
+is:
+
+$$[-0.033,0.056].$$
+
+This interval also includes zero.
+
+The point estimate is compatible with complementarity, but the experiment does not establish that concatenation improves aggregate held-out ranking.
+
+#### Diamond and 6-cycle witnesses
+
+E24b evaluates the six exact adjacency-cospectral pairs that exchange one diamond for one 6-cycle.
+
+Within each pair:
+
+$$|\Delta D|=1,\qquad\Delta C_6=-\Delta D.$$
+
+Because the complete spectrum fixes:
+
+$$C_6+D,$$
+
+diamond ranking and 6-cycle ranking are the same directional problem with reversed labels.
+
+All six witness pairs are distinguished by:
+
+* stable folklore 2-WL;
+* cumulative folklore 2-WL;
+* QuIC top-100.
+
+| Representation           | Witness pairs separated |
+| ------------------------ | ----------------------: |
+| Stable folklore 2-WL     |                     6/6 |
+| Cumulative folklore 2-WL |                     6/6 |
+| QuIC top-100             |                     6/6 |
+
+The direct witnesses are therefore not difficult for folklore 2-WL.
+
+They establish information beyond the adjacency spectrum, but not information beyond this higher-order classical representation.
+
+#### Leave-one-witness-out diamond ranking
+
+For each of the six witness pairs:
+
+1. five pairs are used to train the antisymmetric ranker;
+2. the sixth pair is held out;
+3. the model predicts which member carries the diamond.
+
+The folklore 2-WL vocabulary is rebuilt from the five training witnesses in each fold.
+
+The exact null enumerates all:
+
+$$2^6=64$$
+
+possible assignments of diamond directions across the six groups.
+
+Unlike E14’s add-one permutation value, E24b reports the exhaustive tail frequency directly.
+
+| Representation            | Correct witnesses | Exact null mean | Exact (p) |
+| ------------------------- | ----------------: | --------------: | --------: |
+| QuIC top-100              |               6/6 |             3.0 |   0.03125 |
+| Cumulative folklore 2-WL  |               6/6 |             3.0 |   0.03125 |
+| QuIC plus cumulative 2-WL |               6/6 |             3.0 |   0.03125 |
+
+Every representation correctly ranks all six held-out witness pairs.
+
+The exact tail contains two of the 64 possible direction assignments, giving:
+
+$$p=\frac{2}{64}=0.03125.$$
+
+The result is stronger numerically than the conservative E14 add-one value:
+
+$$p=\frac{3}{65}=0.0462,$$
+
+but it represents the same six-pair evidence.
+
+Cumulative folklore 2-WL exactly matches QuIC on the direct diamond witness task.
+
+Concatenation cannot improve on the saturated:
+
+$$6/6$$
+
+result.
+
+#### Relationship to E3C
+
+E3C found the same distinction on the (n=14) and (n=16) cubic censuses:
+
+* final stable folklore 2-WL histograms were highly discriminative;
+* stable-only linear decoding was weak;
+* cumulative refinement histories supported strong structural decoding.
+
+E24 extends that result to the exact cospectral residue at (n=18).
+
+The final stable partition identifies every graph, but its graph-specific color coordinates transfer poorly.
+
+The cumulative refinement path provides the reusable structural features.
+
+This distinction is central to interpreting folklore 2-WL:
+
+$$\boxed{\text{stable expressivity}\neq\text{inductive structural accessibility}}$$
+
+#### Relationship to E14 and E14N
+
+E14 established that QuIC ranks:
+
+* the six diamond and 6-cycle witnesses;
+* Wiener index;
+* automorphism-group order
+
+within exact adjacency-cospectral classes.
+
+E14N supplied a cleaner deterministic split-null confirmation for Wiener index and one-direction confirmation for automorphism order.
+
+E24 shows that those properties are also accessible to folklore 2-WL.
+
+The strongest comparison is Wiener index.
+
+Under the E24 protocol:
+
+$$T_{\text{2WL}}=0.827>T_{\text{QuIC}}=0.541.$$
+
+For automorphism order, the two representations are less clearly separated:
+
+$$T_{\text{2WL}}=0.657,\qquad T_{\text{QuIC}}=0.556,$$
+
+with a bootstrap interval that includes zero.
+
+On the six diamond witnesses, both methods obtain:
+
+$$6/6.$$
+
+The appropriate conclusion is therefore:
+
+> QuIC’s non-spectral residue is structurally meaningful, but it is not inaccessible to a strong higher-order classical refinement.
+
+#### Difference from the E14N QuIC protocol
+
+E24 describes its ranker as the E14N ranker generalized to arbitrary representations. The implementation is not identical.
+
+E14N scales the QuIC pair-difference matrix using the root mean square across all matrix entries:
+
+$$s_{\text{E14N}}=\sqrt{\text{mean}*{i,j}(X*{ij}^2)}.$$
+
+E24 scales each representation block using the root mean square of pairwise row energies:
+
+$$s_{\text{E24}}=\sqrt{\text{mean}_i|X_i|_2^2}.$$
+
+For a 100-dimensional QuIC block:
+
+$$s_{\text{E24}}=\sqrt{100},s_{\text{E14N}}=10s_{\text{E14N}}.$$
+
+E24 therefore divides the QuIC differences by a scale ten times larger.
+
+Because the logistic model retains the fixed value:
+
+$$C=1,$$
+
+this changes the effective regularization strength.
+
+E24 also uses dual-form `liblinear`, while E14N used the default logistic-regression solver.
+
+These differences explain why E24 does not reproduce the E14N QuIC values.
+
+For Wiener index, E14N reported approximately:
+
+$$0.603\quad\text{and}\quad0.607,$$
+
+while E24 reports:
+
+$$0.533\quad\text{and}\quad0.551.$$
+
+For automorphism order, E14N reported:
+
+$$0.740\quad\text{and}\quad0.517,$$
+
+while E24 reports:
+
+$$0.660\quad\text{and}\quad0.425.$$
+
+The E24 QuIC row is valid within the common E24 model and scaling protocol. It should not replace the E14N result or be described as an exact replication.
+
+A stricter comparison would either:
+
+* preserve the E14N QuIC preprocessing for the QuIC-only arm;
+* select (C) separately within each training partition;
+* or prespecify representation-specific regularization after scale normalization.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **Folklore 2-WL separates every exact adjacency-cospectral group at (n=18).**
+
+   Both stable and cumulative histograms distinguish all 471 groups.
+
+2. **QuIC top-100 separates all 445 exact cospectral groups for which it was computed.**
+
+3. **All three tested representations separate all six diamond and 6-cycle witness pairs.**
+
+4. **Cumulative folklore 2-WL ranks the diamond direction in all six leave-one-witness-out folds.**
+
+   It exactly matches QuIC at (6/6), with exhaustive (p=0.03125).
+
+5. **Cumulative folklore 2-WL strongly ranks Wiener index in both deterministic split directions.**
+
+   Its group-balanced accuracies are (0.817) and (0.837).
+
+6. **Cumulative folklore 2-WL substantially exceeds QuIC on Wiener index under the E24 protocol.**
+
+   The bootstrap interval for the aggregate difference lies entirely below zero from the QuIC perspective.
+
+7. **Automorphism-order ranking is split asymmetric.**
+
+   Cumulative folklore 2-WL and the concatenated representation are strong in one direction but do not independently reject the reverse-direction null at (0.05).
+
+8. **Stable folklore 2-WL is expressively complete but inductively unusable under the train-only final-color vocabulary.**
+
+9. **QuIC and cumulative folklore 2-WL have nonidentical error sets.**
+
+   Each uniquely solves some groups.
+
+10. **Simple concatenation does not establish an aggregate improvement over cumulative folklore 2-WL.**
+
+11. **QuIC’s exact-cospectral residue is not beyond folklore 2-WL.**
+
+E24 therefore provides a strong classical explanation for much of the functional structure found in E14.
+
+#### Necessary qualifications
+
+The folklore 2-WL analysis covers only the 958 members of exact adjacency-cospectral groups, not the full 41,301-graph census.
+
+The statement:
+
+$$471/471$$
+
+therefore refers to the exact cospectral partition, not all cubic graphs at (n=18).
+
+QuIC expressivity is evaluated on only 445 of the 471 groups. The remaining 26 groups do not have stored QuIC vectors.
+
+The folklore 2-WL colors are represented by 128-bit cryptographic digests rather than exact symbolic identifiers.
+
+No within-group cumulative ties occur, so the planned 256-bit recheck is not exercised on any pair. The collision probability is negligible, but the result remains hash based.
+
+The refinement depth is determined from stabilization across all 958 graphs.
+
+Although the ranking vocabulary is train only, the decision to retain rounds zero through four was informed by the complete producer set. A fully inductive implementation could fix the number of refinement rounds before constructing the train/test split.
+
+The stable folklore 2-WL score of zero should not be interpreted as poor expressivity or systematic reverse ordering.
+
+Test-only stable colors are discarded, and exact zero margins are counted as failures. The notebook does not separately report the fraction of test pairs receiving zero margins.
+
+The group-balanced permutation values printed as (0.0000) are rounded to four decimal places. With 100,000 draws, they should be reported as below the displayed resolution rather than as exact zero.
+
+The Bonferroni statistic:
+
+$$2\min(p_A,p_B)$$
+
+tests whether at least one direction is significant after considering both. It does not establish two-direction replication.
+
+This distinction is especially important for automorphism order.
+
+The overlap table defines a group as correct only when its accuracy is exactly one. A multi-member group with most, but not all, pairs correctly ranked is placed in the incorrect category.
+
+The overlap counts are therefore stricter than the mean group-balanced accuracies.
+
+The bootstrap resamples fixed held-out group accuracies. It does not refit the representations or models within each bootstrap draw.
+
+The E24 ranker changes both scaling and solver relative to E14N. The QuIC-only results are therefore not an exact protocol replication.
+
+The train-only block-energy normalization is reasonable for concatenation, but applying one fixed (C) after representation-dependent scaling does not guarantee equivalent regularization across representations.
+
+The random-number seeds for the permutation and bootstrap procedures include Python’s built-in `hash()` function. Unless `PYTHONHASHSEED` is fixed, exact sampled values may vary across processes.
+
+The cumulative folklore 2-WL feature space is much larger than the QuIC top-100 space. E24 evaluates structural accessibility, not equal dimensionality, runtime, memory, or computational cost.
+
+The producer computes folklore 2-WL on graphs with only 18 vertices. Its practical cost at larger graph orders is not evaluated.
+
+The six-witness result remains based on only six independent cospectral classes. The exhaustive null makes the inference exact for those classes but does not increase their number.
+
+Finally, all QuIC results use ideal probabilities. The comparison does not address finite-shot accessibility.
+
+#### Overall assessment
+
+E24 supplies the strongest classical baseline for the exact-cospectral results.
+
+Folklore 2-WL separates every one of the 471 exact cospectral groups. Its cumulative refinement history also provides strong functional coordinates.
+
+On Wiener index, cumulative folklore 2-WL reaches:
+
+$$0.817\quad\text{and}\quad0.837$$
+
+across the two deterministic split directions, compared with:
+
+$$0.533\quad\text{and}\quad0.551$$
+
+for QuIC under the E24 ranking configuration.
+
+The aggregate bootstrap interval confirms a substantial classical advantage on this target.
+
+On automorphism order, cumulative folklore 2-WL is strong in one direction and positive but nonsignificant in the reverse direction. QuIC is likewise split asymmetric. Neither representation has a clearly established aggregate advantage after group-level bootstrapping.
+
+On the six direct diamond and 6-cycle witnesses, cumulative folklore 2-WL exactly matches QuIC:
+
+$$6/6,\qquad p=0.03125.$$
+
+Stable folklore 2-WL provides an important negative result of a different kind. It distinguishes every graph but obtains zero ranking accuracy under the inductive train-only vocabulary. The cumulative path, rather than the final partition alone, carries transferable structural information.
+
+QuIC retains exclusive successes on both ranking targets, showing that the two representations are not identical. Simple concatenation, however, does not significantly improve upon the stronger standalone method.
+
+The appropriate central claim is:
+
+> Folklore 2-WL fully separates all 471 exact adjacency-cospectral classes at (n=18) and functionally recovers the same non-spectral graph properties identified by QuIC. Its cumulative refinement history ranks Wiener index substantially better than QuIC under the common E24 protocol, provides one-direction evidence for automorphism-group order, and matches QuIC’s perfect 6-of-6 ranking of the direct diamond and 6-cycle witnesses. Stable final histograms remain fully discriminative but fail to transfer under an inductive vocabulary, showing that the reusable signal lies in the refinement trajectory rather than stable expressivity alone. QuIC’s non-spectral residue is therefore structurally meaningful but not beyond folklore 2-WL.
+
