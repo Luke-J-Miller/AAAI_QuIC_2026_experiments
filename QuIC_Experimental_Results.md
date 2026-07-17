@@ -11593,6 +11593,784 @@ The appropriate central claim is:
 
 
 
+### E18 - Circuit Family Screen
+
+#### Experimental design
+
+E18 compares seven quantum graph circuits constructed from a common gate family.
+
+The analysis uses two complete graph censuses:
+
+* **11,117 connected graphs at (n=8)**;
+* **509 connected cubic graphs at (n=14)**.
+
+Each circuit produces a descending-sorted Born-probability vector. The decoder uses:
+
+* the complete 256-dimensional vector at (n=8);
+* the first 1,000 coordinates of the 16,384-dimensional vector at (n=14).
+
+The tested circuits are:
+
+1. **C0 — preparation-only control**
+
+   A uniform graph-independent (R_X) preparation with no edge gate and no mixer.
+
+2. **C1 — phase-only control**
+
+   The same uniform preparation followed by graph-edge (R_{ZZ}) gates, with no mixer.
+
+3. **C2 — canonical QuIC**
+
+   A normalized degree-dependent (R_X) preparation followed by one graph-edge (R_{ZZ}) layer and one uniform (R_X) mixer.
+
+4. **C3 — QAOA-style preparation**
+
+   A (|+\rangle^{\otimes n}) preparation followed by one graph-edge (R_{ZZ}) layer and one uniform (R_X) mixer.
+
+5. **C4 — two-repetition QuIC**
+
+   The C2 entangler–mixer block is repeated twice with tied angles.
+
+6. **C5 — Y-mixer QuIC**
+
+   The C2 circuit is retained, but its final (R_X) mixer is replaced by an (R_Y) mixer.
+
+7. **C6 — non-equivariant index encoder**
+
+   The normalized degree encoder is replaced by an index-dependent rotation that deliberately changes under vertex relabeling.
+
+The circuit angles are fixed throughout:
+
+$$
+\alpha=2.875,\qquad\gamma=2.0,\qquad\beta=0.1.
+$$
+
+No circuit-angle optimization is performed.
+
+The target sets are:
+
+##### (n=8)
+
+* degree variance;
+* triangle count;
+* 4-cycle count;
+* vertex connectivity.
+
+##### (n=14)
+
+* triangle count;
+* 4-cycle count;
+* 5-cycle count;
+* 6-cycle count;
+* diamond count;
+* girth.
+
+Diamond count is certified through the cubic identity:
+
+$$
+\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).
+$$
+
+All targets are decoded using five shuffled outer folds and the standing ridge grid:
+
+$$
+\alpha_{\text{ridge}}\in{10^{-14},10^{-13},\ldots,10^2}.
+$$
+
+The experiment is structured as a set of controlled contrasts:
+
+* C0 and C1 test graph blindness;
+* C2 versus C3 tests the initial preparation;
+* C2 versus C4 tests tied-angle circuit depth;
+* C2 versus C5 tests the mixer axis;
+* C2 versus C6 tests permutation equivariance.
+
+#### Correction relative to the original E18 run
+
+The original E18 notebook implemented the degree encoder as:
+
+$$
+R_X(\alpha d_i).
+$$
+
+The canonical QuIC encoder is:
+
+$$
+R_X\left(\alpha\frac{d_i}{\Delta}\right),
+$$
+
+where (\Delta) is the maximum degree of the graph.
+
+The corrected notebook applies maximum-degree normalization in C2, C4, and C5.
+
+On the cubic census, the original circuit applied:
+
+$$
+R_X(8.625)
+$$
+
+to every qubit, while the corrected circuit applies:
+
+$$
+R_X(2.875).
+$$
+
+The following arms are unchanged by the correction:
+
+* C0 and C1, which use the flat encoder;
+* C3, which uses no degree encoder;
+* C6, which uses the index encoder;
+* all graph-blindness conclusions;
+* all distinct-readout counts;
+* the C6 relabeling-sensitivity results.
+
+The numerical decoder rows for C2, C4, and C5 change substantially. The original E18 result should therefore be replaced rather than combined with the corrected run.
+
+#### Target and census validation
+
+The notebook enumerates:
+
+$$
+11{,}117
+$$
+
+connected unlabeled graphs at (n=8), and:
+
+$$
+509
+$$
+
+connected cubic graphs at (n=14).
+
+For the cubic census, it verifies:
+
+$$
+\text{tr}(A^3)=6C_3,
+$$
+
+$$
+\text{tr}(A^4)=8C_4+15n,
+$$
+
+and:
+
+$$
+\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).
+$$
+
+All identities hold exactly.
+
+#### Canonical-encoder correctness gate
+
+The corrected C2 row is compared with the independently recorded E2 full-vector results.
+
+| Target   | Corrected E18 | E2 reference | Absolute difference |
+| -------- | ------------: | -----------: | ------------------: |
+| (C_3)    |         1.000 |        1.000 |               0.000 |
+| (C_4)    |         0.998 |        0.998 |               0.000 |
+| (C_5)    |         0.928 |        0.928 |               0.000 |
+| (C_6)    |         0.484 |        0.485 |               0.001 |
+| Diamonds |         0.993 |        0.993 |               0.000 |
+| Girth    |         0.993 |        0.993 |               0.000 |
+
+The worst discrepancy is:
+
+$$
+0.001.
+$$
+
+The corrected top-1,000 C2 representation therefore reproduces the independent canonical QuIC record.
+
+This gate distinguishes the corrected encoder from the original unnormalized circuit, whose cubic scores included:
+
+$$
+R^2_{C_5}=0.985,\qquad R^2_{C_6}=0.901.
+$$
+
+Those inflated values do not belong to canonical QuIC.
+
+#### Graph-blindness controls
+
+The graph-blindness test compares each control circuit across 50 additional graphs at each graph order.
+
+| Census | C0 preparation only |        C1 phase only |
+| ------ | ------------------: | -------------------: |
+| (n=8)  |               0.000 | (5.99\times10^{-16}) |
+| (n=14) |               0.000 | (5.65\times10^{-17}) |
+
+Both circuits satisfy:
+
+$$
+L_1<10^{-12}.
+$$
+
+The full-census fingerprint counts confirm the collapse:
+
+| Census | C0 distinct readouts | C1 distinct readouts |
+| ------ | -------------------: | -------------------: |
+| (n=8)  |             1/11,117 |             1/11,117 |
+| (n=14) |                1/509 |                1/509 |
+
+C0 is graph blind because it contains no graph-dependent gate.
+
+C1 contains graph-dependent diagonal phases, but those phases do not change computational-basis probabilities. The statevector phases depend on the graph, while the Born-probability vector does not.
+
+Sorting is therefore not required to make C1 probability blind. The graph dependence has already disappeared when amplitudes are converted to probabilities.
+
+The controls reproduce the E9 mechanism:
+
+$$
+\boxed{\text{graph-dependent phase requires a noncommuting layer to affect measurement probabilities}}
+$$
+
+#### Readout distinctness
+
+The complete sorted vectors are rounded to 12 decimal places and hashed.
+
+##### (n=8)
+
+| Circuit             | Distinct readouts | Census size |
+| ------------------- | ----------------: | ----------: |
+| C0 preparation only |                 1 |      11,117 |
+| C1 phase only       |                 1 |      11,117 |
+| C2 canonical QuIC   |            11,117 |      11,117 |
+| C3 QAOA preparation |            11,117 |      11,117 |
+| C4 two repetitions  |            11,117 |      11,117 |
+| C5 Y mixer          |            11,117 |      11,117 |
+| C6 non-equivariant  |            11,117 |      11,117 |
+
+##### (n=14)
+
+| Circuit             | Distinct readouts | Census size |
+| ------------------- | ----------------: | ----------: |
+| C0 preparation only |                 1 |         509 |
+| C1 phase only       |                 1 |         509 |
+| C2 canonical QuIC   |               509 |         509 |
+| C3 QAOA preparation |               509 |         509 |
+| C4 two repetitions  |               509 |         509 |
+| C5 Y mixer          |               509 |         509 |
+| C6 non-equivariant  |               509 |         509 |
+
+Every graph-dependent circuit produces a distinct rounded readout for every census graph.
+
+For C2 through C5, this is evidence of census-level injectivity for several equivariant circuit constructions.
+
+The C6 result has a different interpretation. It separates the canonically labeled census graphs but does not define an isomorphism-invariant graph representation.
+
+The result also reinforces the distinction:
+
+$$
+\boxed{\text{readout distinctness}\neq\text{target-aligned geometry}}
+$$
+
+C2 through C6 have identical distinctness counts but very different decoder results.
+
+#### Retained probability mass
+
+At (n=8), the complete probability vector has only 256 entries. Every model therefore uses the full distribution:
+
+$$
+m_{1000}=1.
+$$
+
+At (n=14), the first 1,000 of 16,384 probabilities are retained.
+
+| Circuit             | Median retained mass at (n=14) |
+| ------------------- | -----------------------------: |
+| C0 preparation only |                         1.0000 |
+| C1 phase only       |                         1.0000 |
+| C2 canonical QuIC   |                         1.0000 |
+| C3 QAOA preparation |                         0.1051 |
+| C4 two repetitions  |                         1.0000 |
+| C5 Y mixer          |                         0.9999 |
+| C6 non-equivariant  |                         0.9544 |
+
+The corrected C2, C4, and C5 distributions are much more concentrated than their unnormalized counterparts.
+
+The original reported medians were:
+
+| Circuit | Original unnormalized | Corrected normalized |
+| ------- | --------------------: | -------------------: |
+| C2      |                0.9218 |               1.0000 |
+| C4      |                0.9268 |               1.0000 |
+| C5      |                0.8959 |               0.9999 |
+
+The top-1,000 decoder therefore retains essentially the complete reported mass for the three normalized QuIC circuits.
+
+C3 remains highly diffuse:
+
+$$
+m_{1000}=0.1051.
+$$
+
+The C2–C3 comparison at (n=14) is consequently confounded by unequal truncation. Only approximately 10.5% of the QAOA probability mass is presented to its decoder.
+
+The C2–C4 and C2–C5 contrasts are substantially cleaner because all three retain essentially their complete mass at the reported precision.
+
+#### Circuit-by-target results at (n=8)
+
+| Circuit             | Degree variance |    (C_3) |    (C_4) | Connectivity |
+| ------------------- | --------------: | -------: | -------: | -----------: |
+| C0 preparation only |        (-0.001) | (-0.001) | (-0.001) |     (-0.000) |
+| C1 phase only       |        (-0.001) | (-0.001) | (-0.001) |     (-0.000) |
+| C2 canonical QuIC   |           0.055 |    0.007 |    0.018 |        0.123 |
+| C3 QAOA preparation |           0.009 |    0.114 |    0.105 |        0.061 |
+| C4 two repetitions  |           0.039 |    0.006 |    0.013 |        0.079 |
+| C5 Y mixer          |           0.124 |    0.022 |    0.038 |        0.004 |
+| C6 non-equivariant  |           0.037 | (-0.000) |    0.000 |        0.132 |
+
+Because the complete distribution is used, the (n=8) circuit comparisons are not affected by unequal retained mass.
+
+#### Canonical QuIC on the mixed-degree census
+
+The corrected C2 circuit performs near the prediction floor for all four targets:
+
+$$
+R^2_{\text{degree variance}}=0.055,\qquad R^2_{C_3}=0.007,\qquad R^2_{C_4}=0.018,\qquad R^2_{\kappa}=0.123.
+$$
+
+The largest score is only:
+
+$$
+0.123.
+$$
+
+The correction therefore removes the strong mixed-degree results reported by the original unnormalized run.
+
+| Target          | Original C2 | Corrected C2 |   Change |
+| --------------- | ----------: | -----------: | -------: |
+| Degree variance |       0.283 |        0.055 | (-0.228) |
+| (C_3)           |       0.770 |        0.007 | (-0.763) |
+| (C_4)           |       0.807 |        0.018 | (-0.789) |
+| Connectivity    |       0.573 |        0.123 | (-0.450) |
+
+The original strong cycle scores were properties of the unnormalized degree rotation, not canonical QuIC.
+
+The corrected result agrees with E21, which independently found that canonical QuIC remains near the prediction floor on the complete mixed-degree (n=8) census.
+
+#### QAOA preparation at (n=8)
+
+C3 produces:
+
+$$
+R^2_{C_3}=0.114,\qquad R^2_{C_4}=0.105.
+$$
+
+These scores remain modest, but both exceed canonical QuIC.
+
+The corresponding differences are:
+
+$$
+\Delta R^2_{C_3}=-0.107,\qquad\Delta R^2_{C_4}=-0.087
+$$
+
+when defined as C2 minus C3.
+
+Canonical QuIC performs better on degree variance and connectivity:
+
+$$
+0.055>0.009,\qquad0.123>0.061.
+$$
+
+Thus, the normalized degree encoder exposes some degree-related and connectivity variation but does not create the strong cycle geometry observed on regular graphs.
+
+#### Depth at (n=8)
+
+Adding a second tied repetition changes the scores as follows:
+
+| Target          | C2, one repetition | C4, two repetitions | Difference |
+| --------------- | -----------------: | ------------------: | ---------: |
+| Degree variance |              0.055 |               0.039 |   (-0.016) |
+| (C_3)           |              0.007 |               0.006 |   (-0.001) |
+| (C_4)           |              0.018 |               0.013 |   (-0.005) |
+| Connectivity    |              0.123 |               0.079 |   (-0.044) |
+
+The second repetition does not improve any tested target on the mixed-degree census.
+
+#### Mixer axis at (n=8)
+
+Replacing the X mixer with a Y mixer produces:
+
+| Target          | C2, X mixer | C5, Y mixer | Difference |
+| --------------- | ----------: | ----------: | ---------: |
+| Degree variance |       0.055 |       0.124 |   (+0.069) |
+| (C_3)           |       0.007 |       0.022 |   (+0.015) |
+| (C_4)           |       0.018 |       0.038 |   (+0.020) |
+| Connectivity    |       0.123 |       0.004 |   (-0.119) |
+
+The Y mixer improves degree variance and the two cycle scores, but all three remain weak.
+
+Connectivity nearly disappears.
+
+The effect of the mixer axis is therefore strongly target dependent.
+
+#### Circuit-by-target results at (n=14)
+
+| Circuit             |    (C_3) |    (C_4) |    (C_5) |    (C_6) | Diamonds |    Girth |
+| ------------------- | -------: | -------: | -------: | -------: | -------: | -------: |
+| C0 preparation only | (-0.003) | (-0.008) | (-0.013) | (-0.006) | (-0.007) | (-0.008) |
+| C1 phase only       | (-0.003) | (-0.008) | (-0.013) | (-0.006) | (-0.007) | (-0.008) |
+| C2 canonical QuIC   |    1.000 |    0.998 |    0.928 |    0.484 |    0.993 |    0.993 |
+| C3 QAOA preparation |    0.544 |    0.273 |    0.348 |    0.094 |    0.717 |    0.315 |
+| C4 two repetitions  |    1.000 |    1.000 |    0.960 |    0.461 |    0.998 |    0.992 |
+| C5 Y mixer          |    1.000 |    0.997 |    0.951 |    0.698 |    0.998 |    0.991 |
+| C6 non-equivariant  |    0.123 |    0.143 |    0.064 |    0.044 | (-0.007) |    0.001 |
+
+#### Canonical QuIC on the cubic census
+
+C2 reproduces the established canonical hierarchy:
+
+$$
+R^2_{C_3}=1.000,\qquad R^2_{C_4}=0.998,\qquad R^2_{C_5}=0.928,\qquad R^2_{C_6}=0.484.
+$$
+
+Diamond count and girth are near exact:
+
+$$
+R^2_D=0.993,\qquad R^2_{\text{girth}}=0.993.
+$$
+
+This row is independently validated by the E2 record and should replace the original E18 C2 values.
+
+#### QAOA preparation at (n=14)
+
+C3 is weaker for every target:
+
+| Target   | C2 canonical QuIC | C3 QAOA | Difference |
+| -------- | ----------------: | ------: | ---------: |
+| (C_3)    |             1.000 |   0.544 |   (+0.456) |
+| (C_4)    |             0.998 |   0.273 |   (+0.725) |
+| (C_5)    |             0.928 |   0.348 |   (+0.580) |
+| (C_6)    |             0.484 |   0.094 |   (+0.390) |
+| Diamonds |             0.993 |   0.717 |   (+0.276) |
+| Girth    |             0.993 |   0.315 |   (+0.678) |
+
+The normalized QuIC preparation produces substantially stronger cubic structural accessibility.
+
+The comparison is not fully controlled because the first 1,000 QAOA probabilities contain only:
+
+$$
+10.51%
+$$
+
+of the median total mass.
+
+A full-vector or normalized-head comparison is required before attributing the entire difference to circuit preparation.
+
+#### Depth at (n=14)
+
+| Target   | C2, one repetition | C4, two repetitions | Difference |
+| -------- | -----------------: | ------------------: | ---------: |
+| (C_3)    |              1.000 |               1.000 |      0.000 |
+| (C_4)    |              0.998 |               1.000 |   (+0.002) |
+| (C_5)    |              0.928 |               0.960 |   (+0.032) |
+| (C_6)    |              0.484 |               0.461 |   (-0.023) |
+| Diamonds |              0.993 |               0.998 |   (+0.005) |
+| Girth    |              0.993 |               0.992 |   (-0.001) |
+
+The corrected result differs from the original E18 depth conclusion.
+
+A second tied repetition improves:
+
+* 4-cycle count slightly;
+* 5-cycle count by (0.032);
+* diamond count slightly.
+
+It weakens:
+
+* 6-cycle count by (0.023);
+* girth negligibly.
+
+The additional repetition therefore provides selective rather than general improvement.
+
+The clearest gain is for 5-cycles:
+
+$$
+0.928\rightarrow0.960.
+$$
+
+The one-repetition circuit remains simpler and nearly saturates most targets, but the corrected experiment does not support the claim that additional depth offers no benefit.
+
+#### Mixer axis at (n=14)
+
+| Target   | C2, X mixer | C5, Y mixer | Difference |
+| -------- | ----------: | ----------: | ---------: |
+| (C_3)    |       1.000 |       1.000 |      0.000 |
+| (C_4)    |       0.998 |       0.997 |   (-0.001) |
+| (C_5)    |       0.928 |       0.951 |   (+0.023) |
+| (C_6)    |       0.484 |       0.698 |   (+0.214) |
+| Diamonds |       0.993 |       0.998 |   (+0.005) |
+| Girth    |       0.993 |       0.991 |   (-0.002) |
+
+The Y mixer preserves the saturated triangle, 4-cycle, diamond, and girth results.
+
+It also improves both deeper cycle targets:
+
+$$
+C_5:\ 0.928\rightarrow0.951,
+$$
+
+and:
+
+$$
+C_6:\ 0.484\rightarrow0.698.
+$$
+
+The C6 increase is substantial:
+
+$$
+\Delta R^2=+0.214.
+$$
+
+This reverses the conclusion from the invalid unnormalized run, where the Y mixer appeared weaker for C5 and C6.
+
+The corrected experiment shows that the structural signal does not depend uniquely on the X mixer and that the Y mixer exposes longer-cycle information more effectively at the fixed angle.
+
+#### Comparison of the equivariant cubic circuits
+
+| Circuit                   | (C_3) | (C_4) | (C_5) | (C_6) | Diamonds | Girth |
+| ------------------------- | ----: | ----: | ----: | ----: | -------: | ----: |
+| C2 one-repetition X mixer | 1.000 | 0.998 | 0.928 | 0.484 |    0.993 | 0.993 |
+| C4 two-repetition X mixer | 1.000 | 1.000 | 0.960 | 0.461 |    0.998 | 0.992 |
+| C5 one-repetition Y mixer | 1.000 | 0.997 | 0.951 | 0.698 |    0.998 | 0.991 |
+
+No circuit dominates every target.
+
+* C2 has the strongest displayed girth result.
+* C4 has the strongest 4-cycle and 5-cycle results.
+* C5 has the strongest 6-cycle result.
+* C4 and C5 tie on diamonds at displayed precision.
+* All three are exact on triangles.
+
+The corrected screen therefore supports a target-specific circuit-design conclusion rather than a universal preference for C2.
+
+The canonical C2 circuit remains the simplest common reference and reproduces the paper’s established hierarchy. C4 and C5 demonstrate that deeper-cycle accessibility can be redistributed by changing depth or mixer axis.
+
+#### Effect of the encoder correction on the cubic circuits
+
+| Circuit and target | Original unnormalized | Corrected normalized |   Change |
+| ------------------ | --------------------: | -------------------: | -------: |
+| C2, (C_5)          |                 0.985 |                0.928 | (-0.057) |
+| C2, (C_6)          |                 0.901 |                0.484 | (-0.417) |
+| C4, (C_5)          |                 0.967 |                0.960 | (-0.007) |
+| C4, (C_6)          |                 0.872 |                0.461 | (-0.411) |
+| C5, (C_5)          |                 0.928 |                0.951 | (+0.023) |
+| C5, (C_6)          |                 0.865 |                0.698 | (-0.167) |
+
+The correction has its largest effect on 6-cycle prediction.
+
+The unnormalized encoder made C2 and C4 appear dramatically stronger on C6 than their canonical versions.
+
+It also changed the relative ranking of the mixer axes. Under the corrected encoder, the Y mixer is clearly strongest for C6.
+
+This demonstrates that the encoder scale is not a superficial implementation detail. It changes both absolute target accessibility and the conclusions drawn from circuit comparisons.
+
+#### Non-equivariant circuit
+
+C6 performs weakly on both censuses.
+
+At (n=14):
+
+$$
+R^2_{C_3}=0.123,\qquad R^2_{C_4}=0.143,\qquad R^2_{C_5}=0.064,\qquad R^2_{C_6}=0.044.
+$$
+
+Diamond and girth prediction are at the floor.
+
+At (n=8), the strongest C6 score is:
+
+$$
+R^2_{\kappa}=0.132.
+$$
+
+The index encoder therefore does not reproduce the target geometry of the equivariant circuits, even when evaluated under one canonical labeling.
+
+#### Equivariance sensitivity
+
+C2 and C6 are each evaluated under random vertex relabelings of 100 graphs.
+
+##### Canonical QuIC
+
+| Census | Median cross-label (L_1) | Maximum cross-label (L_1) |
+| ------ | -----------------------: | ------------------------: |
+| (n=8)  |    (5.488\times10^{-16}) |     (1.393\times10^{-15}) |
+| (n=14) |    (3.226\times10^{-16}) |     (9.636\times10^{-16}) |
+
+##### Non-equivariant encoder
+
+| Census | Median cross-label (L_1) | Maximum cross-label (L_1) |
+| ------ | -----------------------: | ------------------------: |
+| (n=8)  |                   0.1118 |                    0.1720 |
+| (n=14) |                  0.05234 |                   0.08335 |
+
+Canonical QuIC remains invariant at the floating-point floor.
+
+The index-encoded circuit changes substantially under relabeling.
+
+Sorting therefore removes coordinate labels only when the circuit itself transforms equivariantly:
+
+$$
+\boxed{\text{sorting quotients output coordinates but does not repair label-dependent circuit parameters}}
+$$
+
+#### Relationship to E21
+
+The corrected E18 results align with E21.
+
+Both experiments find that canonical QuIC:
+
+* nearly solves triangle and 4-cycle counts on cubic graphs;
+* strongly decodes 5-cycles, diamonds, and girth;
+* has weaker cubic 6-cycle accessibility;
+* collapses on the complete mixed-degree (n=8) census.
+
+E21 additionally shows that strong structural accessibility returns on a complete 4-regular census.
+
+Together, the experiments support the interpretation that the organized QuIC geometry is associated with regular graph families rather than with the presence of an explicit degree encoder alone.
+
+#### Consequence for E19
+
+E19 maps the original unnormalized E18 circuit family.
+
+Its nominal C2 center contains:
+
+$$
+R^2_{C_5}=0.985,\qquad R^2_{C_6}=0.901,
+$$
+
+which matches the invalid original E18 row rather than the corrected canonical row:
+
+$$
+R^2_{C_5}=0.928,\qquad R^2_{C_6}=0.484.
+$$
+
+E19 therefore remains an angle map of the unnormalized circuit and cannot be cited as a robustness analysis of canonical QuIC.
+
+A normalized E19 rerun is required before making canonical angle-robustness claims.
+
+#### What the experiment establishes
+
+The corrected results establish that:
+
+1. **The notebook now evaluates the canonical normalized QuIC encoder.**
+
+   The C2 cubic row reproduces the independent E2 record to a worst discrepancy of (0.001).
+
+2. **Preparation-only and phase-only circuits are graph blind.**
+
+   Both collapse each census to one readout and remain at the prediction floor.
+
+3. **A noncommuting mixer is required to convert graph-dependent phases into probability differences.**
+
+4. **Every graph-dependent circuit produces distinct rounded readouts across both complete censuses.**
+
+5. **Canonical QuIC is strongly target aligned on cubic graphs but weak on the complete mixed-degree census.**
+
+6. **The original strong mixed-degree results were artifacts of the unnormalized encoder.**
+
+7. **A second tied repetition selectively improves cubic 5-cycle prediction.**
+
+   It raises (R^2) from (0.928) to (0.960).
+
+8. **A Y mixer substantially improves cubic 6-cycle prediction.**
+
+   It raises (R^2) from (0.484) to (0.698).
+
+9. **No tested equivariant circuit dominates every target.**
+
+10. **Permutation equivariance is operationally necessary.**
+
+    Canonical QuIC remains invariant near (10^{-15}), while the index encoder changes by approximately (10^{-1}).
+
+11. **Distinctness, target accessibility, and isomorphism invariance remain separate representation properties.**
+
+E18 therefore provides a controlled screen of graph blindness, preparation, depth, mixer axis, and equivariance for the canonical circuit family.
+
+#### Necessary qualifications
+
+The (n=14) analysis uses the first 1,000 probabilities rather than the complete vectors.
+
+This is unlikely to materially affect C2, C4, or C5 because their reported median retained masses are approximately one. It materially affects C3, whose median retained mass is only:
+
+$$
+0.1051.
+$$
+
+The QAOA comparison should therefore not be interpreted as a pure preparation ablation at (n=14).
+
+The retained masses are printed to four decimal places. Values reported as:
+
+$$
+1.0000
+$$
+
+should not be interpreted as mathematically exact unit mass.
+
+The fingerprint count uses 12-decimal rounded vectors. It establishes no observed collision at that resolution, not exact symbolic injectivity.
+
+C6 is evaluated on the canonical census labeling. Its decoder scores are not graph-invariant quantities and may change under another labeling convention.
+
+The ridge fits emit repeated ill-conditioned-matrix warnings.
+
+E10 showed that QuIC probe results can depend on extremely small regularization values and low-singular-value feature directions.
+
+The notebook stores fold standard deviations internally but does not print them in the final result matrix.
+
+No paired statistical tests compare C2, C4, and C5. Differences of a few thousandths should be treated as descriptive ties.
+
+The larger C5 and C6 differences are more substantively meaningful, but they remain results from one fixed angle schedule.
+
+The screen evaluates tied-angle depth only. It does not test whether independently chosen angles at the second repetition improve the circuit further.
+
+Only X and Y single-qubit mixers are compared. No second entangler family is evaluated.
+
+The two graph orders use different graph families and target sets. Their differences cannot be attributed to graph order alone.
+
+All results use exact statevector probabilities. They do not establish finite-shot or hardware-accessible circuit rankings.
+
+Finally, the notebook title still calls the experiment a six-circuit screen even though seven circuits are evaluated. The title and saved artifact documentation should be corrected.
+
+#### Overall assessment
+
+The corrected E18 run changes the scientific interpretation of the circuit screen.
+
+Canonical QuIC reproduces the established cubic hierarchy and collapses on the complete mixed-degree census. The strong mixed-degree cycle results in the original notebook were caused by omitting maximum-degree normalization.
+
+The corrected depth and mixer comparisons are also different.
+
+A second tied repetition improves 5-cycle prediction from:
+
+$$
+0.928
+$$
+
+to:
+
+$$
+0.960,
+$$
+
+while the Y mixer improves 6-cycle prediction from:
+
+$$
+0.484
+$$
+
+to:
+
+$$
+0.698.
+$$
+
+Neither modification dominates the canonical circuit universally. Instead, depth and mixer axis redistribute which deeper structural coordinates are most linearly accessible.
+
+The graph-blindness and equivariance controls remain clean. Preparation-only and phase-only circuits collapse to one readout, canonical QuIC is invariant under relabeling at the floating-point floor, and the index-encoded control moves by approximately (10^{-1}).
+
+The appropriate central claim is:
+
+> Within the canonical maximum-degree-normalized circuit family, graph-dependent phases become observable only after a noncommuting mixer, and every tested graph-dependent circuit produces distinct readouts across the complete (n=8) and cubic (n=14) censuses. Canonical one-repetition QuIC reproduces the established cubic hierarchy but remains near the prediction floor on the complete mixed-degree census. Circuit modifications redistribute the deeper structural signal: a second tied repetition improves 5-cycle accessibility, while a Y mixer substantially improves 6-cycle accessibility. The equivariant circuits remain invariant under relabeling at the floating-point floor, whereas an index-encoded control changes by approximately (10^{-1}), confirming that sorting does not repair non-equivariant circuit parameters.
+
+
 ### E19 - Angle Map
 
 #### Experimental design
