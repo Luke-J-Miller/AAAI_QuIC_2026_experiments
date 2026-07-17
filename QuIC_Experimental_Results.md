@@ -9555,6 +9555,799 @@ The appropriate central claim is:
 
 > The descending-sorted QuIC probability vector is permutation invariant to machine precision and produces no observed graph collisions on the complete connected (n=8) census or the complete connected cubic (n=14) census. The resulting readout matrices attain their maximum possible numerical ranks, so the label quotient discards no observed graph distinction at these orders. However, injectivity does not guarantee target-aligned geometry: the cubic census retains strong cycle and diamond organization, while the heterogeneous census does not.
 
+### E19 - Angle Map
+
+#### Experimental design
+
+E19 maps how structural decodability changes as the three circuit angles vary.
+
+The experiment uses two complete graph censuses:
+
+* **11,117 connected graphs at (n=8)**;
+* **509 connected cubic graphs at (n=14)**.
+
+For each graph-dependent circuit, the experiment evaluates three one-dimensional transects through the nominal center:
+
+$$
+(\alpha,\gamma,\beta)=(2.875,2.0,0.1),
+$$
+
+where:
+
+* (\alpha) controls the encoder scale;
+* (\gamma) controls the edge-entangler angle;
+* (\beta) controls the mixer angle.
+
+Only one angle changes along each transect. The other two remain fixed at their nominal values.
+
+The tested ranges are:
+
+$$
+\alpha\in[0,\pi],\qquad\gamma\in[0,\pi],\qquad\beta\in[0,\pi/2].
+$$
+
+Each grid contains the nominal value in addition to an evenly spaced eight-point grid.
+
+The experiment therefore produces a cross-shaped local map rather than a complete three-dimensional angle cube. It measures sensitivity to each angle independently but does not evaluate interactions between simultaneous angle changes.
+
+The probability representation is truncated to its first:
+
+$$
+k=1000
+$$
+
+sorted entries. At (n=8), this includes the complete 256-dimensional distribution. At (n=14), it retains the first 1,000 of 16,384 probabilities.
+
+The target sets are intentionally narrow.
+
+##### (n=8)
+
+* triangle count;
+* vertex connectivity.
+
+##### (n=14)
+
+* triangle count;
+* 5-cycle count;
+* diamond count.
+
+The diamond target is verified through the cubic identity:
+
+$$
+\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).
+$$
+
+All readouts are evaluated using the standing five-fold ridge protocol:
+
+$$
+\alpha_{\text{ridge}}\in{10^{-14},10^{-13},\ldots,10^2}.
+$$
+
+The experiment reports decodability across the angle transects. It does not train or optimize the circuit angles.
+
+#### Circuit family
+
+Seven circuit configurations are included.
+
+##### C0 - Preparation only
+
+The circuit applies a uniform flat (R_X) preparation without graph-dependent edge gates or a mixer.
+
+This is a graph-blind control.
+
+##### C1 - Phase only
+
+The circuit starts from the flat preparation and applies graph-dependent diagonal (R_{ZZ}) gates without a mixer.
+
+Because the input is a computational-basis product state in this implementation, the edge gates change only phases and leave the sorted probability distribution graph independent.
+
+##### C2 - Nominal QuIC family
+
+The circuit uses:
+
+* degree-scaled (R_X) preparation;
+* graph-edge (R_{ZZ}) gates;
+* a uniform (R_X) mixer;
+* one repetition.
+
+##### C3 - QAOA-style preparation
+
+The circuit begins in:
+
+$$
+|+\rangle^{\otimes n},
+$$
+
+then applies the edge entangler and an (R_X) mixer.
+
+It has no encoder-angle parameter.
+
+##### C4 - Two-repetition QuIC
+
+The C2 edge and mixer blocks are repeated twice, with the same tied values of (\gamma) and (\beta) in both repetitions.
+
+##### C5 - Y-mixer circuit
+
+The circuit retains the degree encoder and edge entangler but replaces the final (R_X) mixer with an (R_Y) mixer.
+
+##### C6 - Non-equivariant encoder
+
+The circuit encodes qubit index rather than a graph-invariant vertex attribute:
+
+$$
+\theta_i=\alpha\frac{i+1}{n}.
+$$
+
+This circuit depends on the chosen vertex ordering and is not permutation equivariant.
+
+#### Encoder implemented by the notebook
+
+The notebook describes C2, C4, and C5 as degree-encoded circuits. The implementation applies:
+
+$$
+R_X(\alpha d_i)
+$$
+
+to vertex (i).
+
+It does not apply the canonical normalized degree encoder:
+
+$$
+R_X\left(\alpha\frac{d_i}{\Delta}\right).
+$$
+
+This distinction is immaterial to whether the notebook consistently maps its own E18 circuit family, but it is material to comparison with the canonical QuIC representation used in E1, E2, E6, E7, E9, E13, and E16 / E17.
+
+On the cubic (n=14) census, the implemented center applies:
+
+$$
+R_X(2.875\times3)=R_X(8.625)
+$$
+
+to every qubit rather than:
+
+$$
+R_X(2.875).
+$$
+
+On the heterogeneous (n=8) census, both the absolute scale and the degree dependence differ from canonical QuIC.
+
+The E19 angle map must therefore be interpreted as a map of the **unnormalized E18 circuit family**, not as a parameter-robustness audit of the canonical QuIC object.
+
+#### Canonical-center scores
+
+The nominal C2 center produces:
+
+| Census | Target       | Nominal-center (R^2) |
+| ------ | ------------ | -------------------: |
+| (n=8)  | Triangles    |                0.770 |
+| (n=8)  | Connectivity |                0.573 |
+| (n=14) | Triangles    |                1.000 |
+| (n=14) | 5-cycles     |                0.985 |
+| (n=14) | Diamonds     |                0.998 |
+
+The notebook was intended to compare these scores against a stored E18 artifact with a tolerance of:
+
+$$
+10^{-9}.
+$$
+
+That artifact was not mounted during the run. The automated identity assertion was therefore skipped.
+
+The scores were printed for manual comparison and match the values recorded in the notebook’s E18 discussion, but the E18 identity gate did not execute successfully in this run.
+
+The nominal (n=14) 5-cycle value also differs from the canonical QuIC truncation result reported in E13:
+
+$$
+0.985\quad\text{in E19 versus}\quad0.928\quad\text{for canonical QuIC at }k=1000.
+$$
+
+This difference is consistent with the encoder mismatch.
+
+#### Graph-blind controls
+
+Both graph-blind controls remain at the constant-predictor floor.
+
+| Census | Circuit             | Configurations checked |    Best observed (R^2) |
+| ------ | ------------------- | ---------------------: | ---------------------: |
+| (n=8)  | C0 preparation only |                      1 |    approximately 0.000 |
+| (n=8)  | C1 phase only       |                      9 |    approximately 0.000 |
+| (n=14) | C0 preparation only |                      1 | approximately (-0.003) |
+| (n=14) | C1 phase only       |                      9 | approximately (-0.003) |
+
+C1 remains graph blind across all nine tested entangler angles.
+
+This validates the basic phase-to-probability mechanism: diagonal edge phases alone do not create graph-dependent measurement probabilities in this preparation.
+
+A mixer or another noncommuting operation is required to convert the phase differences into observable probability differences.
+
+#### (n=14) canonical-family angle map
+
+The (n=14) cubic census provides the cleaner angle analysis because every graph has the same degree sequence and every qubit receives the same implemented encoder rotation.
+
+##### Per-axis maxima
+
+| Axis               |  Triangle peak |   5-cycle peak |   Diamond peak |
+| ------------------ | -------------: | -------------: | -------------: |
+| Encoder (\alpha)   | 1.000 at 0.898 | 0.987 at 1.795 | 0.999 at 0.898 |
+| Entangler (\gamma) | 1.000 at 1.346 | 0.985 at 2.000 | 0.998 at 1.795 |
+| Mixer (\beta)      | 1.000 at 0.224 | 0.985 at 0.224 | 0.998 at 0.100 |
+
+The nominal center obtains:
+
+$$
+R^2_{C_3}=1.000,\qquad R^2_{C_5}=0.985,\qquad R^2_D=0.998.
+$$
+
+The best values found along the individual transects are:
+
+$$
+1.000,\qquad0.987,\qquad0.999.
+$$
+
+The differences between the nominal center and the per-axis maxima are therefore no more than:
+
+$$
+0.002.
+$$
+
+Within the resolution of the tested grid, the nominal schedule is not a narrowly tuned optimum. It lies on a broad region of near-maximal decodability for all three targets.
+
+Triangle count is particularly insensitive. It reaches:
+
+$$
+R^2=1.000
+$$
+
+at multiple interior values on all three axes.
+
+Diamond count is similarly stable, with peak values between:
+
+$$
+0.998\quad\text{and}\quad0.999.
+$$
+
+Five-cycle count is the most angle-sensitive of the three targets, but its nominal score remains within (0.002) of every transect maximum.
+
+#### Endpoint behavior on the cubic census
+
+For C2 at (n=14), the graph-dependent readout collapses at the expected graph-blind endpoints.
+
+##### Zero encoder
+
+At:
+
+$$
+\alpha=0,
+$$
+
+the initial state is:
+
+$$
+|0\rangle^{\otimes n}.
+$$
+
+The edge gates contribute only phases to this computational-basis state, and the uniform mixer produces the same sorted distribution for every cubic graph.
+
+##### Encoder endpoint at (\pi)
+
+Under the implemented unnormalized encoder:
+
+$$
+R_X(\pi d_i)=R_X(3\pi)
+$$
+
+on every cubic vertex.
+
+This prepares the same computational-basis state up to phase on every graph. The subsequent sorted readout is graph independent.
+
+This endpoint collapse depends on the unnormalized integer-degree formula. It would not follow generally from the normalized encoder:
+
+$$
+R_X\left(\pi\frac{d_i}{\Delta}\right)
+$$
+
+on heterogeneous graphs.
+
+##### Zero entangler
+
+At:
+
+$$
+\gamma=0,
+$$
+
+the circuit contains no graph-dependent edge operation. The encoder and mixer are identical across all cubic graphs, so the readout collapses.
+
+##### Zero mixer
+
+At:
+
+$$
+\beta=0,
+$$
+
+the edge gates modify only phases. The probabilities remain graph independent, reproducing the mechanism established in E9.
+
+These endpoint controls support the conclusion that the interior cubic signal requires all three components:
+
+* a nontrivial preparation;
+* graph-dependent phase accumulation;
+* noncommuting phase-to-probability conversion.
+
+#### Mixer-angle behavior
+
+The nominal mixer angle is:
+
+$$
+\beta=0.1.
+$$
+
+The per-axis summary shows that the maximum triangle and C5 scores occur at the nearby tested value:
+
+$$
+\beta=0.224,
+$$
+
+while diamonds peak at the nominal value.
+
+The notebook’s recorded curve interpretation reports that the three targets remain strong through the small- and intermediate-mixer region, while C5 declines first at larger mixer angles.
+
+At:
+
+$$
+\beta=\pi/2,
+$$
+
+the reported C5 score falls to approximately:
+
+$$
+R^2=0.448.
+$$
+
+Triangle and diamond accessibility persist longer.
+
+This supports a target-dependent robustness ordering:
+
+$$
+\text{triangles and diamonds are more mixer robust than 5-cycles}.
+$$
+
+The result is consistent with the earlier characterization of C5 as a finer probability-shape statistic whose accessibility depends on more detailed rank structure.
+
+The complete numeric pointwise curves are stored in the external E19 pickle rather than printed in the notebook output. The attached notebook therefore supports the reported extrema and recorded endpoint value, but it does not provide a complete independent table of every intermediate score.
+
+#### Alternative circuits at (n=14)
+
+##### QAOA-style preparation
+
+| Axis               |  Triangle peak |   5-cycle peak |   Diamond peak |
+| ------------------ | -------------: | -------------: | -------------: |
+| Encoder (\alpha)   | 0.544 at 0.000 | 0.348 at 0.000 | 0.717 at 0.000 |
+| Entangler (\gamma) | 0.986 at 2.693 | 0.512 at 2.693 | 0.940 at 1.346 |
+| Mixer (\beta)      | 0.717 at 0.449 | 0.607 at 0.898 | 0.717 at 0.100 |
+
+The QAOA circuit has no encoder. Its reported (\alpha) transect is therefore constant by construction.
+
+The printed “peak at 0.000” is only the first member of a set of tied values and should not be interpreted as an encoder optimum.
+
+The QAOA-style circuit can make triangle count nearly exact:
+
+$$
+R^2=0.986
+$$
+
+at:
+
+$$
+\gamma=2.693.
+$$
+
+It also carries substantial diamond information:
+
+$$
+R^2=0.940.
+$$
+
+Its best 5-cycle score is much lower:
+
+$$
+R^2=0.607.
+$$
+
+Thus, the QAOA preparation captures coarse motif and spectral-adjacent structure but does not reproduce the strong C5 accessibility of C2.
+
+##### Two-repetition circuit
+
+| Axis               |  Triangle peak |   5-cycle peak |   Diamond peak |
+| ------------------ | -------------: | -------------: | -------------: |
+| Encoder (\alpha)   | 1.000 at 0.898 | 0.967 at 2.875 | 1.000 at 3.142 |
+| Entangler (\gamma) | 1.000 at 0.898 | 0.975 at 1.795 | 0.998 at 0.898 |
+| Mixer (\beta)      | 1.000 at 0.100 | 0.967 at 0.100 | 0.997 at 0.100 |
+
+The two-repetition circuit remains highly informative, but it does not improve upon the one-repetition C2 circuit for 5-cycles.
+
+Its maximum C5 score is:
+
+$$
+R^2=0.975,
+$$
+
+compared with:
+
+$$
+R^2=0.987
+$$
+
+for the C2 transects.
+
+Triangle and diamond prediction remain near exact.
+
+The additional repetition therefore preserves the shallow structure but does not provide a clear advantage for the harder C5 target.
+
+##### Y-mixer circuit
+
+| Axis               |  Triangle peak |   5-cycle peak |   Diamond peak |
+| ------------------ | -------------: | -------------: | -------------: |
+| Encoder (\alpha)   | 1.000 at 0.898 | 0.952 at 1.346 | 0.999 at 2.693 |
+| Entangler (\gamma) | 1.000 at 0.449 | 0.945 at 1.346 | 0.999 at 2.000 |
+| Mixer (\beta)      | 1.000 at 0.100 | 0.950 at 0.224 | 0.999 at 0.100 |
+
+Replacing the X mixer with a Y mixer preserves strong structural accessibility.
+
+Triangles remain exact, diamonds remain near exact, and C5 peaks between:
+
+$$
+0.945\quad\text{and}\quad0.952.
+$$
+
+The Y mixer is therefore viable but consistently weaker than the C2 X-mixer circuit on C5.
+
+The result indicates that the structural signal does not depend uniquely on one mixer axis, although the chosen noncommuting rotation affects the strength of the finer cycle coordinate.
+
+##### Non-equivariant encoder
+
+| Axis               |  Triangle peak |   5-cycle peak |   Diamond peak |
+| ------------------ | -------------: | -------------: | -------------: |
+| Encoder (\alpha)   | 0.916 at 0.449 | 0.127 at 2.244 | 0.214 at 1.795 |
+| Entangler (\gamma) | 0.537 at 0.449 | 0.158 at 0.449 | 0.142 at 2.693 |
+| Mixer (\beta)      | 0.242 at 1.346 | 0.075 at 1.346 | 0.077 at 1.571 |
+
+The index-based encoder retains some triangle accessibility but performs poorly on C5 and diamonds.
+
+Its best values are:
+
+$$
+R^2_{C_5}=0.158,\qquad R^2_D=0.214.
+$$
+
+The result supports the importance of an equivariant graph-dependent preparation for the deeper structural targets.
+
+However, C6 is not a valid invariant graph representation. Its output can change under vertex relabeling because qubit angles are assigned by index.
+
+Its results should therefore be treated as a symmetry-breaking control rather than as a competitive representation baseline.
+
+#### Circuit comparison at (n=14)
+
+The best value observed for each circuit across all three transects is:
+
+| Circuit                   | Best triangle (R^2) | Best C5 (R^2) | Best diamond (R^2) |
+| ------------------------- | ------------------: | ------------: | -----------------: |
+| C2 one-repetition X mixer |               1.000 |         0.987 |              0.999 |
+| C3 QAOA preparation       |               0.986 |         0.607 |              0.940 |
+| C4 two repetitions        |               1.000 |         0.975 |              1.000 |
+| C5 Y mixer                |               1.000 |         0.952 |              0.999 |
+| C6 non-equivariant        |               0.916 |         0.158 |              0.214 |
+
+Several circuit constructions can make triangles and diamonds almost perfectly accessible.
+
+Five-cycle count is more discriminating.
+
+The ranking for the strongest observed C5 score is:
+
+$$
+\text{C2}=0.987>\text{C4}=0.975>\text{C5}=0.952>\text{C3}=0.607>\text{C6}=0.158.
+$$
+
+The one-repetition X-mixer circuit remains the strongest tested construction for the finer C5 coordinate.
+
+The differences between C2, C4, and C5 are modest compared with their separation from the QAOA and non-equivariant circuits. The broad conclusion is therefore that:
+
+* degree-dependent preparation plus a noncommuting mixer produces the strongest C5 accessibility;
+* an additional repetition is unnecessary;
+* replacing the mixer axis weakens but does not destroy the signal;
+* removing equivariant preparation substantially degrades it.
+
+#### (n=8) angle-map results
+
+The (n=8) census is degree heterogeneous. Under the implemented unnormalized encoder, the initial product-state probabilities already encode the degree multiset.
+
+The angle map must therefore distinguish:
+
+* topology transmitted through the edge gates;
+* graph information already present in the degree-dependent preparation.
+
+##### C2 nominal circuit
+
+| Axis               |  Triangle peak | Connectivity peak |
+| ------------------ | -------------: | ----------------: |
+| Encoder (\alpha)   | 0.770 at 2.875 |    0.573 at 2.875 |
+| Entangler (\gamma) | 0.885 at 0.000 |    0.810 at 3.142 |
+| Mixer (\beta)      | 0.846 at 0.000 |    0.840 at 0.000 |
+
+The nominal center obtains:
+
+$$
+R^2_{C_3}=0.770,\qquad R^2_{\kappa}=0.573.
+$$
+
+Both targets can be decoded more strongly at an endpoint where one graph-processing component is absent.
+
+At:
+
+$$
+\beta=0,
+$$
+
+the mixer is absent, but the degree-dependent preparation still varies among graphs. The resulting scores are:
+
+$$
+R^2_{C_3}=0.846,\qquad R^2_{\kappa}=0.840.
+$$
+
+At:
+
+$$
+\gamma=0,
+$$
+
+the edge entangler is absent, yet triangle count reaches:
+
+$$
+R^2=0.885.
+$$
+
+These results show that much of the (n=8) performance comes directly from the degree encoder rather than from topology converted through entangler–mixer interference.
+
+The zero-mixer collapse established in E9 applies to cubic graphs with uniform preparation. It does not apply to a heterogeneous census whose vertex rotations already encode degree.
+
+##### QAOA-style preparation
+
+| Axis               |  Triangle peak | Connectivity peak |
+| ------------------ | -------------: | ----------------: |
+| Encoder (\alpha)   | 0.114 at 0.000 |    0.061 at 0.000 |
+| Entangler (\gamma) | 0.981 at 0.449 |    0.778 at 0.449 |
+| Mixer (\beta)      | 0.450 at 1.571 |    0.290 at 1.571 |
+
+The (\alpha) transect is constant because the circuit has no encoder.
+
+The QAOA circuit attains the highest triangle score observed in the complete (n=8) map:
+
+$$
+R^2=0.981
+$$
+
+at:
+
+$$
+\gamma=0.449.
+$$
+
+It also reaches:
+
+$$
+R^2=0.778
+$$
+
+for connectivity at the same entangler angle.
+
+The result shows that the heterogeneous census can support strong target accessibility without degree encoding, but only at selected entangler values.
+
+Because the peak is selected after evaluating the grid and no fold uncertainty is reported, it should be treated as a descriptive angle-map maximum rather than a validated tuned model.
+
+##### Two-repetition circuit
+
+| Axis               |  Triangle peak | Connectivity peak |
+| ------------------ | -------------: | ----------------: |
+| Encoder (\alpha)   | 0.722 at 2.875 |    0.626 at 2.875 |
+| Entangler (\gamma) | 0.909 at 0.000 |    0.818 at 3.142 |
+| Mixer (\beta)      | 0.846 at 0.000 |    0.840 at 0.000 |
+
+The two-repetition circuit closely reproduces the endpoint behavior of C2.
+
+Its strongest connectivity score is:
+
+$$
+R^2=0.840
+$$
+
+at zero mixer, identical to the C2 peak at displayed precision.
+
+The second repetition therefore does not produce a clear general advantage on the heterogeneous census.
+
+##### Y-mixer circuit
+
+| Axis               |  Triangle peak | Connectivity peak |
+| ------------------ | -------------: | ----------------: |
+| Encoder (\alpha)   | 0.761 at 2.875 |    0.582 at 2.875 |
+| Entangler (\gamma) | 0.846 at 0.000 |    0.839 at 3.142 |
+| Mixer (\beta)      | 0.846 at 0.000 |    0.840 at 0.000 |
+
+The Y-mixer results are also dominated by the degree-encoder endpoints.
+
+The maxima at:
+
+$$
+\beta=0
+$$
+
+are identical to C2 and C4 because the mixer type is irrelevant when its angle is zero.
+
+##### Non-equivariant encoder
+
+| Axis               |  Triangle peak | Connectivity peak |
+| ------------------ | -------------: | ----------------: |
+| Encoder (\alpha)   | 0.254 at 0.898 |    0.323 at 0.898 |
+| Entangler (\gamma) | 0.781 at 0.449 |    0.564 at 0.449 |
+| Mixer (\beta)      | 0.140 at 0.449 |    0.132 at 0.100 |
+
+The index encoder is weaker than the graph-aware circuits on both targets.
+
+As at (n=14), it is not permutation invariant and should be interpreted only as a symmetry-breaking control.
+
+#### Circuit comparison at (n=8)
+
+The best value observed for each circuit is:
+
+| Circuit                   | Best triangle (R^2) | Best connectivity (R^2) |
+| ------------------------- | ------------------: | ----------------------: |
+| C2 one-repetition X mixer |               0.885 |                   0.840 |
+| C3 QAOA preparation       |               0.981 |                   0.778 |
+| C4 two repetitions        |               0.909 |                   0.840 |
+| C5 Y mixer                |               0.846 |                   0.840 |
+| C6 non-equivariant        |               0.781 |                   0.564 |
+
+No single circuit dominates both targets.
+
+The QAOA-style preparation provides the strongest triangle result, while the degree-encoded circuits provide the strongest connectivity result.
+
+However, the connectivity maxima for C2, C4, and C5 occur at:
+
+$$
+\beta=0
+$$
+
+or at another boundary where the readout is strongly determined by degree encoding.
+
+The (n=8) map therefore characterizes a mixture of degree-sequence accessibility and topology accessibility rather than a pure graph-circuit hierarchy.
+
+#### Angle sensitivity and target dependence
+
+The angle maxima differ across:
+
+* graph orders;
+* targets;
+* circuit constructions;
+* and circuit axes.
+
+There is no universal best angle schedule.
+
+The cleanest robustness result belongs to the implemented C2 circuit on cubic graphs. Its nominal center lies within (0.002) of the best observed score for every target and every axis.
+
+By contrast, the heterogeneous (n=8) targets often peak at boundary values:
+
+$$
+\gamma=0,\qquad\gamma=\pi,\qquad\beta=0.
+$$
+
+Those maxima frequently reflect information already present in the unnormalized degree preparation.
+
+Five-cycle count is the most useful target for distinguishing circuit constructions at (n=14). Triangles and diamonds are nearly saturated by several alternatives, while C5 degrades substantially when the preparation or equivariance structure changes.
+
+#### What the experiment establishes
+
+The completed angle map establishes that:
+
+1. **The nominal E18 C2 schedule is not narrowly tuned on the cubic census.**
+
+   Its triangle, C5, and diamond scores are within (0.002) of the best values found along all three one-dimensional transects.
+
+2. **The cubic structural signal disappears at graph-blind endpoints.**
+
+   Removing the encoder, entangler, or mixer collapses the one-repetition cubic readout under the implemented circuit family.
+
+3. **Triangle and diamond accessibility is robust across several circuit constructions.**
+
+   C2, C4, and C5 all reach approximately exact prediction.
+
+4. **Five-cycle count is more circuit selective.**
+
+   C2 reaches (0.987), compared with (0.975) for two repetitions, (0.952) for a Y mixer, (0.607) for QAOA preparation, and (0.158) for the non-equivariant circuit.
+
+5. **Additional depth does not improve the best cubic C5 result.**
+
+   The one-repetition C2 circuit remains strongest.
+
+6. **The Y mixer retains most, but not all, of the structural accessibility of the X mixer.**
+
+7. **The non-equivariant encoder performs poorly on deeper structural targets.**
+
+8. **The heterogeneous-census results contain a large degree-encoding component.**
+
+   Several (n=8) targets peak when the edge entangler or mixer is absent.
+
+The angle map therefore supports robustness of the implemented cubic circuit while showing that target accessibility is jointly determined by preparation, equivariance, mixer choice, and graph family.
+
+#### Necessary qualifications
+
+The implemented “degree” encoder is:
+
+$$
+R_X(\alpha d_i),
+$$
+
+not the canonical QuIC encoder:
+
+$$
+R_X\left(\alpha\frac{d_i}{\Delta}\right).
+$$
+
+This is the principal qualification.
+
+E19 should not be used to claim that the canonical QuIC angles are robust until the experiment is repeated with maximum-degree normalization.
+
+The mismatch also explains why the nominal C5 score does not reproduce E13’s canonical (k=1000) value.
+
+The E18 artifact was not mounted, so the nominal-center identity gate was skipped. The printed values match the notebook’s recorded E18 column manually, but no machine assertion completed.
+
+The notebook saves the complete angle curves to an external pickle:
+
+$$
+\texttt{/kaggle/working/e19_angle_map.pkl}.
+$$
+
+That artifact is not included with the attached notebook. The visible output contains only the canonical values and per-axis extrema.
+
+Consequently, detailed claims about:
+
+* plateau widths;
+* monotonicity;
+* local slopes;
+* and every intermediate angle
+
+cannot be independently reconstructed from the attachment alone.
+
+The QAOA circuit has no encoder. Its (\alpha) transect is constant, and the reported peak at zero is arbitrary.
+
+The (n=8) zero-entangler and zero-mixer configurations are not graph blind because the degree-dependent preparation remains graph dependent. They should not be described as endpoint collapses.
+
+The angle maps use one-dimensional transects. A circuit may respond differently when two or three angles change simultaneously.
+
+The best values are selected from approximately nine tested settings per axis without a held-out angle-selection stage. They are descriptive maxima, not unbiased estimates of optimized performance.
+
+No fold standard deviations or paired significance tests are printed for the angle curves. Differences of a few thousandths should not be interpreted as meaningful rankings.
+
+The ridge fits repeatedly emit ill-conditioned-matrix warnings. E10 showed that QuIC probe results rely on extremely small regularization values and can be sensitive to inner-fold selection, particularly for weaker targets.
+
+The non-equivariant circuit depends on the nauty-provided vertex ordering. Its results do not define an isomorphism-invariant graph representation.
+
+The two graph orders also use different graph families and different targets. Differences between their angle maps cannot be attributed to graph order alone.
+
+Finally, all results use exact statevector probabilities. The map characterizes ideal representational accessibility, not finite-shot or hardware-accessible performance.
+
+#### Overall assessment
+
+E19 provides a useful circuit-family and parameter-sensitivity map, but it does not map the canonical QuIC object.
+
+For the implemented unnormalized encoder, the cubic result is strong. The nominal one-repetition X-mixer schedule lies on a broad high-performing region: triangles remain exact, diamond count remains near exact, and C5 remains within (0.002) of the best value observed along any individual angle axis.
+
+The alternative-circuit results clarify which design choices matter. Additional depth provides no C5 advantage. A Y mixer retains strong but slightly weaker accessibility. QAOA preparation preserves triangles and diamonds but loses much of the C5 signal. The non-equivariant encoder performs poorly on the deeper targets.
+
+The heterogeneous (n=8) map has a different interpretation. Degree-dependent preparation alone predicts substantial triangle and connectivity variation, so several maxima occur with no mixer or no entangler. Those results do not isolate topology transmitted through the quantum graph circuit.
+
+The appropriate central claim for the current notebook is:
+
+> For the unnormalized E18 circuit family, the nominal one-repetition X-mixer schedule lies on a broad high-decodability region of the complete cubic (n=14) census: triangle and diamond prediction remains near exact and 5-cycle prediction stays within (0.002) of the best value observed along each one-dimensional angle transect. Alternative preparations, mixer axes, and additional depth preserve shallow structure but generally reduce 5-cycle accessibility, while a non-equivariant encoder performs poorly. On the heterogeneous (n=8) census, several maxima occur without entanglement or mixing because the unnormalized degree preparation already carries substantial graph information. The experiment must be repeated with the normalized encoder (R_X(\alpha d_i/\Delta)) before it can support a canonical QuIC angle-robustness claim.
 
 ### E20 - Exact Partition Audit
 
