@@ -1909,6 +1909,7 @@ Each graph is recomputed in 80-bit long-double arithmetic. The numerical floor o
 $$
 \left| \mathbf p_{\mathrm{float64}}(G)
 $$
+
 -------------------------------
 $$
 \mathbf p_{\mathrm{longdouble}}(G)
