@@ -1887,6 +1887,7 @@ $$
 \left|
 p^{\mathrm{independent}}_z(G)
 $$
+
 -----------------------------
 $$
 p^{\mathrm{stored}}_z(G) \right| =
