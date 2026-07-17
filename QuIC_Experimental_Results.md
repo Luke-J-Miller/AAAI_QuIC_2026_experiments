@@ -12754,3 +12754,636 @@ The appropriate central claim for the current notebook is:
 > Under an unnormalized degree encoder (R_X(2.875d_i)), the sorted QuIC readout is injective on the complete connected (n=8) graph census: all 11,117 graphs have distinct computed vectors, an independent gate-level implementation agrees with Qiskit to a worst-case (L_1) error of (8.044\times10^{-16}), and the 100 closest candidate pairs remain separated at 32-decimal-digit precision. Because the implemented encoder omits normalization by maximum degree, this run does not yet certify the canonical QuIC partition and must be repeated with (R_X(2.875d_i/\Delta)).
 
 
+
+### E21 - Regularity Transfer
+
+#### Experimental design
+
+E21 tests whether QuIC’s cycle-decoding results are specific to cubic graphs or transfer to a different regular graph family.
+
+The experiment uses three complete connected graph censuses:
+
+* **509 connected 3-regular graphs at (n=14)**;
+* **1,544 connected 4-regular graphs at (n=12)**;
+* **11,117 connected graphs at (n=8)**, containing mixed degree sequences and regularities.
+
+The two regular censuses provide the primary transfer comparison.
+
+On every regular graph, the canonical normalized encoder:
+
+$$
+R_X\left(2.875\frac{d_i}{\Delta}\right)
+$$
+
+reduces to the same uniform rotation:
+
+$$
+R_X(2.875),
+$$
+
+because every vertex satisfies:
+
+$$
+d_i=\Delta.
+$$
+
+The cubic and 4-regular circuits therefore use the same initial product state. Their difference arises from the graph topology and regularity rather than from a change in the encoder values.
+
+The mixed-degree (n=8) census provides an off-regularity comparison. On those graphs, the encoder uses genuinely heterogeneous rotations determined by each graph’s relative degree profile.
+
+Two circuits are evaluated.
+
+1. **QuIC**
+
+   * normalized degree encoder;
+   * edgewise (R_{ZZ}(2.0)) entanglers;
+   * uniform (R_X(0.1)) mixer;
+   * one entangler–mixer repetition.
+
+2. **QAOA-style baseline**
+
+   * (|+\rangle^{\otimes n}) preparation;
+   * edgewise (R_{ZZ}(2.0)) entanglers;
+   * uniform (R_X(0.1)) mixer.
+
+Both circuits are decoded from their complete descending-sorted Born-probability vectors.
+
+The representation dimensions are:
+
+$$
+2^8=256,\qquad2^{12}=4{,}096,\qquad2^{14}=16{,}384.
+$$
+
+Using complete vectors removes the unequal retained-mass issue that affected the truncated cross-circuit comparison in E18.
+
+The targets are:
+
+* triangle count ((C_3));
+* 4-cycle count ((C_4));
+* 5-cycle count ((C_5));
+* 6-cycle count ((C_6));
+* induced diamond count.
+
+Each target is decoded using five shuffled outer folds and the standing nested ridge protocol:
+
+$$
+\alpha_{\text{ridge}}\in{10^{-14},10^{-13},\ldots,10^2}.
+$$
+
+The experiment asks two distinct questions.
+
+1. Does the strong QuIC cycle accessibility observed on cubic graphs persist on a complete census of graphs with a different regularity?
+2. Does QuIC retain an advantage over the same QAOA-style baseline across the regular and mixed-degree censuses?
+
+#### Target definitions and certification
+
+Cycle counts are computed directly by enumerating simple cycles through length six.
+
+The triangle identity is verified on every graph:
+
+$$
+\text{tr}(A^3)=6C_3.
+$$
+
+For the cubic census, the notebook additionally verifies:
+
+$$
+\text{tr}(A^4)=8C_4+15n,
+$$
+
+$$
+\text{tr}(A^5)=10C_5+10\text{tr}(A^3),
+$$
+
+and:
+
+$$
+\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).
+$$
+
+For the 4-regular census, it verifies:
+
+$$
+\text{tr}(A^4)=8C_4+28n,
+$$
+
+and:
+
+$$
+\text{tr}(A^5)=10C_5+90C_3.
+$$
+
+The 4-regular 6-cycle count is obtained directly from cycle enumeration. The notebook does not use a closed sixth-trace identity to certify that target.
+
+For cubic graphs, diamonds are counted using the edge-hinge identity. For the 4-regular and mixed-degree censuses, the notebook uses an induced-diamond count that excludes (K_4) subgraphs by requiring the two common neighbors of the diamond spine to be nonadjacent.
+
+#### Canonical-encoder correctness gate
+
+The cubic QuIC row is compared with the independently recorded E2 results.
+
+| Target | E21 QuIC | E2 reference | Absolute difference |
+| ------ | -------: | -----------: | ------------------: |
+| (C_3)  |    1.000 |        1.000 |               0.000 |
+| (C_4)  |    0.998 |        0.998 |               0.000 |
+| (C_5)  |    0.928 |        0.928 |               0.000 |
+| (C_6)  |    0.485 |        0.485 |               0.000 |
+
+All four values reproduce the E2 record at displayed precision.
+
+This is an important validation because E18 and E19 accidentally used the unnormalized encoder:
+
+$$
+R_X(\alpha d_i).
+$$
+
+E21 instead uses:
+
+$$
+R_X\left(\alpha\frac{d_i}{\Delta}\right),
+$$
+
+and lands exactly on the canonical cubic results.
+
+The transfer analysis can therefore be interpreted as a test of the canonical QuIC representation.
+
+#### Complete results
+
+| Census              | Circuit | (C_3) | (C_4) | (C_5) | (C_6) | Diamonds |
+| ------------------- | ------- | ----: | ----: | ----: | ----: | -------: |
+| (n=14), 3-regular   | QuIC    | 1.000 | 0.998 | 0.928 | 0.485 |    0.993 |
+| (n=14), 3-regular   | QAOA    | 0.877 | 0.869 | 0.734 | 0.715 |    0.994 |
+| (n=12), 4-regular   | QuIC    | 1.000 | 0.999 | 0.787 | 0.922 |    0.935 |
+| (n=12), 4-regular   | QAOA    | 0.978 | 0.851 | 0.778 | 0.852 |    0.824 |
+| (n=8), mixed degree | QuIC    | 0.007 | 0.018 | 0.025 | 0.031 |    0.002 |
+| (n=8), mixed degree | QAOA    | 0.114 | 0.105 | 0.097 | 0.087 |    0.069 |
+
+The corresponding QuIC-minus-QAOA differences are:
+
+| Census              |    (C_3) |    (C_4) |    (C_5) |    (C_6) | Diamonds |
+| ------------------- | -------: | -------: | -------: | -------: | -------: |
+| (n=14), 3-regular   | (+0.123) | (+0.129) | (+0.194) | (-0.230) | (-0.001) |
+| (n=12), 4-regular   | (+0.022) | (+0.148) | (+0.009) | (+0.070) | (+0.111) |
+| (n=8), mixed degree | (-0.106) | (-0.086) | (-0.072) | (-0.056) | (-0.067) |
+
+#### Transfer from 3-regular to 4-regular graphs
+
+QuIC remains strongly predictive across the complete 4-regular census.
+
+The 4-regular results are:
+
+$$
+R^2_{C_3}=1.000,\qquad R^2_{C_4}=0.999,\qquad R^2_{C_5}=0.787,\qquad R^2_{C_6}=0.922,\qquad R^2_D=0.935.
+$$
+
+All five targets remain substantially decodable.
+
+This establishes that the canonical QuIC cycle signal is not confined to cubic graphs.
+
+The strongest transfer occurs for the first two cycle counts.
+
+##### Triangle count
+
+Triangle count remains exact:
+
+$$
+1.000\rightarrow1.000.
+$$
+
+##### Four-cycle count
+
+Four-cycle count also remains essentially exact:
+
+$$
+0.998\rightarrow0.999.
+$$
+
+These two results provide the cleanest evidence for cross-regularity stability.
+
+##### Five-cycle count
+
+Five-cycle accessibility remains strong but declines:
+
+$$
+0.928\rightarrow0.787.
+$$
+
+The difference is:
+
+$$
+-0.141.
+$$
+
+The 5-cycle layer therefore transfers qualitatively but not at the same strength.
+
+##### Six-cycle count
+
+Six-cycle accessibility changes in the opposite direction:
+
+$$
+0.485\rightarrow0.922.
+$$
+
+The improvement is:
+
+$$
++0.437.
+$$
+
+The cubic result had suggested that 6-cycle information was the weakest tested cycle layer. That ordering does not persist on the 4-regular census.
+
+##### Diamond count
+
+Diamond prediction remains strong:
+
+$$
+0.993\rightarrow0.935.
+$$
+
+The decline is modest relative to the complete score range:
+
+$$
+-0.058.
+$$
+
+The broad conclusion is therefore stronger than cubic specificity but weaker than exact profile invariance.
+
+> QuIC’s general cycle and diamond accessibility transfers to 4-regular graphs, but the relative strengths of the deeper targets change substantially.
+
+#### The hierarchy does not transfer unchanged
+
+The cubic sequence is:
+
+$$
+C_3\approx C_4>C_5>C_6.
+$$
+
+The 4-regular sequence is:
+
+$$
+C_3\approx C_4>D>C_6>C_5.
+$$
+
+The first two layers are stable, but the deeper ordering changes.
+
+In particular:
+
+* (C_5) becomes weaker;
+* (C_6) becomes much stronger;
+* diamonds remain strongly accessible.
+
+E21 therefore does not establish one universal cycle-depth law shared by all regular graphs.
+
+It establishes a more limited but useful result:
+
+$$
+\boxed{\text{strong cycle accessibility transfers across regularities, while the deeper target ordering is family dependent}}
+$$
+
+This distinction matters for the paper’s central characterization.
+
+The cubic hierarchy remains a real property of the cubic censuses. E21 shows that it is embedded within a broader regular-graph phenomenon rather than defining the only possible regular-graph profile.
+
+#### Mixed-degree census
+
+QuIC falls to the prediction floor on the complete connected (n=8) census.
+
+The scores are:
+
+$$
+R^2\in[0.002,0.031].
+$$
+
+The best target is 6-cycle count:
+
+$$
+R^2_{C_6}=0.031.
+$$
+
+Triangle, 4-cycle, 5-cycle, and diamond prediction are likewise negligible.
+
+This collapse occurs despite:
+
+* use of the complete 256-dimensional probability vector;
+* explicit normalized degree encoding;
+* over 11,000 training examples across the census.
+
+The result cannot be attributed to truncating the probability tail or to an unusually small graph sample.
+
+The same canonical circuit that nearly solves the first two cycle targets on both regular censuses provides essentially no linear accessibility on the mixed-degree census.
+
+The contrast is large:
+
+| Target   | 3-regular QuIC | 4-regular QuIC | Mixed-degree QuIC |
+| -------- | -------------: | -------------: | ----------------: |
+| (C_3)    |          1.000 |          1.000 |             0.007 |
+| (C_4)    |          0.998 |          0.999 |             0.018 |
+| (C_5)    |          0.928 |          0.787 |             0.025 |
+| (C_6)    |          0.485 |          0.922 |             0.031 |
+| Diamonds |          0.993 |          0.935 |             0.002 |
+
+The experiment therefore reproduces the off-regularity failure under a substantially broader census than the four fixed-degree-sequence strata in E6.
+
+The two experiments answer complementary questions:
+
+* E6 holds graph order fixed at (n=14) and varies nonregular degree sequences;
+* E21 uses exhaustive regular censuses and a complete mixed-degree census across graph orders.
+
+Together they provide stronger evidence that the regular graph manifold is central to the observed QuIC geometry.
+
+#### Why regularity matters to the encoder
+
+On either regular census:
+
+$$
+\frac{d_i}{\Delta}=1
+$$
+
+for every vertex.
+
+The canonical degree encoder therefore becomes uniform:
+
+$$
+R_X(2.875)^{\otimes n}.
+$$
+
+All graph-dependent information must then be introduced by the edge-entangler pattern and converted into probabilities by the mixer.
+
+On the mixed-degree census, the encoder varies across vertices:
+
+$$
+R_X\left(2.875\frac{d_i}{\Delta}\right).
+$$
+
+The circuit must simultaneously represent:
+
+* degree-role variation;
+* edge topology;
+* cycle structure;
+* and graph-to-graph changes in the normalization scale (\Delta).
+
+The result is consistent with the interpretation that uniform preparation creates a cleaner topology-only interference geometry, while heterogeneous local rotations entangle degree variation with the structural coordinates.
+
+E21 does not prove that mechanism directly. It shows that the empirical distinction aligns sharply with regularity.
+
+#### QuIC versus QAOA on the cubic census
+
+On cubic graphs, QuIC is stronger for:
+
+* triangles;
+* 4-cycles;
+* 5-cycles.
+
+The margins are:
+
+$$
++0.123,\qquad+0.129,\qquad+0.194.
+$$
+
+QAOA is stronger for 6-cycles:
+
+$$
+0.715>0.485.
+$$
+
+Diamond prediction is effectively tied:
+
+$$
+0.994\quad\text{versus}\quad0.993.
+$$
+
+The comparison shows that QuIC’s main cubic advantage lies in the first three cycle layers, especially (C_5).
+
+It does not dominate the baseline on every invariant.
+
+#### QuIC versus QAOA on the 4-regular census
+
+QuIC exceeds QAOA on all five 4-regular targets.
+
+| Target   |  QuIC |  QAOA | Difference |
+| -------- | ----: | ----: | ---------: |
+| (C_3)    | 1.000 | 0.978 |   (+0.022) |
+| (C_4)    | 0.999 | 0.851 |   (+0.148) |
+| (C_5)    | 0.787 | 0.778 |   (+0.009) |
+| (C_6)    | 0.922 | 0.852 |   (+0.070) |
+| Diamonds | 0.935 | 0.824 |   (+0.111) |
+
+The largest differences occur for:
+
+* 4-cycles;
+* diamonds;
+* 6-cycles.
+
+The C5 difference is only:
+
+$$
++0.009.
+$$
+
+QuIC and QAOA therefore provide nearly identical 5-cycle accessibility on this census.
+
+The 4-regular experiment gives QuIC its broadest baseline advantage, but the magnitude remains target dependent.
+
+#### QuIC versus QAOA on the mixed-degree census
+
+QAOA exceeds QuIC on every mixed-degree target.
+
+The QAOA scores remain modest:
+
+$$
+R^2\in[0.069,0.114].
+$$
+
+They are nevertheless consistently above the QuIC scores.
+
+The differences range from:
+
+$$
+-0.056
+$$
+
+to:
+
+$$
+-0.106.
+$$
+
+QAOA’s uniform (|+\rangle^{\otimes n}) preparation appears more robust than QuIC’s heterogeneous degree-dependent preparation on this complete census, although neither circuit provides strong prediction.
+
+This result reinforces the conclusion that QuIC’s degree encoder does not automatically help outside regular families.
+
+#### Regularity transfer is not unique to QuIC
+
+QAOA also performs substantially better on the two regular censuses than on the mixed-degree census.
+
+For example:
+
+$$
+R^2_{C_3}=0.877\quad\text{and}\quad0.978
+$$
+
+on the regular censuses, compared with:
+
+$$
+R^2_{C_3}=0.114
+$$
+
+at (n=8).
+
+Similarly, QAOA’s 4-cycle score is:
+
+$$
+0.869\quad\text{and}\quad0.851
+$$
+
+on the regular censuses, compared with:
+
+$$
+0.105
+$$
+
+on the mixed-degree census.
+
+The regularity effect is therefore not unique to QuIC.
+
+Both graph-dependent phase-and-mixer circuits produce much stronger cycle-aligned geometry on the regular censuses.
+
+QuIC often provides the stronger representation within that regime, particularly for cubic (C_3)–(C_5) and 4-regular (C_4), (C_6), and diamonds.
+
+The correct interpretation is comparative rather than exclusive:
+
+> Regularity supports strong structural accessibility for both tested quantum circuit families, while QuIC changes which targets are most directly exposed.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The notebook uses the correct canonical normalized QuIC encoder.**
+
+   The cubic results exactly reproduce the independent E2 record.
+
+2. **QuIC’s structural accessibility transfers from 3-regular to 4-regular graphs.**
+
+   All five tested targets remain strongly decodable on the complete 4-regular census.
+
+3. **Triangle and 4-cycle accessibility are the most stable cross-regularity results.**
+
+   Both remain essentially exact.
+
+4. **The deeper target profile is not universal.**
+
+   Five-cycle prediction declines, while 6-cycle prediction becomes substantially stronger on the 4-regular census.
+
+5. **Diamond accessibility also transfers.**
+
+   It remains above (0.93) at both regularities.
+
+6. **QuIC collapses on the complete mixed-degree (n=8) census.**
+
+   Every target remains near the prediction floor despite full-vector decoding.
+
+7. **The off-regularity collapse is not a truncation artifact.**
+
+   The complete probability vectors are used for all circuits and graph orders.
+
+8. **QuIC exceeds QAOA on all five 4-regular targets and on the first three cubic cycle targets.**
+
+9. **QuIC does not universally dominate QAOA.**
+
+   QAOA is stronger for cubic (C_6) and for every target on the mixed-degree census.
+
+10. **Regularity also benefits the QAOA baseline.**
+
+    The transfer effect is broader than the QuIC encoder alone.
+
+E21 therefore extends the cubic result into a regular-graph characterization while rejecting a universal target-ordering claim.
+
+#### Necessary qualifications
+
+The three censuses differ in graph order as well as regularity.
+
+The regular comparison uses:
+
+* 3-regular graphs at (n=14);
+* 4-regular graphs at (n=12).
+
+The mixed-degree comparison uses:
+
+* all connected graphs at (n=8).
+
+The experiment therefore does not isolate regularity as the only changed variable.
+
+The fixed-order E6 experiments provide the complementary control showing off-regularity degradation at (n=14).
+
+The complete (n=8) census is a mixed census rather than a census containing only nonregular graphs. It includes graphs with many different degree sequences and also includes some regular graphs.
+
+Its near-zero aggregate score demonstrates failure across the complete heterogeneous collection, not failure on every individual regularity stratum within that collection.
+
+A stricter transfer design would compare:
+
+* 3-regular and 4-regular graphs at the same order;
+* or multiple regularities across several common graph orders.
+
+The census sizes also differ substantially:
+
+$$
+509,\qquad1{,}544,\qquad11{,}117.
+$$
+
+The larger mixed-degree sample does not rescue QuIC performance, but sample size remains another difference among the experiments.
+
+The 4-regular (C_6) target is computed directly but not certified through a closed trace identity in the notebook.
+
+The induced-diamond routine is mathematically designed to exclude (K_4) subgraphs, but the notebook does not execute a separate brute-force assertion over all four-vertex subsets during this run.
+
+The final output reports mean outer-fold (R^2) values but does not print the stored fold standard deviations.
+
+No paired statistical tests compare:
+
+* regularities;
+* circuits;
+* or target-specific score differences.
+
+Small differences such as the 4-regular C5 margin of:
+
+$$
+0.009
+$$
+
+should therefore be treated as descriptive ties.
+
+The full-vector models operate in strongly high-dimensional regimes. E10 showed that QuIC ridge probes can rely on very small regularization values and low-variance feature directions.
+
+E21 does not repeat the shuffled-target or solver-agreement audits for the new 4-regular census.
+
+The experiment evaluates linear accessibility rather than information content in the strict sense. A low ridge score does not prove that the mixed-degree vectors contain no cycle information.
+
+The QAOA and QuIC circuits are compared at one shared fixed angle schedule. The schedule may favor one circuit differently across graph families.
+
+All results use exact ideal probabilities. They do not establish finite-shot or hardware-accessible transfer.
+
+Finally, the transfer result concerns one regular graph order per regularity. It supports a regular-graph hypothesis but does not yet establish a general theorem across all (d)-regular graph families.
+
+#### Overall assessment
+
+E21 supplies the missing regularity-transfer experiment.
+
+The canonical QuIC circuit reproduces the established cubic results exactly and remains strongly informative on the complete 4-regular (n=12) census:
+
+$$
+R^2=1.000,\quad0.999,\quad0.787,\quad0.922,\quad0.935
+$$
+
+for triangles, 4-cycles, 5-cycles, 6-cycles, and diamonds.
+
+The result rules out the narrow interpretation that QuIC’s structural accessibility is a peculiarity of cubic graphs.
+
+The transfer is not an exact replication of the cubic hierarchy. Triangle and 4-cycle prediction remain saturated, but C5 becomes weaker and C6 becomes substantially stronger. The broader regular-graph phenomenon is stable cycle accessibility, not one universal ordering of cycle lengths.
+
+The complete mixed-degree (n=8) census provides the sharp contrast. QuIC remains near the prediction floor for every target despite full-vector decoding and more than 11,000 graph examples.
+
+The QAOA baseline sharpens the conclusion. It also benefits strongly from regularity, showing that the effect is not unique to QuIC. QuIC nevertheless provides the stronger representation for the first three cubic cycle targets and for every tested 4-regular target.
+
+The appropriate central claim is:
+
+> QuIC’s strong structural accessibility transfers beyond cubic graphs to the complete connected 4-regular (n=12) census. Triangle and 4-cycle counts remain essentially exact, while 5-cycle, 6-cycle, and diamond counts remain strongly decodable, although their relative ordering changes across regularities. The same canonical circuit collapses on the complete mixed-degree (n=8) census even under full-vector decoding. Regularity therefore appears to support the organized probability geometry, but it does not impose one universal cycle hierarchy. A QAOA-style baseline shows the same broad regularity dependence, while QuIC provides stronger target-specific accessibility within the regular regime.
+
