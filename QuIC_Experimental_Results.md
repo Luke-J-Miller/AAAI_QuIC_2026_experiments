@@ -4041,6 +4041,7 @@ For general graphs,
 $$
 	ext{tr}(A^4) = 8C_4+2\sum_v d_v^2
 $$
+
 -------------
 $$
 \sum_v d_v.
