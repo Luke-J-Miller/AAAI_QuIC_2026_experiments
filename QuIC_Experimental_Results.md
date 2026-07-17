@@ -12753,6 +12753,459 @@ The appropriate central claim for the current notebook is:
 
 > Under an unnormalized degree encoder (R_X(2.875d_i)), the sorted QuIC readout is injective on the complete connected (n=8) graph census: all 11,117 graphs have distinct computed vectors, an independent gate-level implementation agrees with Qiskit to a worst-case (L_1) error of (8.044\times10^{-16}), and the 100 closest candidate pairs remain separated at 32-decimal-digit precision. Because the implemented encoder omits normalization by maximum degree, this run does not yet certify the canonical QuIC partition and must be repeated with (R_X(2.875d_i/\Delta)).
 
+### E20 - Exact Partition Audit
+
+#### Experimental design
+
+E20 tests whether the canonical sorted QuIC readout induces a discrete partition on the complete connected graph census at:
+
+* **11,117 graphs at (n=8)**.
+
+A discrete partition means that no two distinct unlabeled census graphs receive the same readout:
+
+$$
+\mathbf p(G)=\mathbf p(H)\Longrightarrow G=H.
+$$
+
+Each graph is represented by its complete descending-sorted Born-probability vector:
+
+$$
+\mathbf p(G)\in\mathbb R^{256}.
+$$
+
+The circuit uses the canonical QuIC configuration:
+
+* normalized degree encoder;
+* edgewise (R_{ZZ}) entanglers;
+* uniform (R_X) mixer;
+* one entangler–mixer repetition.
+
+The locked angles are:
+
+$$
+\alpha=2.875,\qquad\gamma=2.0,\qquad\beta=0.1.
+$$
+
+The vertex encoder is:
+
+$$
+R_X\left(2.875\frac{d_i}{\Delta}\right),
+$$
+
+where (d_i) is the degree of vertex (i) and (\Delta) is the maximum degree of the graph.
+
+The audit uses three independent numerical routes.
+
+1. **Primary Qiskit statevector implementation**
+
+   The complete readout is computed in float64 using Qiskit.
+
+2. **Independent gate-level implementation**
+
+   The same circuit is reconstructed without Qiskit using explicit dense (R_X) gates, diagonal (R_{ZZ}) phases, and tensor contractions.
+
+3. **Extended-precision implementation**
+
+   The closest candidate graph pairs are recomputed with 32-decimal-digit `mpmath` arithmetic.
+
+The experiment then performs:
+
+* complete-census rounded-fingerprint counting;
+* an exhaustive all-graph nearest-neighbor search;
+* an all-graph independent-implementation comparison;
+* extended-precision verification of the 100 closest candidate pairs.
+
+#### Correction relative to the earlier E20 run
+
+The original E20 notebook mistakenly implemented:
+
+$$
+R_X(2.875d_i)
+$$
+
+rather than:
+
+$$
+R_X\left(2.875\frac{d_i}{\Delta}\right).
+$$
+
+The corrected notebook applies maximum-degree normalization consistently in:
+
+* the Qiskit implementation;
+* the independent gate-level implementation;
+* the extended-precision implementation.
+
+The earlier unnormalized run therefore audited a different circuit and should be replaced by the current results.
+
+The correction changes the separation scale substantially.
+
+The earlier minimum was approximately:
+
+$$
+3.263\times10^{-3}.
+$$
+
+The corrected minimum is approximately:
+
+$$
+2.159\times10^{-5}.
+$$
+
+The unnormalized circuit therefore produced a closest-pair separation approximately:
+
+$$
+151
+$$
+
+times larger.
+
+The partition verdict remains unchanged, but the geometry is materially different.
+
+#### Census validation
+
+The complete census is generated using:
+
+$$
+\texttt{nauty-geng -c 8}.
+$$
+
+The enumeration returns exactly:
+
+$$
+11{,}117
+$$
+
+connected unlabeled graphs.
+
+Each graph is reconstructed from graph6 format as an (8\times8) adjacency matrix using a consistent sorted node order.
+
+#### Rounded-readout distinctness
+
+Every graph receives a distinct 12-decimal rounded fingerprint:
+
+$$
+11{,}117/11{,}117.
+$$
+
+No multi-graph collision class is observed.
+
+Because two identical computed float64 vectors would necessarily produce the same rounded fingerprint, this result rules out literal equality among the stored primary readouts.
+
+It also places the observed distinctions well above ordinary coordinate-level floating-point noise. At least one coordinate differs at the 12-decimal rounding scale for every graph pair.
+
+#### Exhaustive nearest-neighbor search
+
+The experiment compares every graph against every other graph in chunked all-pairs passes.
+
+For each graph, it retains the nearest other readout under sorted-vector (L_1) distance.
+
+The resulting nearest-neighbor distribution is:
+
+| Statistic      | Sorted-readout (L_1) distance |
+| -------------- | ----------------------------: |
+| Minimum        |          (2.162\times10^{-5}) |
+| 1st percentile |          (8.395\times10^{-4}) |
+| Median         |          (3.116\times10^{-2}) |
+
+The exhaustive candidate search therefore finds no near-collision remotely close to float64 precision.
+
+The minimum candidate separation is approximately:
+
+$$
+2.2\times10^{-5}.
+$$
+
+This is more than ten orders of magnitude above ordinary double-precision roundoff.
+
+The nearest-neighbor search is exhaustive over all graph pairs, unlike the local-window candidate search used in E16 / E17.
+
+However, the readouts are converted to float32 before the all-pairs distance calculation. The search is therefore exhaustive in pair coverage but approximate in coordinate precision.
+
+The reported:
+
+$$
+2.162\times10^{-5}
+$$
+
+value is the minimum found under the exhaustive float32 distance pass, not an exact float64 all-pairs minimum.
+
+#### Independent implementation agreement
+
+The gate-level implementation is evaluated on all 11,117 graphs.
+
+The worst discrepancy from the Qiskit readout is:
+
+$$
+L_1=1.209\times10^{-15}.
+$$
+
+The prespecified tolerance is:
+
+$$
+10^{-12}.
+$$
+
+Thus:
+
+$$
+1.209\times10^{-15}<10^{-12}.
+$$
+
+The two implementations agree approximately three orders of magnitude more tightly than required.
+
+This rules out the possibility that the distinct partition arises from one simulator’s:
+
+* qubit ordering;
+* gate convention;
+* statevector construction;
+* or probability-extraction path.
+
+The second implementation independently reconstructs:
+
+* every normalized degree rotation;
+* every graph-edge (R_{ZZ}) phase;
+* the final mixer;
+* the Born probabilities;
+* the descending sort.
+
+The complete-census agreement therefore provides a strong implementation-level validation of the corrected circuit.
+
+#### Extended-precision certification
+
+The 100 closest candidate pairs identified by the exhaustive search are recomputed at:
+
+$$
+32
+$$
+
+decimal digits of working precision.
+
+All 100 pairs remain separated.
+
+The smallest extended-precision separation is:
+
+$$
+L_1=2.159\times10^{-5},
+$$
+
+for census members:
+
+$$
+(10{,}975,11{,}041).
+$$
+
+The certification floor is:
+
+$$
+10^{-20}.
+$$
+
+The observed minimum satisfies:
+
+$$
+2.159\times10^{-5}>10^{-20}.
+$$
+
+The smallest tested separation is therefore approximately:
+
+$$
+2.2\times10^{15}
+$$
+
+times larger than the certification floor.
+
+The float32 candidate distance and extended-precision result differ by only approximately:
+
+$$
+0.14%.
+$$
+
+This indicates that float32 quantization changes the reported gap only slightly for the closest identified pair.
+
+#### Relationship to E16 / E17
+
+E16 / E17 reported a candidate minimum (n=8) separation of:
+
+$$
+2.159\times10^{-5}.
+$$
+
+The corrected E20 extended-precision result is:
+
+$$
+2.159\times10^{-5}.
+$$
+
+The agreement is exact at the displayed precision.
+
+The two experiments use the same canonical normalized degree encoder.
+
+Their nearest-neighbor procedures differ:
+
+* E16 / E17 searches a local candidate window after sorting graphs by the leading probability;
+* E20 performs an exhaustive float32 all-pairs search and then recomputes the closest candidates at extended precision.
+
+E20 therefore upgrades the earlier candidate result.
+
+The earlier local search happened to identify the same separation scale and apparently the same closest pair, while the exhaustive audit provides substantially stronger evidence that no smaller pair was missed by the local heuristic.
+
+The notebook’s final markdown comment states that the E16 / E17 result used an unnormalized encoder. That statement is inconsistent with the matching separation and with the earlier canonical implementation record. It should be removed from the notebook documentation.
+
+#### Partition verdict
+
+The notebook declares:
+
+$$
+\boxed{\text{DISCRETE}}
+$$
+
+for the complete connected (n=8) census.
+
+The verdict is supported by three numerical legs:
+
+1. **Complete-census distinctness**
+
+   $$
+   11{,}117/11{,}117
+   $$
+
+   rounded readouts are unique.
+
+2. **Independent implementation agreement**
+
+   $$
+   L_{1,\max}=1.209\times10^{-15}.
+   $$
+
+3. **Extended-precision separation**
+
+   $$
+   L_{1,\min}=2.159\times10^{-5}
+   $$
+
+   among the 100 closest candidate pairs.
+
+Together, these results provide a strong finite-census numerical certificate that the canonical sorted QuIC readout is injective on the complete connected (n=8) census at the tested parameters.
+
+#### What the experiment establishes
+
+The corrected results establish that:
+
+1. **The canonical normalized QuIC readout distinguishes every connected unlabeled graph at (n=8).**
+
+   All 11,117 graphs receive distinct computed vectors.
+
+2. **The partition result is not simulator specific.**
+
+   An independent gate-level implementation agrees with Qiskit on every graph to worst-case (L_1) error:
+
+   $$
+   1.209\times10^{-15}.
+   $$
+
+3. **The closest identified readouts remain genuinely separated at extended precision.**
+
+   All 100 candidate pairs remain distinct at 32 decimal digits.
+
+4. **The minimum identified separation is approximately (2.16\times10^{-5}).**
+
+5. **The exhaustive audit reproduces the earlier E16 / E17 separation scale.**
+
+6. **Maximum-degree normalization materially affects the geometry.**
+
+   The corrected nearest separation is approximately 151 times smaller than in the invalid unnormalized run.
+
+7. **The correction changes the separation margin but not the census-level injectivity verdict.**
+
+E20 therefore supplies the strongest numerical partition audit for the canonical QuIC object at (n=8).
+
+#### Necessary qualifications
+
+The result is a numerical finite-census certificate, not a symbolic injectivity theorem.
+
+It establishes distinctness for:
+
+* connected unlabeled graphs;
+* exactly eight vertices;
+* the canonical fixed angles;
+* one circuit repetition;
+* ideal statevector probabilities;
+* descending-sorted readout vectors.
+
+It does not prove injectivity for arbitrary graph orders or parameter values.
+
+The nearest-neighbor search uses float32 coordinates.
+
+Although it compares every pair, the candidate ranking and reported primary distances are not computed directly in float64. A stricter audit would retain float64 throughout the chunked search.
+
+Only the 100 closest float32-selected candidate pairs are recomputed at extended precision.
+
+If float32 rounding changed the ordering enough to exclude the true closest float64 pair from that set, the extended-precision minimum would not be globally certified.
+
+The following evidence makes that concern small in practice:
+
+* every 12-decimal fingerprint is unique;
+* the nearest observed gap is approximately (10^{-5});
+* the independent implementations agree near (10^{-15});
+* the exhaustive result reproduces the independent E16 / E17 candidate minimum.
+
+Nevertheless, the mathematically strict statement is that E20 certifies the selected nearest candidates rather than every pair at arbitrary precision.
+
+The extended-precision implementation constructs its angles from Python floating-point values. It therefore evaluates high-precision arithmetic at the binary-float approximations of:
+
+$$
+2.875,\qquad2.0,\qquad0.1.
+$$
+
+A stricter arbitrary-precision audit would initialize the parameters from decimal strings.
+
+The normalized encoder angle is also calculated in ordinary floating-point arithmetic before conversion to `mpmath`.
+
+The rounded-fingerprint count uses coordinate-wise rounding to 12 decimal places. It is not a symbolic equality test.
+
+The word “exact” in the notebook’s nearest-neighbor comments refers to exhaustive pair coverage, not exact arithmetic.
+
+The experiment evaluates ideal probability vectors. It does not establish that all 11,117 graphs are distinguishable at finite shot counts.
+
+E7S shows that much smaller structural distinctions can remain below sampling noise even when they are genuine in the exact probability representation.
+
+Finally, injectivity does not imply useful global geometry. E16 / E17 and E21 show that the complete mixed-degree (n=8) census is only weakly organized by the tested graph invariants despite having distinct readouts for every graph.
+
+#### Overall assessment
+
+The corrected E20 run successfully performs the intended partition audit.
+
+All three numerical routes now implement the canonical encoder:
+
+$$
+R_X\left(2.875\frac{d_i}{\Delta}\right).
+$$
+
+Every connected unlabeled (n=8) graph receives a distinct sorted QuIC readout. The independent gate-level implementation agrees with Qiskit to a worst-case discrepancy of:
+
+$$
+1.209\times10^{-15}.
+$$
+
+The exhaustive nearest-neighbor pass identifies a minimum candidate distance of:
+
+$$
+2.162\times10^{-5},
+$$
+
+and extended-precision recomputation gives:
+
+$$
+2.159\times10^{-5}.
+$$
+
+This exactly reproduces the earlier E16 / E17 separation scale while replacing its local candidate search with an exhaustive census-wide pass.
+
+The correction also demonstrates why the invalid original E20 result could not be retained. Removing maximum-degree normalization enlarged the closest separation by approximately a factor of 151. The partition remained discrete, but the circuit geometry changed substantially.
+
+The appropriate central claim is:
+
+> Using the canonical maximum-degree-normalized encoder, the descending-sorted QuIC probability vector is numerically injective on the complete connected (n=8) graph census. All 11,117 graphs have distinct computed readouts, an independent gate-level implementation agrees with Qiskit to a worst-case (L_1) discrepancy of (1.209\times10^{-15}), and the 100 closest exhaustive-search candidates remain separated at 32-decimal-digit precision. The minimum identified separation is (2.159\times10^{-5}), reproducing the earlier E16 / E17 candidate value while providing a substantially stronger census-wide audit.
 
 
 ### E21 - Regularity Transfer
