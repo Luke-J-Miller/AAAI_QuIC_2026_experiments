@@ -8995,6 +8995,690 @@ The appropriate central claim is:
 
 > QuIC’s rank-stratified structural hierarchy is primarily encoded in the relative shape of its leading probabilities rather than in cumulative retained mass. Five-cycle, diamond, and girth accessibility survives head normalization, while six-cycle accessibility improves when shape and mass are exposed separately. The functional automorphism-order signal is likewise shape dominated. Exact cospectral separations accumulate more gradually, reaching most of their complete-vector magnitude only near the first 1,000 probabilities and remaining modest relative to other cycle-count-identical graph pairs.
 
+### E14 - n=18 Exact-Cospectral Functional Witnesses
+
+#### Experimental design
+
+E14 tests whether QuIC differences within exact adjacency-cospectral graph classes align with graph properties that the complete adjacency spectrum cannot determine.
+
+The experiment uses the complete connected cubic-graph census at:
+
+* **41,301 graphs at (n=18)**.
+
+Exact adjacency-cospectral classes are reconstructed from integer trace tuples:
+
+$$
+\left(\text{tr}(A),\text{tr}(A^2),\ldots,\text{tr}(A^{18})\right).
+$$
+
+The census contains:
+
+* **471 exact cospectral groups**;
+* **958 total members of those groups**.
+
+Computing full QuIC vectors of dimension:
+
+$$
+2^{18}=262{,}144
+$$
+
+for all 41,301 graphs would require substantially more storage and simulation time than the earlier censuses. The producer therefore uses a selective design.
+
+Full sorted QuIC vectors are computed for:
+
+* every member of a cospectral group varying in diamond count, Wiener index, or automorphism-group order;
+* a producer-selected set of invariant-identical control groups.
+
+The resulting stored set contains:
+
+$$
+906=625\text{ qualifying members}+281\text{ control members}.
+$$
+
+The circuit uses the canonical QuIC configuration:
+
+* degree-proportional (R_X) encoding with maximum rotation (2.875);
+* edgewise (R_{ZZ}(2.0)) entanglers;
+* uniform (R_X(0.1)) mixer;
+* one entangler–mixer repetition;
+* complete descending-sorted ideal probability vectors.
+
+The primary functional test uses pairwise ranking within exact cospectral groups.
+
+For each unequal-target pair ((G_i,G_j)), the feature vector is:
+
+$$
+\mathbf x_{ij}^{(k)}=\mathbf p_{1:k}(G_i)-\mathbf p_{1:k}(G_j),
+$$
+
+and the label is:
+
+$$
+y_{ij}=\text{sign}\left(t(G_i)-t(G_j)\right).
+$$
+
+Evaluation uses:
+
+* leave-one-cospectral-group-out validation;
+* both orientations of every training pair;
+* train-only root-mean-square feature scaling;
+* intercept-free (L_2)-regularized logistic regression;
+* ties counted as failures.
+
+The tested targets are:
+
+* diamond count;
+* Wiener index;
+* (\log_2|\text{Aut}(G)|).
+
+The prespecified primary truncation depth is:
+
+$$
+k=100.
+$$
+
+The regularization profile is evaluated at:
+
+$$
+C\in{10^{-3},10^{-2},10^{-1},1,10,10^2,10^3}.
+$$
+
+The inferential null uses the fixed prespecified value:
+
+$$
+C=1.
+$$
+
+For diamond count, all:
+
+$$
+2^6=64
+$$
+
+pair-label sign patterns are enumerated. Wiener index and automorphism order use 2,000 sampled sign-flip refits.
+
+A secondary depth analysis considers:
+
+$$
+k\in{50,100,200,500,1000,262{,}144}.
+$$
+
+The primary (k=100) tests completed for all three targets. The depth-selection correction completed for diamonds. The Wiener depth analysis completed only through (k=500), and the automorphism-order depth analysis did not complete beyond the primary checkpoint.
+
+#### Integrity checks
+
+The notebook applies several validation gates before using the QuIC vectors.
+
+The stored invariant table satisfies the cubic identities:
+
+$$
+\text{tr}(A^3)=6C_3,
+$$
+
+$$
+\text{tr}(A^4)=8C_4+15n,
+$$
+
+$$
+\text{tr}(A^5)=10C_5+10\text{tr}(A^3),
+$$
+
+and:
+
+$$
+\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).
+$$
+
+The 471 cospectral groups are independently re-derived from the stored integer trace tuples and exactly match the producer record.
+
+The sets of groups varying in each invariant are also recomputed independently.
+
+| Invariant    | Exact cospectral groups with variation |   |    |
+| ------------ | -------------------------------------: | - | -- |
+| Diamonds     |                                      6 |   |    |
+| 6-cycles     |                                      6 |   |    |
+| 7-cycles     |                                     18 |   |    |
+| Wiener index |                                    283 |   |    |
+| Radius       |                                     75 |   |    |
+| Diameter     |                                     53 |   |    |
+| (\log_2      |                          \text{Aut}(G) | ) | 90 |
+
+The diamond-varying and 6-cycle-varying group sets are identical:
+
+$$
+\mathcal G_D=\mathcal G_{C_6}.
+$$
+
+All 906 qualifying and control members are reconstructed from their graph6 strings, and their cycle, metric, and symmetry invariants exactly reproduce the stored table.
+
+Every stored QuIC vector is:
+
+* descending sorted;
+* normalized to unit sum;
+* dimension (262,144).
+
+Three stored vectors are independently rebuilt using Qiskit. Their worst coordinate deviation is below:
+
+$$
+10^{-12}.
+$$
+
+These checks establish that the ranking results use the intended canonical circuit and correctly identified exact cospectral classes.
+
+#### Direct diamond and 6-cycle witnesses
+
+For cubic graphs:
+
+$$
+\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).
+$$
+
+Within an exact adjacency-cospectral class, the spectrum fixes the traces and therefore fixes:
+
+$$
+C_6+D.
+$$
+
+The (n=14) and (n=16) censuses contained no exact cospectral groups varying in diamond count. At (n=18), six such groups appear.
+
+Each group is a pair with:
+
+$$
+|\Delta D|=1,\qquad\Delta C_6=-\Delta D.
+$$
+
+| Group | Members           | Diamond counts | 6-cycle counts |    Full-vector (L_1) |
+| ----: | ----------------- | -------------: | -------------: | -------------------: |
+|   257 | 12,891 and 29,287 |        1 and 0 |        6 and 7 | (1.619\times10^{-5}) |
+|   401 | 29,752 and 31,179 |        1 and 0 |        5 and 6 | (1.590\times10^{-5}) |
+|   438 | 36,289 and 40,737 |        0 and 1 |        6 and 5 | (1.590\times10^{-5}) |
+|   451 | 37,702 and 39,791 |        1 and 0 |        8 and 9 | (1.624\times10^{-5}) |
+|   461 | 38,826 and 40,082 |        1 and 0 |        4 and 5 | (1.592\times10^{-5}) |
+|   468 | 39,793 and 40,655 |        0 and 1 |      11 and 10 | (1.626\times10^{-5}) |
+
+These classes are direct witnesses that diamond count and 6-cycle count are not individually determined by the complete adjacency spectrum.
+
+Because:
+
+$$
+\Delta C_6=-\Delta D,
+$$
+
+ranking diamond count and ranking 6-cycle count are the same test with reversed labels. The result is reported once through the diamond target.
+
+#### Primary ranking results
+
+| Target       | Varying groups | Unequal pairs | Correct at (k=100), (C=1) | Null mean | Null 95th percentile | Permutation (p) | Nominal binomial (p) |        |        |
+| ------------ | -------------: | ------------: | ------------------------: | --------: | -------------------: | --------------: | -------------------: | ------ | ------ |
+| Diamonds     |              6 |             6 |                         6 |       3.0 |                    5 |          0.0462 |               0.0156 |        |        |
+| Wiener index |            283 |           302 |                       176 |     150.5 |                  167 |          0.0060 |               0.0024 |        |        |
+| (\log_2      |  \text{Aut}(G) |             ) |                        90 |        94 |                   63 |            47.0 |                   57 | 0.0035 | 0.0006 |
+
+The permutation values are the primary inferential results. The nominal binomial values treat pair outcomes as independent and do not account for shared training sets or the complete model-refitting procedure.
+
+#### Diamond and 6-cycle ranking
+
+QuIC correctly ranks all six witness pairs:
+
+$$
+6/6.
+$$
+
+The observed result exceeds the 95th percentile of the exact sign-flip null:
+
+$$
+6>5.
+$$
+
+The reported permutation value is:
+
+$$
+p=0.0462.
+$$
+
+The result is modest in sample size but directly targeted. The test does not ask whether QuIC merely distinguishes the six pairs. It asks whether a common direction learned from five held-out cospectral classes correctly orders the sixth by diamond count.
+
+Every pair is ranked correctly under leave-one-group-out evaluation.
+
+Since 6-cycle labels are the negatives of the diamond labels, the same result establishes:
+
+> QuIC consistently identifies which member of each exact cospectral witness carries the additional diamond and, equivalently, which member carries the additional 6-cycle.
+
+This is a direct functional result beyond the complete adjacency spectrum. It is stronger than the earlier diamond residual probe, which established information beyond a linear spectral readout but could not establish information beyond the full spectrum because no diamond-varying cospectral classes existed at (n=14) or (n=16).
+
+#### Wiener-index ranking
+
+At the prespecified depth and regularization:
+
+$$
+176/302
+$$
+
+Wiener-index pairs are correctly ranked.
+
+This corresponds to approximately:
+
+$$
+58.3%.
+$$
+
+The raw accuracy is not large, but it is evaluated across 283 held-out cospectral groups. The full-refit permutation null has:
+
+$$
+\text{mean}=150.5,\qquad\text{95th percentile}=167.
+$$
+
+The observed count exceeds the null 95th percentile by nine pairs:
+
+$$
+176-167=9.
+$$
+
+The sampled permutation result is:
+
+$$
+p=0.0060.
+$$
+
+The complete adjacency spectrum is identical within every evaluated pair. The positive result therefore shows that QuIC differences contain a repeatable direction associated with relative Wiener index inside exact cospectral classes.
+
+The result also strengthens the earlier (n=16) exhibit, which contained only 26 unequal Wiener pairs. At (n=18), the test expands to 302 pairs and obtains significance under a full-refit sign-flip null.
+
+#### Automorphism-order ranking
+
+For:
+
+$$
+\log_2|\text{Aut}(G)|,
+$$
+
+QuIC correctly ranks:
+
+$$
+63/94
+$$
+
+unequal pairs, or approximately:
+
+$$
+67.0%.
+$$
+
+The permutation null has:
+
+$$
+\text{mean}=47.0,\qquad\text{95th percentile}=57.
+$$
+
+The observed count exceeds that percentile by six:
+
+$$
+63-57=6.
+$$
+
+The sampled permutation result is:
+
+$$
+p=0.0035.
+$$
+
+This extends the earlier (n=16) automorphism result from 14 varying pairs to 94 pairs across 90 exact cospectral groups.
+
+The result indicates that the symmetry-related QuIC direction found at (n=16) persists in a substantially larger and more diverse set of exact cospectral classes.
+
+#### Regularization profile
+
+The complete (C)-profiles are:
+
+| Target       |     (10^{-3}) | (10^{-2}) | (10^{-1}) | (1) | (10) | (10^2) | (10^3) |    |    |
+| ------------ | ------------: | --------: | --------: | --: | ---: | -----: | -----: | -- | -- |
+| Diamonds     |             6 |         6 |         6 |   6 |    6 |      6 |      6 |    |    |
+| Wiener index |           164 |       173 |       173 | 176 |  179 |    175 |    182 |    |    |
+| (\log_2      | \text{Aut}(G) |         ) |        51 |  48 |   56 |     63 |     61 | 61 | 67 |
+
+The diamond result is completely insensitive to the tested regularization scale.
+
+Every value produces:
+
+$$
+6/6.
+$$
+
+The Wiener and automorphism results vary more strongly.
+
+Wiener index ranges from:
+
+$$
+164/302
+$$
+
+to:
+
+$$
+182/302.
+$$
+
+Automorphism order ranges from:
+
+$$
+48/94
+$$
+
+to:
+
+$$
+67/94.
+$$
+
+The inferential null is evaluated at the prespecified:
+
+$$
+C=1,
+$$
+
+rather than at the best observed profile value. The larger counts at (C=10^3) are therefore descriptive and should not replace the primary values without an additional selection correction.
+
+#### Truncation-depth results
+
+##### Diamonds
+
+The diamond ranking is unchanged across the complete depth grid.
+
+| Depth (k) | Correct pairs |
+| --------: | ------------: |
+|        50 |           6/6 |
+|       100 |           6/6 |
+|       200 |           6/6 |
+|       500 |           6/6 |
+|     1,000 |           6/6 |
+|   262,144 |           6/6 |
+
+The max-over-depth statistic is:
+
+$$
+6/6.
+$$
+
+The selection-corrected permutation result remains:
+
+$$
+p=0.0462.
+$$
+
+The witness direction is therefore already present within the first 50 sorted probabilities and does not depend on selecting a favorable truncation depth.
+
+##### Wiener index
+
+The resumed depth analysis completed the following observed counts:
+
+| Depth (k) | Correct pairs |
+| --------: | ------------: |
+|        50 |       161/302 |
+|       100 |       176/302 |
+|       200 |       186/302 |
+|       500 |       214/302 |
+|     1,000 | Not completed |
+|   262,144 | Not completed |
+
+The observed count increases at every completed depth:
+
+$$
+161<176<186<214.
+$$
+
+At:
+
+$$
+k=500,
+$$
+
+the descriptive accuracy reaches approximately:
+
+$$
+70.9%.
+$$
+
+This suggests that Wiener-index information is distributed more deeply through the sorted readout than the diamond witness signal.
+
+The resumed run did not complete:
+
+* the (k=1000) arm;
+* the full-vector arm;
+* the final max-over-depth permutation value.
+
+The (214/302) result should therefore be reported only as a partial descriptive depth result. The completed inferential Wiener result remains the prespecified:
+
+$$
+176/302,\qquad p=0.0060
+$$
+
+at:
+
+$$
+k=100.
+$$
+
+##### Automorphism order
+
+The automorphism-order primary result completed at:
+
+$$
+k=100.
+$$
+
+The per-depth sweep and max-over-depth correction did not complete.
+
+No best-depth claim is therefore supported for this target.
+
+#### Within-group QuIC separations
+
+The full-vector within-group distances are:
+
+| Group category          | Pair count |        Minimum (L_1) |         Median (L_1) |        Maximum (L_1) |
+| ----------------------- | ---------: | -------------------: | -------------------: | -------------------: |
+| Diamond witnesses       |          6 | (1.590\times10^{-5}) | (1.605\times10^{-5}) | (1.626\times10^{-5}) |
+| Other qualifying groups |        327 | (5.704\times10^{-9}) | (2.948\times10^{-7}) | (3.336\times10^{-5}) |
+| Control groups          |        145 | (1.731\times10^{-9}) | (5.874\times10^{-8}) | (1.673\times10^{-5}) |
+
+The diamond-witness separations occupy a narrow interval around:
+
+$$
+1.6\times10^{-5}.
+$$
+
+Their median is approximately:
+
+$$
+54
+$$
+
+times the median of the other qualifying pairs and approximately:
+
+$$
+273
+$$
+
+times the control median.
+
+The ranges nevertheless overlap. Some qualifying and control pairs have separations as large as or larger than the witness pairs.
+
+The result therefore does not show that diamond-varying pairs are uniquely far apart. It shows that all six direct witnesses have comparatively large, consistent exact QuIC separations.
+
+Because QuIC vectors were computed selectively, no census-wide reference distribution is available. These values cannot be converted into global pair-distance percentiles.
+
+#### Relationship to the earlier cospectral experiments
+
+The earlier exact cospectral audits established that QuIC distinguishes:
+
+* all 3 exact cospectral pairs at (n=14);
+* all 43 exact cospectral pairs at (n=16).
+
+Those censuses did not contain variation in diamond count or cycle counts through (C_7) within their exact cospectral groups.
+
+At (n=18), the larger census produces the first six direct diamond and 6-cycle witnesses.
+
+This changes the status of the non-spectral claim.
+
+The previous evidence established:
+
+* numerical separation of exact cospectral graphs;
+* functional alignment with Wiener index and automorphism order;
+* diamond accessibility beyond a linear spectral probe.
+
+E14 now establishes a graph invariant adjacent to the cycle hierarchy that varies inside exact cospectral classes and is consistently ranked by QuIC.
+
+The spectrum fixes:
+
+$$
+C_6+D,
+$$
+
+while QuIC aligns with the direction that separates:
+
+$$
+C_6-D.
+$$
+
+The result therefore connects the spectral-backbone and non-spectral-residue stories directly.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The complete connected cubic (n=18) census contains 471 exact cospectral groups with 958 members.**
+
+2. **Six exact cospectral groups vary in diamond count and 6-cycle count.**
+
+   In every case, the two quantities vary in exactly opposite directions because the spectrum fixes (C_6+D).
+
+3. **QuIC separates all six direct witnesses by approximately (1.6\times10^{-5}) in full-vector (L_1) distance.**
+
+4. **QuIC correctly ranks diamond count in all six held-out witness pairs.**
+
+   The same result ranks 6-cycle count with reversed labels.
+
+5. **The diamond result is stable across every tested regularization value and truncation depth.**
+
+6. **QuIC ranks Wiener index above the full-refit permutation null.**
+
+   At the prespecified depth, it obtains (176/302) with permutation (p=0.0060).
+
+7. **QuIC ranks automorphism-group order above the full-refit permutation null.**
+
+   It obtains (63/94) with permutation (p=0.0035).
+
+8. **Wiener information appears to accumulate more deeply through the readout.**
+
+   The partial depth sweep rises from (161/302) at (k=50) to (214/302) at (k=500).
+
+9. **The functional residue is not limited to one type of graph property.**
+
+   It appears in a local subgraph statistic, a global metric invariant, and a symmetry invariant.
+
+E14 supplies the clearest direct evidence that QuIC’s exact cospectral residue is structurally aligned rather than merely collision breaking.
+
+#### Necessary qualifications
+
+The diamond experiment contains only six groups and six pairs.
+
+All six are correctly ranked, but the inferential strength is limited by the small number of independent witness classes.
+
+The exact 64-pattern sign-flip distribution is exhaustively enumerated, but the code applies the add-one formula:
+
+$$
+p=\frac{1+b}{B+1}.
+$$
+
+With two null patterns reaching the observed score, this produces:
+
+$$
+p=\frac{3}{65}=0.0462.
+$$
+
+The raw exhaustive tail frequency is:
+
+$$
+\frac{2}{64}=0.03125.
+$$
+
+The reported (0.0462) value is therefore a conservative add-one value rather than the unadjusted exact tail frequency.
+
+The nominal binomial values are not the primary inferential quantities. Pair predictions share training data, and some cospectral groups contribute more than one pair.
+
+The sampled Wiener and automorphism nulls independently flip pair labels. For groups contributing multiple pairs, such flips can create label configurations that do not correspond to any consistent ordering of the group members.
+
+A cleaner group-structured null would permute target assignments within each exact cospectral group. The current values should be described specifically as results under the implemented pairwise sign-flip null.
+
+The sampled nulls use 2,000 draws, giving a minimum add-one resolution of:
+
+$$
+\frac{1}{2001}\approx0.0005.
+$$
+
+The random-number seed includes Python’s built-in string hash. Unless the environment fixes `PYTHONHASHSEED`, the exact sampled draws are not guaranteed to reproduce across separate Python processes.
+
+The fixed (C=1) results are prespecified. The larger values elsewhere in the regularization profile are post hoc descriptive comparisons.
+
+The Wiener and automorphism max-over-depth analyses are incomplete.
+
+Only the diamond result has a completed selection-corrected depth test. The partial Wiener increase through (k=500) cannot be presented as a selection-corrected best-depth result.
+
+The planned descriptive ridge probe over the twelve diamond-witness members did not complete and should not be reported.
+
+The producer computes QuIC vectors selectively rather than over the full census. E14 therefore cannot estimate:
+
+* global collision rates;
+* census-wide distance percentiles;
+* or general probe performance across all 41,301 graphs.
+
+The control set is also producer selected. Its separation distribution is a diagnostic comparison, not a random sample from all invariant-identical cospectral groups.
+
+The ranking task establishes directional association within exact cospectral groups. It does not imply accurate absolute prediction of diamond count, Wiener index, or automorphism order from arbitrary graphs.
+
+No higher-order classical representation is evaluated in E14. Exact cospectrality eliminates the adjacency spectrum as an explanation, but other classical graph representations may also rank these targets.
+
+All results use exact ideal probabilities. No finite-shot or hardware experiment tests whether the observed witness separations are operationally resolvable.
+
+Finally, the experiment concerns:
+
+* connected cubic graphs;
+* (n=18);
+* one circuit repetition;
+* one fixed canonical angle schedule.
+
+It establishes a direct witness inside this census, not a universal separation theorem.
+
+#### Overall assessment
+
+E14 provides the strongest functional non-spectral evidence in the experimental record.
+
+The complete (n=18) cubic census contains six exact adjacency-cospectral pairs that differ in diamond count and 6-cycle count. The spectrum fixes their sum and therefore cannot determine which member carries the diamond or the additional 6-cycle.
+
+QuIC correctly ranks all six pairs using only the first 100 sorted probabilities. The result remains 6/6 across every tested regularization value and every truncation depth, including the complete 262,144-dimensional vector. The selection-corrected sign-flip result remains:
+
+$$
+p=0.0462.
+$$
+
+The larger metric and symmetry tests also succeed. QuIC ranks Wiener index in 176 of 302 unequal pairs with:
+
+$$
+p=0.0060,
+$$
+
+and ranks automorphism-group order in 63 of 94 pairs with:
+
+$$
+p=0.0035.
+$$
+
+These results extend the earlier small cospectral exhibits to hundreds of pairwise tests across hundreds of exact cospectral groups.
+
+The incomplete depth sweeps do not undermine the prespecified primary results. They limit only claims about the optimal truncation depth for Wiener index and automorphism order.
+
+The appropriate central claim is:
+
+> In the complete connected cubic (n=18) census, QuIC functionally resolves graph properties that vary inside exact adjacency-cospectral classes. Six newly identified classes exchange one diamond for one 6-cycle while preserving the complete spectrum; QuIC correctly ranks all six at every tested truncation depth. It also ranks Wiener index and automorphism-group order significantly above full-refit sign-flip nulls across 302 and 94 unequal cospectral pairs. These results show that QuIC’s non-spectral residue is aligned with local structure, global metric geometry, and graph symmetry rather than serving only as an arbitrary collision-breaking signal.
 
 ### E16 / E17 - Readout Quotient and Label Control
 
