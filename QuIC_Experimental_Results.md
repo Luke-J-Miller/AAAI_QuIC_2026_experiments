@@ -1305,6 +1305,7 @@ Each target is evaluated using the same five frozen outer folds used in the earl
    $$
    \hat y_{\mathrm{two-stage}}
    $$
+   
    ===========================
    $$
    \hat y_{\mathrm{spectrum}}    +    \hat r_{\mathrm{QuIC}}. 
@@ -5037,6 +5038,7 @@ The most important result is the C5 concatenation:
 $$
 R^2_{\mathrm{concat}}
 $$
+
 =====================
 $$
 0.879\pm0.023.
@@ -5047,6 +5049,7 @@ This exceeds the strongest spectral baseline:
 $$
 R^2_{\mathrm{moments}}
 $$
+
 ======================
 $$
 0.716
@@ -5206,6 +5209,7 @@ At one repetition:
 $$
 \Delta R^2_{\mathrm{concat}}
 $$
+
 ============================
 $$
 +0.061
@@ -5236,6 +5240,7 @@ The complementarity strengthens:
 $$
 0.879-0.716
 $$
+
 ===========
 $$
 +0.163.
@@ -6696,6 +6701,7 @@ Thus,
 $$
 \mathbf p_{\beta=0}(G)
 $$
+
 =====================
 $$
 \mathbf p_{\beta=0}(H)
@@ -6730,6 +6736,7 @@ for the sign associated with bit (i). Flipping bit (i) changes the graph-cut con
 $$
 \Delta_i c(x)
 $$
+
 =============
 $$
 z_i\sum_{j\in N(i)}z_j.
@@ -6770,10 +6777,11 @@ The proposed first-order probability coefficient is
 $$
 D_1(y)
 $$
+
 ======
 $$
 \sum_i
-\operatorname{Im}
+	ext{Im}
 \left[
 \overline{\phi(y)}
 \phi(y\oplus e_i)
@@ -6787,6 +6795,7 @@ The notebook independently estimates the derivative using the central difference
 $$
 D_1^{(h)}(y)
 $$
+
 ============
 $$
 \frac{
@@ -6836,6 +6845,7 @@ The second-order coefficient is estimated using:
 $$
 D_2(y)
 $$
+
 ======
 $$
 \frac{
@@ -6910,6 +6920,7 @@ This is consistent with the previously derived purity mechanism. If
 $$
 p_y(\beta)
 $$
+
 ==========
 $$
 p_y(0)
@@ -6966,6 +6977,7 @@ At (n=14):
 $$
 R^2_{D_2}
 $$
+
 =========
 $$
 0.180
@@ -6984,6 +6996,7 @@ On the (n=16) subset:
 $$
 R^2_{D_2}
 $$
+
 =========
 $$
 0.240
@@ -7436,8 +7449,9 @@ Four representative targets are selected:
 Diamond count is computed directly and checked through the cubic sixth-moment identity:
 
 $$
-\operatorname{tr}(A^6)
+	ext{tr}(A^6)
 $$
+
 ======================
 $$
 87n
@@ -7877,6 +7891,7 @@ Most shuffled-target arms use only 25 permutations. Their empirical (p)-values t
 $$
 \frac{1}{25+1}
 $$
+
 ==============
 $$
 0.0385.
@@ -7887,6 +7902,7 @@ The C5 arm at (n=14) uses 100 permutations and has minimum resolution:
 $$
 \frac{1}{100+1}
 $$
+
 ===============
 $$
 0.0099.
@@ -7961,6 +7977,7 @@ For each graph, the complete sorted QuIC representation is:
 $$
 \mathbf p(G)
 $$
+
 ============
 $$
 \left(
@@ -7992,6 +8009,7 @@ For each depth, four representations are constructed.
    $$
    \mathbf h_k
    $$
+   
    ===========
    $$
    \left(
@@ -8004,6 +8022,7 @@ For each depth, four representations are constructed.
    $$
    \widetilde{\mathbf h}_k
    $$
+   
    =======================
    $$
    \frac{\mathbf h_k}
@@ -8017,6 +8036,7 @@ For each depth, four representations are constructed.
    $$
    m_k
    $$
+   
    ===
    $$
    \sum_{i=1}^{k}p_{(i)}.
@@ -8062,19 +8082,19 @@ A separate group-preserving ranking experiment decomposes the automorphism-order
 The ranking target is:
 
 $$
-\log_2|\operatorname{Aut}(G)|.
+\log_2|	ext{Aut}(G)|.
 $$
 
 For every unequal cospectral pair ((G_i,G_j)), the model predicts:
 
 $$
-\operatorname{sign}
+	ext{sign}
 \left(
-\log_2|\operatorname{Aut}(G_i)|
+\log_2|	ext{Aut}(G_i)|
 $$
 -------------------------------
 $$
-\log_2|\operatorname{Aut}(G_j)|
+\log_2|	ext{Aut}(G_j)|
 \right)
 $$
 
@@ -8102,16 +8122,18 @@ The graph targets are recomputed directly from the adjacency matrices.
 The following cubic identities hold exactly for every graph:
 
 $$
-\operatorname{tr}(A^3)
+	ext{tr}(A^3)
 $$
+
 ======================
 $$
 6C_3,
 $$
 
 $$
-\operatorname{tr}(A^4)
+	ext{tr}(A^4)
 $$
+
 ======================
 $$
 8C_4+15n,
@@ -8120,8 +8142,9 @@ $$
 and:
 
 $$
-\operatorname{tr}(A^6)
+	ext{tr}(A^6)
 $$
+
 ======================
 $$
 87n
@@ -8139,10 +8162,10 @@ Exact adjacency-cospectral groups are reconstructed through integer trace tuples
 
 $$
 \left(
-\operatorname{tr}(A),
-\operatorname{tr}(A^2),
+	ext{tr}(A),
+	ext{tr}(A^2),
 \ldots,
-\operatorname{tr}(A^n)
+	ext{tr}(A^n)
 \right).
 $$
 
@@ -8338,6 +8361,7 @@ At (n=14):
 $$
 R^2_{\mathrm{normalized}}
 $$
+
 =========================
 $$
 0.925
@@ -8356,6 +8380,7 @@ At (n=16):
 $$
 R^2_{\mathrm{normalized}}
 $$
+
 =========================
 
 0.783
@@ -8881,6 +8906,7 @@ The raw head combines shape and mass multiplicatively:
 $$
 \mathbf h_k
 $$
+
 ===========
 $$
 m_k\widetilde{\mathbf h}_k.
@@ -8989,9 +9015,10 @@ Each graph is mapped to its complete descending-sorted probability vector:
 $$
 \mathbf p(G)
 $$
+
 ============
 $$
-\operatorname{sort}*{\downarrow}
+	ext{sort}*{\downarrow}
 \left(
 |\langle z|\psi_G\rangle|^2
 \right)*{z\in{0,1}^n}.
@@ -9047,6 +9074,7 @@ The experiment contains four components.
    $$
    \eta_y
    $$
+   
    ======
    $$
    \frac{
@@ -9084,8 +9112,9 @@ The target lists are:
 Diamond count is certified through the cubic identity:
 
 $$
-\operatorname{tr}(A^6)
+	ext{tr}(A^6)
 $$
+
 ======================
 $$
 87n
@@ -9104,10 +9133,7 @@ Let (P) be a permutation matrix representing a relabeling of the graph.
 The relabeled adjacency matrix is:
 
 $$
-A'
-$$
-==
-$$
+A' ==
 PAP^\top.
 $$
 
@@ -9116,13 +9142,7 @@ The degree encoder, edge entanglers, and mixer are permuted consistently with th
 Sorting discards those coordinate identities:
 
 $$
-\operatorname{sort}_{\downarrow}
-\mathbf p(PGP^\top)
-$$
-===================
-$$
-\operatorname{sort}_{\downarrow}
-\mathbf p(G).
+	ext{sort}_{\downarrow}  \mathbf p(PGP^\top) 	ext{sort}_{\downarrow} \mathbf p(G).
 $$
 
 Permutation invariance is therefore a mathematical property of the readout construction. The experiment tests whether the implemented circuit and numerical pipeline preserve that equality in practice.
@@ -9217,28 +9237,13 @@ Because no multi-graph collision sets exist, the target-preservation statistics 
 ##### (n=8)
 
 $$
-\eta_{\mathrm{degree}},
-\eta_{C_3},
-\eta_{C_4},
-\eta_{\mathrm{connectivity}}
-$$
-============================
-$$
-\text{not applicable}.
+\eta_{\mathrm{degree}}, \eta_{C_3}, \eta_{C_4}, \eta_{\mathrm{connectivity}} \text{not applicable}.
 $$
 
 ##### (n=14)
 
 $$
-\eta_{C_3},
-\eta_{C_4},
-\eta_{C_5},
-\eta_{C_6},
-\eta_D
-$$
-======
-$$
-\text{not applicable}.
+\eta_{C_3}, \eta_{C_4}, \eta_{C_5}, \eta_{C_6}, \eta_D \text{not applicable}.
 $$
 
 There is no observed collapse whose target preservation must be classified as benign or lossy.
@@ -9461,7 +9466,7 @@ The completed results establish that:
 
 4. **No target-specific quotient loss is observed.**
 
-   The planned (\eta_y) statistics are unnecessary because there are no collision sets.
+   The planned $\eta_y$ statistics are unnecessary because there are no collision sets.
 
 5. **The census readout matrices attain their maximum possible numerical ranks.**
 
