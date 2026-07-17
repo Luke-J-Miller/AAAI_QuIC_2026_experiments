@@ -10936,6 +10936,809 @@ The appropriate central claim is:
 
 > Under a deterministic cospectral-group split and a fixed within-test-group target-permutation null, QuIC’s Wiener-index ordering effect confirms in both train/test directions, with group-balanced accuracies of (0.603) and (0.607) and permutation values of (0.0050) and (0.0071). The automorphism-order effect is split dependent: one direction is strong at (0.740), (p=0.0004), while the reverse direction is indistinguishable from chance at (0.517), (p=0.4269). E14N therefore supplies robust confirmatory inference for Wiener index and partial, nonreplicating confirmation for automorphism-group order.
 
+### E15 - Finite-Shot Recovery Under Independent Sampling
+
+#### Experimental design
+
+E15 measures how many ideal circuit shots are required for finite-sample QuIC features to recover the structural decodability observed with exact Born probabilities.
+
+The experiment uses the complete connected cubic-graph censuses at:
+
+* **509 graphs at (n=14)**;
+* **4,060 graphs at (n=16)**.
+
+For each graph, the canonical QuIC circuit produces an exact descending-sorted probability vector:
+
+$$\mathbf p(G)\in\mathbb R^{2^n}.$$
+
+Finite-shot observations are generated through multinomial sampling:
+
+$$\mathbf c(G)\sim\text{Multinomial}(S,\mathbf p(G)),$$
+
+where (S) is the shot budget.
+
+The empirical feature vector is obtained by sorting the sampled counts and retaining the leading (k) frequencies:
+
+$$\widehat{\mathbf p}*{1:k}(G)=\frac{1}{S}\text{sort}*{\downarrow}\mathbf c(G)_{1:k}.$$
+
+Because multinomial sampling is invariant to a permutation of category labels, sampling from the already sorted exact probabilities and then sorting the observed counts is distributionally equivalent to sampling the original bitstring probabilities and discarding bitstring identities afterward.
+
+#### Independent train and test realizations
+
+For every shot budget and replicate, E15 generates two independent empirical representations of every graph:
+
+* a training realization using replicate seed (r);
+* a test realization using replicate seed (r+10{,}000).
+
+Within each outer fold, the ridge probe is fitted using the training realization of the training graphs and evaluated using the independently sampled test realization of the held-out graphs.
+
+The primary prediction rule is therefore:
+
+$$\widehat y_{\text{test}}=f_{\text{train-noisy}}\left(\widehat{\mathbf p}^{,\text{independent}}_{\text{test}}\right).$$
+
+This explicitly models a deployment setting in which the representation observed for a new graph is sampled independently from the representations used to train the decoder.
+
+The outer graph partitions are fixed five-fold splits with:
+
+$$\text{random seed}=0.$$
+
+The ridge grid is:
+
+$$\alpha_{\text{ridge}}\in{10^{-14},10^{-13},\ldots,10^2}.$$
+
+Each finite-shot grid cell is repeated:
+
+$$30$$
+
+times.
+
+The reported standard deviation is the standard deviation across the 30 replicate-level mean outer-fold (R^2) values.
+
+#### Relationship to the E7S protocol
+
+E7S used one independently sampled row per graph and then divided the graphs into disjoint train and test folds.
+
+Because different graph rows are sampled independently, the E7S train and test rows were already independent. E15’s explicit second test realization is therefore expected to be distributionally equivalent rather than systematically harder.
+
+E15 nevertheless improves the evidence by:
+
+* making independent test resampling explicit;
+* using 30 rather than a small number of replicates;
+* adding diamonds and girth;
+* estimating recovery thresholds relative to exact-vector ceilings;
+* and extending selected cells to the full (n=16) census.
+
+#### Shot and truncation grids
+
+##### (n=14)
+
+The complete grid uses:
+
+$$S\in{2^{10},2^{14},2^{17},2^{20},2^{22},2^{24}},$$
+
+and:
+
+$$k\in{50,100,200,500,1000}.$$
+
+The targets are:
+
+* triangle count;
+* 4-cycle count;
+* 5-cycle count;
+* 6-cycle count;
+* diamond count;
+* girth.
+
+##### (n=16)
+
+The selected confirmation grid uses:
+
+$$S\in{2^{20},2^{22},2^{24}},$$
+
+and:
+
+$$k\in{100,1000}.$$
+
+The targets are:
+
+* triangle count;
+* 4-cycle count;
+* 5-cycle count.
+
+The (n=16) experiment does not evaluate finite-shot C6, diamond, or girth recovery.
+
+#### Four-slice execution
+
+The expensive 30-replicate grid was divided into four disjoint notebooks:
+
+| Slice | Replicate indices |
+| ----- | ----------------: |
+| E15a  |               0–7 |
+| E15b  |              8–15 |
+| E15c  |             16–23 |
+| E15d  |             24–29 |
+
+The merge notebook loads the four saved partial artifacts and checks, independently for every grid cell, that:
+
+* no replicate index appears in more than one slice;
+* the union is exactly (0,\ldots,29);
+* every cell contains exactly 30 replicates.
+
+The completed merged grid contains:
+
+| Census | Complete grid cells | Replicates per cell |
+| ------ | ------------------: | ------------------: |
+| (n=14) |                 180 |                  30 |
+| (n=16) |                  18 |                  30 |
+
+No executed notebook contains an error.
+
+The attached E15d notebook itself is an unexecuted template, but its replicate-24–29 artifact was successfully loaded by the executed merge notebook. The merge output, rather than the unexecuted E15d notebook, is the artifact-of-record validation.
+
+#### Census and target validation
+
+The merge notebook reloads the original census artifacts and verifies that:
+
+* the (n=14) census contains 509 graphs;
+* the (n=16) census contains 4,060 graphs;
+* every exact vector has dimension (2^n);
+* every exact vector is descending sorted;
+* every vector sums to one within (10^{-12}).
+
+Cycle counts, diamonds, and girth are recomputed from the adjacency matrices.
+
+The following identities hold exactly for every graph:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+$$\text{tr}(A^4)=8C_4+15n,$$
+
+$$\text{tr}(A^5)=10C_5+10\text{tr}(A^3),$$
+
+and:
+
+$$\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).$$
+
+The diamond target is the cubic hinge count implemented as the number of edges whose endpoints have exactly two common neighbors.
+
+#### Exact-vector reference rows
+
+The recovery targets are defined relative to the ridge score obtained from the exact sorted probabilities at the same truncation depth.
+
+##### (n=14)
+
+| Target   |   (k=50) | (k=100) | (k=200) | (k=500) | (k=1000) |
+| -------- | -------: | ------: | ------: | ------: | -------: |
+| (C_3)    |    1.000 |   1.000 |   1.000 |   1.000 |    1.000 |
+| (C_4)    |    0.988 |   0.993 |   0.995 |   0.998 |    0.998 |
+| (C_5)    | (-0.026) |   0.272 |   0.920 |   0.927 |    0.928 |
+| (C_6)    |    0.228 |   0.235 |   0.391 |   0.524 |    0.484 |
+| Diamonds |    0.981 |   0.990 |   0.993 |   0.994 |    0.993 |
+| Girth    |    0.921 |   0.987 |   0.992 |   0.993 |    0.993 |
+
+The exact row reproduces the established rank-depth hierarchy.
+
+Triangles are completely accessible from the first 50 probabilities. Four-cycles, diamonds, and girth are also shallow. Five-cycle accessibility appears primarily between ranks 100 and 200.
+
+The C6 ceiling is nonmonotone:
+
+$$R^2_{C_6}(k=500)=0.524>R^2_{C_6}(k=1000)=0.484.$$
+
+Adding dimensions does not guarantee improved ridge performance in this high-dimensional setting.
+
+##### (n=16)
+
+| Target | (k=100) | (k=1000) |
+| ------ | ------: | -------: |
+| (C_3)  |   1.000 |    1.000 |
+| (C_4)  |   0.996 |    1.000 |
+| (C_5)  |   0.335 |    0.982 |
+
+The first 100 exact probabilities retain complete triangle and 4-cycle accessibility but only partial 5-cycle accessibility.
+
+#### Primary finite-shot results at (n=14)
+
+The most informative common depth is:
+
+$$k=500.$$
+
+| Target   | (2^{20}) shots | (2^{22}) shots | (2^{24}) shots | Exact (k=500) |
+| -------- | -------------: | -------------: | -------------: | ------------: |
+| (C_3)    |          0.715 |          0.950 |          0.994 |         1.000 |
+| (C_4)    |       (-0.010) |          0.167 |          0.684 |         0.998 |
+| (C_5)    |       (-0.016) |       (-0.013) |       (-0.015) |         0.927 |
+| (C_6)    |          0.043 |          0.105 |          0.140 |         0.524 |
+| Diamonds |          0.314 |          0.522 |          0.588 |         0.994 |
+| Girth    |          0.358 |          0.734 |          0.888 |         0.993 |
+
+All six targets remain at the prediction floor through:
+
+$$2^{17}=131{,}072$$
+
+shots.
+
+Substantial recovery first appears at:
+
+$$2^{20}=1{,}048{,}576$$
+
+shots, but only for selected targets and sufficiently deep heads.
+
+#### Triangle recovery
+
+Triangle count is the only target to recover at least 90% of its exact-vector ceiling within the tested ladder.
+
+At (n=14), the estimated minimum-over-depth thresholds are:
+
+$$S_{90}\approx2^{21.57}\approx3.11\times10^6,$$
+
+and:
+
+$$S_{95}=2^{22}=4{,}194{,}304.$$
+
+The selected depth is:
+
+$$k=500.$$
+
+At the measured budgets:
+
+$$R^2_{C_3}=0.715\quad\text{at }2^{20},$$
+
+$$R^2_{C_3}=0.950\quad\text{at }2^{22},$$
+
+and:
+
+$$R^2_{C_3}=0.994\quad\text{at }2^{24}.$$
+
+The recovery transition is sharp rather than gradual.
+
+#### Four-cycle recovery
+
+Four-cycle count does not reach 90% of its exact ceiling.
+
+At:
+
+$$2^{24}=16{,}777{,}216$$
+
+shots, its strongest score is:
+
+$$R^2_{C_4}=0.684,$$
+
+compared with an exact ceiling of approximately:
+
+$$0.998.$$
+
+The recovered fraction is approximately:
+
+$$68.5%.$$
+
+The target remains near the prediction floor at (2^{20}) and reaches only approximately (0.17) at (2^{22}).
+
+Thus, even an almost perfectly decodable exact-vector statistic remains only partially recoverable after more than sixteen million shots per graph.
+
+#### Five-cycle recovery
+
+Five-cycle count remains at the prediction floor across every tested shot budget and depth.
+
+At the largest budget:
+
+$$R^2_{C_5}\approx-0.015$$
+
+for the deeper heads, compared with:
+
+$$R^2_{C_5}=0.928$$
+
+from the exact top-1,000 vector.
+
+This is the strongest finite-shot failure in the experiment.
+
+The result confirms that ideal rank-depth accessibility and finite-shot accessibility are different properties. The exact C5 signal is present, strong, and linearly decodable, but empirical sorting does not recover the required fine probability structure within:
+
+$$2^{24}$$
+
+shots.
+
+#### Six-cycle recovery
+
+C6 becomes weakly positive but remains far below its exact-vector ceiling.
+
+At the largest budget:
+
+$$R^2_{C_6}=0.140$$
+
+at (k=500), compared with:
+
+$$R^2_{C_6}=0.524.$$
+
+This recovers approximately:
+
+$$26.7%$$
+
+of the corresponding exact score.
+
+At (k=200), the finite score is nearly the same:
+
+$$0.139,$$
+
+against a lower exact ceiling of:
+
+$$0.391.$$
+
+The target remains substantially shot limited throughout the ladder.
+
+#### Diamond recovery
+
+Diamond count begins to emerge at:
+
+$$2^{20}$$
+
+shots when at least 200 empirical ranks are retained.
+
+At (k=500):
+
+$$R^2_D=0.314\quad\text{at }2^{20},$$
+
+$$R^2_D=0.522\quad\text{at }2^{22},$$
+
+and:
+
+$$R^2_D=0.588\quad\text{at }2^{24}.$$
+
+The exact ceiling is:
+
+$$R^2_D=0.994.$$
+
+Only approximately:
+
+$$59.2%$$
+
+of the exact score is recovered by the largest budget.
+
+Diamonds emerge earlier than 4-cycles under finite sampling, despite both being almost exactly accessible from the ideal representation.
+
+#### Girth recovery
+
+Girth exhibits the strongest finite-shot recovery after triangles.
+
+At (k=500):
+
+$$R^2_{\text{girth}}=0.358\quad\text{at }2^{20},$$
+
+$$R^2_{\text{girth}}=0.734\quad\text{at }2^{22},$$
+
+and:
+
+$$R^2_{\text{girth}}=0.888\quad\text{at }2^{24}.$$
+
+The exact ceiling is:
+
+$$0.993.$$
+
+The recovered fraction at the largest budget is:
+
+$$89.4%.$$
+
+Girth therefore narrowly fails the prespecified 90% threshold. Its “not reached” classification should not be interpreted as lack of substantial recovery.
+
+The result is instead a lower-bound statement:
+
+$$S_{90,\text{girth}}>2^{24}$$
+
+under the tested grid.
+
+#### Primary finite-shot results at (n=16)
+
+At (k=1000), the confirmation results are:
+
+| Target | (2^{20}) shots | (2^{22}) shots | (2^{24}) shots | Exact |
+| ------ | -------------: | -------------: | -------------: | ----: |
+| (C_3)  |          0.718 |          0.951 |          0.994 | 1.000 |
+| (C_4)  |          0.003 |          0.199 |          0.668 | 1.000 |
+| (C_5)  |       (-0.001) |       (-0.001) |       (-0.001) | 0.982 |
+
+The three recovery profiles closely reproduce the (n=14) pattern.
+
+#### Cross-order triangle threshold
+
+At (n=16), the estimated thresholds are:
+
+$$S_{90}\approx2^{21.56}\approx3.09\times10^6,$$
+
+and:
+
+$$S_{95}\approx2^{21.99}\approx4.17\times10^6.$$
+
+These are effectively identical to the (n=14) estimates:
+
+| Census | 90% threshold | 95% threshold |
+| ------ | ------------: | ------------: |
+| (n=14) |   (2^{21.57}) |   (2^{22.00}) |
+| (n=16) |   (2^{21.56}) |   (2^{21.99}) |
+
+The replicated transition is one of E15’s strongest findings.
+
+Within the tested cubic families and fixed circuit, triangle-count recovery is governed by a stable per-graph shot scale of approximately:
+
+$$3\text{--}4\times10^6$$
+
+shots.
+
+#### Cross-order four-cycle recovery
+
+At the maximum budget:
+
+$$R^2_{C_4}=0.684\quad\text{at }n=14,$$
+
+and:
+
+$$R^2_{C_4}=0.668\quad\text{at }n=16.$$
+
+Both exact ceilings are approximately one.
+
+The near-identical finite-shot values indicate that the incomplete C4 recovery is not an isolated (n=14) effect.
+
+#### Cross-order five-cycle failure
+
+At the maximum budget:
+
+$$R^2_{C_5}\approx-0.015\quad\text{at }n=14,$$
+
+and:
+
+$$R^2_{C_5}\approx-0.001\quad\text{at }n=16.$$
+
+The corresponding exact scores are:
+
+$$0.928\quad\text{and}\quad0.982.$$
+
+The failure therefore replicates across graph orders despite stronger ideal C5 accessibility at (n=16).
+
+#### Shot-recovery ordering
+
+The finite-shot ordering differs from the exact-vector hierarchy.
+
+At (n=14), the practical ordering by recovery at (2^{24}) is approximately:
+
+$$C_3>\text{girth}>C_4>D>C_6\gg C_5.$$
+
+The exact-vector ordering at the same broad depths is:
+
+$$C_3\approx C_4\approx D\approx\text{girth}>C_5>C_6.$$
+
+Finite sampling therefore reorders which graph properties are practically accessible.
+
+The exact geometry predicts what information exists. It does not by itself predict how efficiently empirical rank statistics recover that information.
+
+#### Head discovery and rank stability
+
+The auxiliary diagnostic measures two quantities relative to the exact rank coordinates:
+
+1. the fraction of exact top-(k) coordinates receiving at least one count;
+2. the Spearman correlation between counts in those exact-rank coordinates and their exact probabilities.
+
+This is a simulation diagnostic. A real sampler does not know the exact-rank identity of each observed bitstring after the representation is reduced to sorted counts.
+
+##### Selected (n=14) results
+
+|    Shots | (k=200) discovery | (k=200) (\rho) | (k=500) discovery | (k=500) (\rho) | (k=1000) discovery | (k=1000) (\rho) |
+| -------: | ----------------: | -------------: | ----------------: | -------------: | -----------------: | --------------: |
+| (2^{20}) |             0.994 |          0.931 |             0.733 |          0.899 |              0.421 |           0.805 |
+| (2^{22}) |             1.000 |          0.948 |             0.906 |          0.916 |              0.622 |           0.853 |
+| (2^{24}) |             1.000 |          0.959 |             0.998 |          0.921 |              0.850 |           0.923 |
+
+##### Selected (n=16) results
+
+|    Shots | (k=1000) discovery | (k=1000) (\rho) |
+| -------: | -----------------: | --------------: |
+| (2^{20}) |              0.561 |           0.831 |
+| (2^{22}) |              0.803 |           0.850 |
+| (2^{24}) |              0.977 |           0.881 |
+
+The diagnostics explain part, but not all, of the recovery behavior.
+
+Triangle recovery appears once the relevant deeper heads are substantially observed and rank stable.
+
+However, complete or near-complete head discovery is not sufficient for all targets. At (n=14), the first 200 exact ranks are fully discovered with high rank correlation at (2^{24}), yet C5 remains at the prediction floor.
+
+Finite-shot recovery therefore depends on the magnitude and organization of the target-specific probability differences, not merely on whether the head entries are observed.
+
+#### Shallow ideal accessibility is not shallow shot accessibility
+
+Diamonds and girth are nearly exact from the ideal first 50 probabilities:
+
+$$R^2_D=0.981,\qquad R^2_{\text{girth}}=0.921.$$
+
+At (2^{24}) shots, the empirical first-50 scores are only:
+
+$$R^2_D=0.056,\qquad R^2_{\text{girth}}=0.044.$$
+
+Their useful finite-shot recovery occurs only once approximately 200 or more empirical ranks are retained.
+
+The “shallow” ideal signal therefore depends on probability differences too fine to be reliably reconstructed by the empirically sorted first 50 counts.
+
+E15 refines the E13 conclusion:
+
+> Diamonds and girth are shallow in the exact rank representation, but they are not shot-efficient shallow statistics.
+
+#### Cospectral separation against sampling noise
+
+E15 compares the empirical full-vector distance between exact cospectral mates with the distance between two independent samples of the same graph.
+
+The ratio is:
+
+$$R_{\text{sep}}=\frac{|\widehat{\mathbf p}(G)-\widehat{\mathbf p}(H)|_1}{\frac{1}{2}\left(|\widehat{\mathbf p}^{(a)}(G)-\widehat{\mathbf p}^{(b)}(G)|_1+|\widehat{\mathbf p}^{(a)}(H)-\widehat{\mathbf p}^{(b)}(H)|_1\right)}.$$
+
+A ratio near one means that the mate separation is no larger than ordinary repeat-sampling variation.
+
+##### (n=14)
+
+|    Shots | Mean ratio |       Range |
+| -------: | ---------: | ----------: |
+| (2^{10}) |      1.054 | 0.500–2.000 |
+| (2^{14}) |      1.068 | 0.737–1.720 |
+| (2^{17}) |      1.011 | 0.349–2.031 |
+| (2^{20}) |      1.014 | 0.612–1.253 |
+| (2^{22}) |      0.873 | 0.587–1.692 |
+| (2^{24}) |      1.215 | 0.932–1.654 |
+
+##### (n=16)
+
+|    Shots | Mean ratio |       Range |
+| -------: | ---------: | ----------: |
+| (2^{20}) |      1.034 | 0.370–1.972 |
+| (2^{22}) |      0.991 | 0.446–1.862 |
+| (2^{24}) |      1.004 | 0.465–2.189 |
+
+The mean ratios remain approximately one throughout the ladder.
+
+The exact cospectral distinctions therefore remain unresolved relative to multinomial sampling noise even at:
+
+$$2^{24}$$
+
+shots.
+
+This confirms the finite-shot wall found in E7S.
+
+#### Separation sample sizes
+
+The separation diagnostic uses only three inexpensive sampling replicates.
+
+At (n=14), three exact cospectral pairs produce:
+
+$$3\times3=9$$
+
+pair-replicates per budget.
+
+At (n=16), the cospectral classes produce 43 pairwise comparisons and therefore:
+
+$$43\times3=129$$
+
+pair-replicates per budget.
+
+The (n=16) result is substantially better supported. The fluctuation of the (n=14) mean ratio to (1.215) at the largest budget should not be interpreted as demonstrated resolvability from only nine dependent pair-replicates.
+
+#### Replicate stability
+
+The 30-replicate standard deviations are generally small compared with the large target-level differences.
+
+At (2^{24}) and the useful deeper heads:
+
+* triangle replicate SD is approximately (0.000)–(0.001);
+* 4-cycle SD is approximately (0.007) at (n=16) and (0.023) at (n=14);
+* diamond SD is approximately (0.008);
+* girth SD is approximately (0.005);
+* C5 remains stably at the floor.
+
+The experiment therefore distinguishes stable finite-shot failure from a noisy estimate whose mean happens to be low.
+
+These standard deviations measure sampling variation across the 30 simulated representation replicates. They are not confidence intervals over graph populations, folds, or alternative circuit parameters.
+
+#### Relationship to E7S
+
+E15 confirms the principal E7S findings under the explicit independent-test protocol:
+
+* all targets remain at the floor at small and moderate budgets;
+* triangle count emerges first;
+* 4-cycle count becomes substantial only near the top of the ladder;
+* C6 remains weak;
+* C5 remains absent through (2^{24});
+* exact cospectral separation remains comparable to sampling noise.
+
+The 30-replicate design substantially strengthens these conclusions by showing that the observed ordering is stable across sampling realizations.
+
+#### Relationship to E13
+
+E13 showed that ideal structural accessibility is distributed differently through the sorted probability ranks:
+
+* triangles are very shallow;
+* diamonds and girth are shallow;
+* 4- and 5-cycle information extends deeper;
+* cospectral separation accumulates through a broad probability tail.
+
+E15 shows that rank depth and shot accessibility are related but not interchangeable.
+
+In particular:
+
+* C3 requires approximately 200–500 empirical ranks for reliable recovery despite being exact at ideal (k=50);
+* diamonds and girth also require deeper empirical heads than their ideal truncation results suggest;
+* C5 remains inaccessible even when its relevant exact head is substantially sampled.
+
+#### Relationship to the exact-cospectral experiments
+
+E14 and E20 concern distinctions present in exact ideal probability vectors.
+
+E15 shows that numerical distinctness in the exact representation does not imply finite-shot observability.
+
+The complete exact readout can:
+
+* distinguish cospectral graphs;
+* carry non-spectral target directions;
+* and remain census-level injective,
+
+while its empirical estimates remain indistinguishable from repeat-sampling noise at millions of shots.
+
+The paper should preserve this distinction explicitly:
+
+$$\boxed{\text{ideal representational separation}\neq\text{finite-shot operational separation}}$$
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The four replicate slices reconstruct the complete planned experiment.**
+
+   Every one of the 198 grid cells contains exactly 30 unique replicate indices.
+
+2. **Independent-test finite-shot sampling reproduces the E7S recovery pattern.**
+
+3. **Triangle recovery is replicated across graph orders.**
+
+   Both censuses reach 90% of the exact score near (3.1\times10^6) shots and 95% near (4.2\times10^6) shots.
+
+4. **Four-cycle prediction remains only partially recovered at (2^{24}) shots.**
+
+   The scores are approximately (0.68) at both graph orders.
+
+5. **Five-cycle prediction remains completely absent through (2^{24}) shots.**
+
+   This failure replicates at (n=14) and (n=16).
+
+6. **C6 remains weakly recoverable at (n=14).**
+
+7. **Diamonds and girth emerge before C4 but do not reach their exact ceilings.**
+
+8. **Girth nearly reaches the 90% criterion at the largest budget.**
+
+9. **Ideal shallow accessibility does not guarantee shallow finite-shot recovery.**
+
+10. **Head discovery and rank stability are necessary but insufficient explanations for target recovery.**
+
+11. **Exact cospectral mate separation remains at the repeat-sampling noise scale through (2^{24}) shots.**
+
+12. **The principal finite-shot conclusions are stable across 30 independent representation replicates.**
+
+E15 therefore converts the qualitative E7S sampling wall into replicated target-specific recovery curves and explicit shot-threshold statements.
+
+#### Necessary qualifications
+
+The experiment models only ideal multinomial shot noise.
+
+It does not include:
+
+* gate error;
+* readout error;
+* decoherence;
+* compilation effects;
+* qubit connectivity;
+* drift;
+* or error mitigation.
+
+The reported shot counts are therefore optimistic lower bounds for hardware execution.
+
+The thresholds are per graph representation. A training set containing hundreds or thousands of graphs would require the stated number of shots separately for each graph.
+
+The total acquisition cost is consequently much larger than the per-graph threshold suggests.
+
+The threshold values near:
+
+$$2^{21.57}$$
+
+are interpolations between measured budgets, not directly evaluated shot counts.
+
+The interpolation is linear in:
+
+$$\log_2 S$$
+
+between a sparse budget ladder. No uncertainty interval is computed for the crossing location.
+
+Thresholds are defined relative to the exact ridge score at each depth, not relative to perfect prediction.
+
+For example, a target with an exact score of (0.524) needs only to reach approximately (0.472) to satisfy a 90% criterion.
+
+The threshold routine selects the earliest crossing across all tested depths. It is therefore an oracle minimum over a prespecified depth grid rather than a threshold for one fixed universal readout depth.
+
+Finite-shot mean curves are not forced to be monotone. The threshold routine uses the first observed upward crossing without isotonic smoothing.
+
+Only C3 crosses the threshold, so this issue does not materially affect the headline result.
+
+The exact-vector ceilings are themselves ridge-model results and can be nonmonotone with depth. They should not be interpreted as information-theoretic ceilings.
+
+The ridge procedure retains the near-zero regularization grid examined in E10. Some exact QuIC probes depend on low-variance directions and can be sensitive to solver and inner-fold choices.
+
+E15 does not repeat the independent linear-algebra validation for every finite-shot cell.
+
+The 30-replicate SD summarizes replicate-level mean outer-fold scores. It does not incorporate:
+
+* uncertainty from alternative graph folds;
+* target sampling;
+* circuit parameters;
+* or graph-family selection.
+
+The discovery, rank-correlation, and cospectral-separation diagnostics use only three cheap replicates rather than the full 30.
+
+The discovery diagnostic follows counts in the exact-rank coordinate system. It is useful for simulation analysis but is not directly available from a sorted empirical readout without knowing the exact probabilities.
+
+The signal-versus-noise arithmetic cell appears in the unexecuted E15d template but is absent from the executed merge artifact. E15 should not report new numerical values from that diagnostic unless the cell is run or the values are taken explicitly from E7S.
+
+The same-realization E7S results are not rebuilt inside E15. The expected equivalence is justified by independent graph-row sampling, but E15’s attached outputs do not contain a numerical cell-by-cell difference table.
+
+The (n=16) confirmation grid is intentionally restricted. It does not establish cross-order recovery behavior for:
+
+* C6;
+* diamonds;
+* or girth.
+
+The cospectral-separation statistic uses pair-replicates that are not independent when pairs share graph members or when several pairs use one sampled count matrix.
+
+No inferential test is attached to the separation ratios.
+
+Finally, the experiment concerns:
+
+* connected cubic graphs;
+* two graph orders;
+* one canonical circuit;
+* one repetition;
+* and sorted empirical frequencies.
+
+The recovery thresholds should not be generalized to arbitrary graphs or circuit families.
+
+#### Overall assessment
+
+E15 provides a strong and unusually direct finite-shot characterization.
+
+The result is not that QuIC’s ideal structure smoothly degrades as shot count decreases. Instead, the targets separate into sharply different operational regimes.
+
+Triangle count undergoes a replicated transition near:
+
+$$3\text{--}4\times10^6$$
+
+shots per graph.
+
+At more than sixteen million shots:
+
+* triangles are essentially fully recovered;
+* girth reaches approximately (0.89);
+* 4-cycles reach approximately (0.67)–(0.68);
+* diamonds reach approximately (0.59);
+* C6 remains near (0.14);
+* C5 remains at the prediction floor.
+
+The same circuit representation that yields almost exact ideal prediction for C3, C4, C5, diamonds, and girth therefore exhibits radically different finite-shot accessibility across those targets.
+
+The cross-order replication is particularly clean:
+
+$$C_3:\ 0.994\text{ at both orders},$$
+
+$$C_4:\ 0.684\text{ and }0.668,$$
+
+$$C_5:\ \text{prediction floor at both orders}.$$
+
+Exact cospectral separations remain comparable to ordinary repeat-sampling noise throughout the entire ladder.
+
+The appropriate central claim is:
+
+> Under independent multinomial train and test sampling, QuIC’s ideal structural coordinates have sharply different finite-shot recovery scales. Triangle prediction reaches 90% of its exact-vector score at approximately (3.1\times10^6) shots per graph and 95% near (4.2\times10^6), with nearly identical thresholds at (n=14) and (n=16). At (2^{24}) shots, 4-cycle prediction remains near (0.67), girth reaches (0.89), diamonds reach (0.59), C6 remains weak, and 5-cycle prediction remains at the floor despite exact scores above (0.92). Exact cospectral mate distances also remain comparable to repeat-sampling noise. E15 therefore shows that ideal injectivity and decodability do not imply practical finite-shot observability, and that the rank-stratified structural hierarchy is also a hierarchy of sampling difficulty.
+
+
 ### E16 / E17 - Readout Quotient and Label Control
 
 #### Experimental design
