@@ -18996,3 +18996,859 @@ The experiment therefore supports a specific structural interpretation rather th
 
 > On fixed-degree-sequence nonregular graphs, the flat-encoder sorted QuIC representation is dominated by joint-degree mixing. Edge counts between degree classes are nearly perfectly linearly accessible despite degrees never being supplied to the circuit, while ordinary and degree-typed cycle counts are much less consistently decoded. The leading standardized representation directions likewise align primarily with degree mixing in three of four strata. Regularity does not merely strengthen QuIC; it removes degree-mixing variation, allowing cycle structure to become the dominant geometry.
 
+
+
+
+### E26 - Degree-Sector Sorting Ablation
+
+#### Experimental design
+
+E26 tests whether QuIC’s weak cycle decodability on nonregular graphs is caused primarily by the final global sorting operation.
+
+The experiment reuses the four fixed-degree-sequence strata generated in E6:
+
+| Stratum         | Locked degree sequence | Graphs |
+| --------------- | ---------------------- | -----: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$   |    400 |
+| S2 bimodal      | $$(4^7,2^7)$$          |    400 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$  |    400 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$  |    400 |
+
+Every comparison is performed within one stratum.
+
+The degree sequence is therefore fixed across the 400 graphs in each analysis. The experiment varies how the same ideal circuit probabilities are converted into a permutation-invariant graph representation.
+
+The circuit is the E6 flat-encoder circuit:
+
+* uniform vertex preparation;
+* edgewise entanglement;
+* one uniform mixer;
+* one repetition.
+
+The angles are:
+
+$$\theta_{\text{enc}}=2.875,\qquad\theta_{\text{ent}}=2.0,\qquad\theta_{\text{mix}}=0.1.$$
+
+Every vertex receives the same initial rotation:
+
+$$R_X(2.875).$$
+
+The circuit does not explicitly encode vertex degree.
+
+The targets are:
+
+* triangle count;
+* 4-cycle count;
+* 5-cycle count;
+* 6-cycle count.
+
+#### Representation constructions
+
+For graph $$G$$, let:
+
+$$\mathbf p_G=(p_G(z))_{z\in{0,1}^{14}}$$
+
+denote the unsorted ideal Born-probability vector.
+
+Each basis state is assigned a degree-occupancy signature.
+
+Let the distinct degree classes of the graph be:
+
+$$d_1<d_2<\cdots<d_m,$$
+
+and let:
+
+$$V_{d_j}={i:\deg(i)=d_j}.$$
+
+For bitstring $$z$$, define:
+
+$$\kappa_G(z)=\left(\sum_{i\in V_{d_1}}z_i,\ldots,\sum_{i\in V_{d_m}}z_i\right).$$
+
+The signature records how many excited qubits occur in each vertex-degree class.
+
+E26 compares four readouts.
+
+##### R0 - Global sorting
+
+R0 is the ordinary QuIC readout:
+
+$$R_0(G)=\text{sort}_{\downarrow}{p_G(z):z\in{0,1}^{14}}.$$
+
+It retains the complete probability multiset but discards every association between a probability and its originating bitstring or degree-occupancy sector.
+
+Its dimension is:
+
+$$2^{14}=16{,}384.$$
+
+##### R2 - Degree-sector mass
+
+For each occupancy signature $$\kappa$$:
+
+$$h_{\kappa}(G)=\sum_{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+The sector masses are concatenated in lexicographic signature order.
+
+The representation dimensions are:
+
+| Stratum         | Degree-class sizes | Number of sectors |
+| --------------- | -----------------: | ----------------: |
+| S1 near regular |           2, 10, 2 |                99 |
+| S2 bimodal      |               7, 7 |                64 |
+| S3 skewed       |         4, 6, 2, 2 |               315 |
+| S4 hub          |         3, 8, 2, 1 |               216 |
+
+R2 discards all probability variation within each sector.
+
+##### R3 - Degree-sector sorting
+
+R3 sorts probabilities within each degree-occupancy sector and concatenates the sorted sectors in lexicographic signature order:
+
+$$R_3(G)=\mathop{\Vert}*{\kappa}\text{sort}*{\downarrow}{p_G(z):\kappa_G(z)=\kappa}.$$
+
+R3 has the same dimension as R0:
+
+$$16{,}384.$$
+
+R0 and R3 contain the same complete probability multiset.
+
+Their difference is that R3 preserves the degree-occupancy sector associated with each probability before discarding within-sector bitstring identities.
+
+##### R3-random - Random sector assignment
+
+The control randomly permutes the complete probability vector before assigning the values to the fixed sector blocks and sorting within those blocks.
+
+It preserves:
+
+* the global probability multiset;
+* the number of sectors;
+* the size of every sector;
+* the final representation dimension.
+
+It destroys the actual relationship between probabilities and degree-occupancy sectors.
+
+#### What the R3 versus R0 contrast tests
+
+R3 and R0 use:
+
+* the same circuit;
+* the same graph;
+* the same exact probability values;
+* the same feature dimension.
+
+A positive R3-minus-R0 result shows that degree-occupancy membership supplies useful alignment that is lost under global sorting.
+
+It does not show that the circuit failed to encode the information.
+
+It also does not isolate sorting without adding information. R3 uses the graph’s degree partition during readout, whereas R0 uses only the probability multiset.
+
+R3 is therefore an explicitly degree-conditioned invariant readout rather than a neutral reordering of R0.
+
+The defensible interpretation is:
+
+> R3 tests whether attaching coarse degree-role labels to probability ranks improves structural accessibility.
+
+A positive result is evidence that global sorting discarded useful degree-role association. It is not automatically evidence that sorting is the sole architectural bottleneck.
+
+#### Validation controls
+
+The E6 producer artifact contains:
+
+* 400 graphs in each stratum;
+* the locked degree sequence for each stratum;
+* adjacency matrices;
+* exact globally sorted QuIC vectors;
+* cycle-count targets.
+
+All stratum sizes and degree sequences match the producer record.
+
+The unsorted circuit probabilities are regenerated from each adjacency matrix using the flat E6 circuit.
+
+For five graphs per stratum, the rebuilt R0 vector matches the stored producer vector within:
+
+$$10^{-9}.$$
+
+The degree-sector cardinalities satisfy:
+
+$$|{z:\kappa_G(z)=\kappa}|=\prod_j\binom{|V_{d_j}|}{\kappa_j}.$$
+
+The cardinalities sum to:
+
+$$2^{14}=16{,}384.$$
+
+For five graphs per stratum and 20 random vertex relabelings per graph, R2 and R3 remain invariant at the numerical floor.
+
+| Stratum         | Worst R2 relabeling deviation | Worst R3 relabeling deviation |
+| --------------- | ----------------------------: | ----------------------------: |
+| S1 near regular |         $$1.2\times10^{-15}$$ |         $$1.2\times10^{-15}$$ |
+| S2 bimodal      |         $$1.1\times10^{-15}$$ |         $$1.1\times10^{-15}$$ |
+| S3 skewed       |         $$1.0\times10^{-15}$$ |         $$1.0\times10^{-15}$$ |
+| S4 hub          |         $$1.0\times10^{-15}$$ |         $$1.0\times10^{-15}$$ |
+
+These checks support the correctness of:
+
+* the qubit-to-vertex convention;
+* degree-class construction;
+* sector ordering;
+* within-sector sorting;
+* relabeling invariance.
+
+The R0-equals-producer and probability-conservation checks are performed on the sampled control graphs rather than asserted separately on all 1,600 graphs.
+
+#### Decoding protocol
+
+Every representation is evaluated with the same within-E26 protocol:
+
+* five shuffled outer folds;
+* fixed seed zero;
+* train-only standardization;
+* ridge regression;
+* regularization grid:
+
+$$\alpha_{\text{ridge}}\in{10^{-8},10^{-6},10^{-4},10^{-2},1,10^2}.$$
+
+The notebook records:
+
+* mean outer-fold $$R^2$$;
+* outer-fold standard deviation;
+* pooled out-of-fold $$R^2$$;
+* out-of-fold predictions.
+
+The primary displayed table uses mean outer-fold $$R^2$$.
+
+#### Complete decoding results
+
+| Stratum         | Target  | R0 global sort | R2 sector mass | R3 sector sort | R3-random |
+| --------------- | ------- | -------------: | -------------: | -------------: | --------: |
+| S1 near regular | $$C_3$$ |          0.911 |          0.986 |          0.115 |  (-1.859) |
+| S1 near regular | $$C_4$$ |          0.634 |          0.484 |          0.711 |  (-1.668) |
+| S1 near regular | $$C_5$$ |          0.281 |          0.074 |          0.214 |  (-3.683) |
+| S1 near regular | $$C_6$$ |       (-0.162) |          0.068 |          0.089 |  (-1.549) |
+| S2 bimodal      | $$C_3$$ |          0.980 |          0.999 |          0.978 |  (-0.172) |
+| S2 bimodal      | $$C_4$$ |          0.735 |          0.934 |          0.918 |  (-1.616) |
+| S2 bimodal      | $$C_5$$ |          0.748 |          0.484 |          0.837 |  (-1.617) |
+| S2 bimodal      | $$C_6$$ |          0.016 |          0.598 |          0.563 |  (-1.723) |
+| S3 skewed       | $$C_3$$ |          0.056 |          0.065 |          0.431 | (-34.973) |
+| S3 skewed       | $$C_4$$ |       (-0.319) |       (-0.010) |       (-0.138) | (-15.766) |
+| S3 skewed       | $$C_5$$ |       (-0.293) |       (-0.054) |       (-0.051) | (-59.249) |
+| S3 skewed       | $$C_6$$ |       (-0.469) |       (-0.081) |       (-0.081) |  (-9.155) |
+| S4 hub          | $$C_3$$ |          0.606 |       (-1.035) |          0.510 | (-34.447) |
+| S4 hub          | $$C_4$$ |          0.106 |          0.129 |          0.169 |  (-2.178) |
+| S4 hub          | $$C_5$$ |       (-0.226) |       (-0.030) |       (-0.136) |  (-8.972) |
+| S4 hub          | $$C_6$$ |       (-0.180) |       (-0.035) |       (-0.189) |  (-8.730) |
+
+The mean across the four targets is:
+
+| Stratum         | R0 global sort | R2 sector mass | R3 sector sort |
+| --------------- | -------------: | -------------: | -------------: |
+| S1 near regular |          0.416 |          0.403 |          0.282 |
+| S2 bimodal      |          0.620 |          0.754 |          0.824 |
+| S3 skewed       |       (-0.256) |       (-0.020) |          0.040 |
+| S4 hub          |          0.077 |       (-0.243) |          0.089 |
+
+These unweighted target means are descriptive only. Negative $$R^2$$ values and differences in target variance make them unsuitable as formal aggregate statistics.
+
+#### S1 near-regular results
+
+The globally sorted representation remains strongest overall in S1.
+
+##### Triangle count
+
+R0 reaches:
+
+$$R^2_{C_3}=0.911.$$
+
+Sector masses improve this to:
+
+$$R^2_{C_3}=0.986.$$
+
+R3, however, falls sharply to:
+
+$$R^2_{C_3}=0.115.$$
+
+Degree-sector sorting therefore destroys most of the triangle accessibility present in the globally sorted vector.
+
+The result shows that preserving more side information does not necessarily produce a better linear coordinate system.
+
+##### Four-cycle count
+
+R3 improves the mean fold score from:
+
+$$0.634$$
+
+to:
+
+$$0.711.$$
+
+The gain is modest.
+
+##### Five-cycle count
+
+R3 is weaker than R0:
+
+$$0.214<0.281.$$
+
+##### Six-cycle count
+
+R0 is below the prediction floor:
+
+$$R^2_{C_6}=-0.162.$$
+
+R3 raises the score to:
+
+$$0.089.$$
+
+The absolute result remains weak, but the paired improvement is the only S1 sector-sorting contrast whose bootstrap interval lies entirely above zero.
+
+The S1 result does not support a general global-sorting bottleneck.
+
+#### S2 bimodal results
+
+S2 provides the strongest support for degree-sector preservation.
+
+##### Triangle count
+
+All three meaningful representations nearly solve the target:
+
+$$R^2_{C_3}=0.980,\qquad0.999,\qquad0.978.$$
+
+R2 is numerically strongest, but the target is saturated across the representations.
+
+##### Four-cycle count
+
+R0 reaches:
+
+$$0.735.$$
+
+R2 and R3 increase this to:
+
+$$0.934\quad\text{and}\quad0.918.$$
+
+The degree-sector mass alone therefore carries nearly all of the accessible 4-cycle signal.
+
+##### Five-cycle count
+
+R3 improves over R0:
+
+$$0.837>0.748.$$
+
+R2 is substantially weaker:
+
+$$0.484.$$
+
+The distinction indicates that within-sector probability shape carries useful C5 information that is lost when each sector is reduced to one mass.
+
+##### Six-cycle count
+
+R0 is essentially at the floor:
+
+$$R^2_{C_6}=0.016.$$
+
+R2 and R3 recover substantial signal:
+
+$$R^2_{C_6}=0.598\quad\text{and}\quad0.563.$$
+
+The large point improvement is the clearest apparent restoration of a deeper cycle target.
+
+Its bootstrap interval is wide and crosses zero, however, so the paired uncertainty analysis does not establish the improvement as bounded away from zero under the notebook’s resampling procedure.
+
+S2 nevertheless provides the most coherent descriptive evidence that degree-conditioned readout restores cycle accessibility.
+
+#### S3 skewed results
+
+R0 performs at or below the prediction floor on every target.
+
+##### Triangle count
+
+R3 raises triangle prediction from:
+
+$$0.056$$
+
+to:
+
+$$0.431.$$
+
+This is the strongest substantive S3 recovery.
+
+R2 remains near the floor:
+
+$$0.065.$$
+
+The improvement therefore depends on within-sector probability shape rather than sector mass alone.
+
+##### Four-cycle count
+
+R3 remains below zero:
+
+$$R^2_{C_4}=-0.138.$$
+
+It is less negative than R0:
+
+$$-0.319,$$
+
+but the target is not usefully decoded.
+
+##### Five- and six-cycle counts
+
+R3 improves the scores relative to R0:
+
+$$-0.293\rightarrow-0.051,$$
+
+and:
+
+$$-0.469\rightarrow-0.081.$$
+
+The paired bootstrap intervals for these differences exclude zero.
+
+The final R3 scores nevertheless remain negative.
+
+The correct interpretation is therefore:
+
+> Sector sorting significantly reduces prediction error relative to global sorting for S3 C5 and C6, but it does not recover useful positive decodability.
+
+A positive difference between two negative $$R^2$$ values is not restoration of the target.
+
+#### S4 hub results
+
+S4 provides little support for the sector-sorting hypothesis.
+
+##### Triangle count
+
+R0 remains stronger:
+
+$$0.606>0.510.$$
+
+R2 fails badly:
+
+$$R^2_{C_3}=-1.035.$$
+
+The within-sector probability shape restores much of the information lost by the mass-only representation, but it does not outperform global sorting.
+
+##### Four-cycle count
+
+R3 modestly improves the mean score:
+
+$$0.106\rightarrow0.169.$$
+
+The paired interval includes zero.
+
+##### Five- and six-cycle counts
+
+All representations remain at or below the prediction floor.
+
+None of the S4 R3-minus-R0 intervals excludes zero.
+
+The hub stratum therefore does not show that global sorting is the off-regularity bottleneck.
+
+#### Paired R3-minus-R0 analysis
+
+The notebook performs a paired graph-level bootstrap on the out-of-fold squared errors.
+
+For each bootstrap sample, it computes the difference between the two representations’ pooled resampled $$R^2$$ values.
+
+The resulting means and 95% intervals are:
+
+| Stratum         | Target  | Bootstrap $$\Delta_{\text{sector}}$$ |    95% interval |
+| --------------- | ------- | -----------------------------------: | --------------: |
+| S1 near regular | $$C_3$$ |                             (-0.573) | [-1.664, 0.022] |
+| S1 near regular | $$C_4$$ |                             (+0.069) | [-0.025, 0.152] |
+| S1 near regular | $$C_5$$ |                             (-0.067) | [-0.269, 0.098] |
+| S1 near regular | $$C_6$$ |                             (+0.249) |  [0.051, 0.422] |
+| S2 bimodal      | $$C_3$$ |                             (-0.001) | [-0.015, 0.020] |
+| S2 bimodal      | $$C_4$$ |                             (+0.150) |  [0.010, 0.385] |
+| S2 bimodal      | $$C_5$$ |                             (+0.091) |  [0.035, 0.162] |
+| S2 bimodal      | $$C_6$$ |                             (+0.475) | [-0.361, 1.822] |
+| S3 skewed       | $$C_3$$ |                             (+0.363) |  [0.222, 0.508] |
+| S3 skewed       | $$C_4$$ |                             (+0.189) | [-0.137, 0.441] |
+| S3 skewed       | $$C_5$$ |                             (+0.247) |  [0.068, 0.427] |
+| S3 skewed       | $$C_6$$ |                             (+0.386) |  [0.146, 0.640] |
+| S4 hub          | $$C_3$$ |                             (-0.083) | [-0.268, 0.060] |
+| S4 hub          | $$C_4$$ |                             (+0.028) | [-0.335, 0.280] |
+| S4 hub          | $$C_5$$ |                             (+0.114) | [-0.103, 0.323] |
+| S4 hub          | $$C_6$$ |                             (-0.026) | [-0.340, 0.212] |
+
+Six of the sixteen intervals lie entirely above zero:
+
+* S1 C6;
+* S2 C4;
+* S2 C5;
+* S3 C3;
+* S3 C5;
+* S3 C6.
+
+These six cells do not all represent strong final prediction.
+
+Only the following have positive and substantively useful R3 scores:
+
+* S2 C4;
+* S2 C5;
+* S3 C3.
+
+S1 C6 remains weak, while S3 C5 and C6 remain below zero.
+
+The experiment therefore supports selective degree-sector gains, not a general recovery of the cycle hierarchy.
+
+#### Why the bootstrap differences do not equal the table differences
+
+The displayed decoding table reports:
+
+$$\text{mean of five test-fold }R^2\text{ values}.$$
+
+The paired bootstrap operates on the assembled out-of-fold predictions and computes resampled pooled $$R^2$$ differences.
+
+These are different estimands.
+
+For example, the S1 triangle table difference is:
+
+$$0.115-0.911=-0.796,$$
+
+while the mean bootstrap difference is:
+
+$$-0.573.$$
+
+The discrepancy is expected from the different fold-weighting and resampling definitions.
+
+The table and bootstrap values should not be subtracted or combined as though they were the same statistic.
+
+#### Sector mass versus within-sector shape
+
+R2 isolates aggregate probability assigned to each degree-occupancy sector.
+
+R3 additionally preserves the ranked probability shape inside every sector.
+
+Their comparison reveals several distinct regimes.
+
+##### Mass-dominated targets
+
+R2 is at least as strong as R3 for:
+
+* S1 triangles;
+* S2 triangles;
+* S2 4-cycles;
+* S2 6-cycles.
+
+For these targets, aggregate sector occupation carries most or all of the useful degree-conditioned signal.
+
+##### Shape-dependent targets
+
+R3 substantially exceeds R2 for:
+
+* S1 4-cycles;
+* S2 5-cycles;
+* S3 triangles;
+* S4 triangles.
+
+The largest difference occurs for S4 triangles:
+
+$$0.510-(-1.035)=1.545.$$
+
+This does not mean R3 exceeds global sorting in S4. It shows that reducing each sector to one mass destroys information that is retained by the within-sector rank profile.
+
+##### Weak in both forms
+
+Neither sector mass nor sector shape usefully decodes:
+
+* S3 C4–C6;
+* S4 C5–C6.
+
+Degree-sector conditioning does not generally restore the deeper cycle hierarchy in the most irregular strata.
+
+#### Random-sector control
+
+R3-random performs poorly in every cell and catastrophically in several S3 and S4 cells.
+
+The R3-minus-random bootstrap intervals are positive for all sixteen targets.
+
+This confirms that independently randomizing the relationship between probabilities and sector blocks destroys cross-graph predictive alignment.
+
+It does not by itself prove that the R3 advantage is specifically caused by meaningful degree roles.
+
+The control has three important limitations.
+
+First, every graph receives a different random probability permutation.
+
+The resulting coordinate system is graph specific rather than aligned across the dataset.
+
+Second, the random seed depends on the graph’s position in the stored enumeration:
+
+$$\text{seed}=20250717+\text{graph index}.$$
+
+R3-random is therefore not a representation defined solely by the graph.
+
+Third, R3-random is not subjected to the relabeling-invariance tests used for R2 and R3.
+
+Its extremely negative scores are consequently best interpreted as a destructive sanity check:
+
+> Arbitrary graph-specific reassignment of probability values to sector blocks destroys decodability.
+
+They should not be used as quantitative evidence that the full R3-minus-random difference measures degree-role information.
+
+A cleaner control would require a prespecified, consistently aligned alternative partition rather than a different random assignment for every graph.
+
+#### Does E26 identify global sorting as the bottleneck?
+
+Not generally.
+
+The evidence differs by stratum.
+
+##### S1 near regular
+
+Global sorting remains stronger on triangles and C5. R3 provides only a modest C4 improvement and a weak positive C6 result.
+
+##### S2 bimodal
+
+Degree-sector information clearly helps. R2 or R3 improves C4, C5, and C6, and R3 provides the strongest average target profile.
+
+##### S3 skewed
+
+R3 substantially recovers triangle information and reduces error for C5 and C6, but the deeper-cycle scores remain below zero.
+
+##### S4 hub
+
+R3 provides no robust improvement over R0.
+
+The broad claim:
+
+$$\boxed{\text{global sorting causes the off-regularity failure}}$$
+
+is therefore not supported.
+
+The narrower supported claim is:
+
+$$\boxed{\text{global sorting discards useful degree-sector association for selected targets and degree sequences}}$$
+
+The usefulness of that association depends strongly on the degree-sequence family.
+
+#### Relationship to E25
+
+E25 showed that the globally sorted flat-encoder representation already decodes joint-degree edge-mixing counts with near-perfect accuracy across all four strata.
+
+E26 shows that explicitly preserving degree-occupancy sectors does not generally restore ordinary cycle prediction.
+
+These findings are compatible.
+
+The off-regular representation can be strongly organized by degree mixing while its cycle information remains difficult to expose.
+
+E26 further indicates that:
+
+* some cycle information is recoverable by sector masses;
+* some requires within-sector shape;
+* and some remains inaccessible even after degree-sector labels are retained.
+
+The combined interpretation is:
+
+> The nonregular QuIC geometry is dominated by degree-conditioned topology, but the failure of the ordinary cycle hierarchy cannot be attributed solely to the final global sort.
+
+#### Relationship to E23
+
+E23 showed that global sorting can radically reorganize the raw probability geometry.
+
+On regular cubic graphs, sorting greatly improves cycle and girth accessibility relative to canonical raw coordinates.
+
+On the heterogeneous complete census, sorting removes useful degree-role and connectivity information.
+
+E26 refines the second result by introducing an intermediate quotient.
+
+R3 removes exact bitstring identities but preserves coarse degree-role occupancy.
+
+Its selective improvements show that some of the information lost by global sorting can be recovered without returning to a fully canonical raw basis.
+
+The recovery is incomplete and family dependent.
+
+Thus, the three readout levels can be viewed as:
+
+1. canonical raw coordinates retain exact basis-state identity;
+2. degree-sector sorting retains coarse degree-role identity;
+3. global sorting retains only probability rank.
+
+E26 shows that the middle level can help, but it does not uniformly dominate either endpoint.
+
+#### Decision on the deferred degree-encoded arm
+
+The notebook states that the normalized degree-encoded arm should be added if R3 materially improves over R0.
+
+That condition is met.
+
+Positive paired intervals occur for:
+
+* S2 C4;
+* S2 C5;
+* S3 C3;
+* and several weaker cells.
+
+The degree-encoded follow-up is therefore triggered by the notebook’s own decision rule.
+
+That follow-up would distinguish two possibilities.
+
+1. **Topology-induced degree roles**
+
+   The flat circuit already creates probability sectors associated with vertex-degree classes, and preserving those sectors exposes additional structure.
+
+2. **Explicitly encoded degree roles**
+
+   Degree-dependent initial rotations may strengthen, weaken, or reorganize the same sector information.
+
+Without the degree-encoded arm, E26 characterizes only the flat-encoder circuit.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **Degree-sector mass and degree-sector sorting define numerically permutation-invariant readouts.**
+
+2. **The unsorted E6 circuit can be regenerated consistently with the stored globally sorted representation.**
+
+3. **Preserving degree-sector membership improves selected cycle targets.**
+
+4. **The strongest broad improvement occurs in the bimodal stratum.**
+
+   R2 or R3 strongly improves C4 and C6, while R3 improves C5.
+
+5. **Sector sorting substantially recovers triangle prediction in the skewed stratum.**
+
+   The score rises from (0.056) to (0.431).
+
+6. **Several positive error reductions do not yield useful final prediction.**
+
+   S3 C5 and C6 remain below zero.
+
+7. **The near-regular and hub strata do not show a general R3 advantage.**
+
+8. **Sector masses alone carry substantial information for several S1 and S2 targets.**
+
+9. **Within-sector rank shape is important for selected targets, particularly S2 C5 and S3 C3.**
+
+10. **Random graph-specific sector reassignment destroys predictive alignment.**
+
+11. **Global sorting is not established as the general cause of off-regularity failure.**
+
+12. **The result triggers the planned degree-encoded follow-up arm.**
+
+E26 therefore provides evidence for selective information loss under global sorting but not a universal architectural bottleneck.
+
+#### Necessary qualifications
+
+The E26 decoder does not reproduce the exact E6 analysis protocol.
+
+E26 uses:
+
+* complete 16,384-dimensional vectors;
+* train-only feature standardization;
+* a reduced ridge grid beginning at (10^{-8});
+* explicit shuffled inner folds;
+* mean fold and pooled out-of-fold statistics.
+
+The original E6 analyses used different truncation, scaling, regularization, and reporting choices.
+
+E26 is internally controlled because every representation uses the same protocol. Its R0 scores should not be presented as direct reproductions of the published E6 values.
+
+The strongest paper-facing contrasts should be rerun under the exact E6 probe protocol or clearly identified as a separate full-vector standardized ablation.
+
+The complete R0 and R3 matrices have:
+
+$$16{,}384\text{ features and }400\text{ graphs}.$$
+
+The standardized design matrices are therefore severely rank deficient.
+
+The notebook suppresses linear-algebra warnings. High-dimensional ridge results may be sensitive to:
+
+* scaling;
+* regularization range;
+* inner-fold construction;
+* numerical solver;
+* and low-variance directions.
+
+E10 showed that such sensitivity is real for QuIC probes.
+
+The R0-equals-producer gate is applied to five graphs per stratum rather than all 1,600 graphs.
+
+The relabeling test also uses five graphs per stratum and 20 permutations per graph.
+
+These are strong spot checks but not exhaustive validation.
+
+R3 is not merely R0 with less destructive sorting.
+
+It incorporates graph-derived degree-class information into the readout.
+
+Its gains demonstrate value from this hybrid degree-conditioned quotient, not a free recovery from the probability multiset alone.
+
+R2 and R3 have different dimensions:
+
+* R2 has 64–315 features;
+* R3 has 16,384 features.
+
+Their raw scores do not isolate information content from feature dimension and regularization behavior.
+
+The paired bootstrap resamples fixed out-of-fold errors.
+
+It does not:
+
+* refit the model;
+* regenerate the folds;
+* or repeat hyperparameter selection.
+
+Its intervals describe graph-level variation under the fitted cross-validation procedure, not full pipeline uncertainty.
+
+The bootstrap seeds use Python’s built-in `hash()` function.
+
+Unless `PYTHONHASHSEED` is fixed, the exact bootstrap intervals may vary across Python processes.
+
+The random-sector control also depends on graph enumeration index and uses a different random assignment for every graph.
+
+It is not a stable graph representation and is not a clean matched null.
+
+No multiple-comparison correction is applied across:
+
+$$4\text{ strata}\times4\text{ targets}=16$$
+
+R3-minus-R0 intervals.
+
+At a nominal 95% level, some positive intervals could occur by chance across the family.
+
+The S2 C6 point difference is large, but its interval is extremely broad:
+
+$$[-0.361,1.822].$$
+
+It should remain descriptive.
+
+The target means across strata average positive and negative $$R^2$$ values without accounting for target variance. They are useful summaries but not inferential statistics.
+
+The experiment evaluates only:
+
+* one graph order;
+* four sampled degree sequences;
+* a flat encoder;
+* one circuit repetition;
+* one fixed angle schedule;
+* exact ideal probabilities.
+
+The four strata are sampled graph families rather than exhaustive fixed-degree-sequence censuses.
+
+No finite-shot experiment tests whether degree-sector readouts are operationally recoverable.
+
+Finally, the degree-encoded arm is absent even though the notebook’s decision rule is met.
+
+The current experiment should be described as the flat-encoder phase of the ablation rather than the completed sorting-mechanism study.
+
+#### Overall assessment
+
+E26 rules out a simple explanation for QuIC’s off-regularity behavior.
+
+Global sorting does discard useful degree-conditioned information in some settings. The clearest examples are:
+
+* S2 4-cycles;
+* S2 5-cycles;
+* S3 triangles.
+
+Degree-sector masses also recover substantial S2 C6 information descriptively.
+
+However, the effect is not general.
+
+R3 sharply degrades near-regular triangle prediction, leaves most hub-stratum results unchanged, and does not produce positive C5 or C6 prediction in the skewed and hub strata.
+
+The random-sector control confirms that arbitrary graph-specific reassignment destroys alignment, but it is too destructive and insufficiently matched to quantify the value of genuine degree sectors.
+
+The strongest interpretation is therefore selective:
+
+> Preserving degree-occupancy sectors before sorting can recover structural coordinates that are erased by the global probability quotient, particularly in the bimodal degree family and for skewed-stratum triangles. The effect is not universal: sector sorting can also degrade strong targets and does not restore the deeper cycle hierarchy in the most irregular strata. Global sorting is therefore one source of off-regular information loss, but it is not the general architectural bottleneck.
+
+By the notebook’s own decision rule, the normalized degree-encoded arm should be run before E26 is treated as complete.
