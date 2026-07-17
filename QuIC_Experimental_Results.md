@@ -80,12 +80,7 @@ This stratified design distinguishes marginal association from residual organiza
 The global geometry is dominated by triangle count at both graph orders:
 
 $$
-\rho_{\triangle}
-=
-
-0.903
-\quad\text{and}\quad
-0.900.
+\rho_{\triangle}=0.903\quad\text{and}\quad0.900.
 $$
 
 The replication is unusually close. Increasing the census from 509 to 4,060 graphs changes the global triangle correlation by only (0.003).
