@@ -22,9 +22,7 @@ $$
 with dimensions
 
 $$
-2^{14}=16{,}384,
-\qquad
-2^{16}=65{,}536.
+2^{14}=16{,}384,\qquad2^{16}=65{,}536.
 $$
 
 The vectors are generated using one noiseless circuit repetition and the same fixed canonical angles at both graph orders.
@@ -48,11 +46,7 @@ Spearman Mantel tests evaluate whether graphs that differ more strongly in a cyc
 The analysis then removes the dominant structural variables sequentially:
 
 $$
-\text{all graphs}
-\rightarrow
-\text{fixed triangle count}
-\rightarrow
-\text{fixed triangle and 4-cycle counts}.
+\text{all graphs}\rightarrow\text{fixed triangle count}\rightarrow\text{fixed triangle and 4-cycle counts}.
 $$
 
 This stratified design distinguishes marginal association from residual organization. It does not merely observe that several correlated graph statistics are related to the embedding. It conditions out the stronger statistics and examines how the remaining geometry is organized.
@@ -88,23 +82,19 @@ The replication is unusually close. Increasing the census from 509 to 4,060 grap
 The 4-cycle association is weaker globally but also stable:
 
 $$
-0.290
-\rightarrow
-0.303.
+0.290 \rightarrow 0.303.
 $$
 
 The global 5-cycle association remains positive and statistically detectable but is small:
 
 $$
-0.109
-\quad\text{at }n=14,
+0.109\quad\text{at }n=14,
 $$
 
 and
 
 $$
-0.079
-\quad\text{at }n=16.
+0.079 \quad\text{at }n=16.
 $$
 
 These smaller marginal values should not be interpreted as evidence that 4- and 5-cycle information is absent. Triangle differences dominate the pairwise distance ordering and mask the lower structural layers. The stratified analyses expose those layers directly.
@@ -166,17 +156,13 @@ Once triangle count is fixed, 4-cycle differences almost completely organize pai
 At (n=14),
 
 $$
-\rho_{\mathrm{C4}}
-\in
-$$0.898,0.968$$.
+\rho_{\mathrm{C4}}\in \[0.898,0.968\].
 $$
 
 At (n=16),
 
 $$
-\rho_{\mathrm{C4}}
-\in
-$$0.853,0.964$$.
+\rho_{\mathrm{C4}} \in \[0.853,0.964\].
 $$
 
 The slight decline in the smallest high-triangle strata does not change the central result. Every sufficiently populated triangle stratum at both graph orders shows a very strong positive association between 4-cycle-count difference and embedding distance.
@@ -200,9 +186,7 @@ In the four largest triangle strata:
 * PC1 explains approximately (53%)–(56%) of the variance;
 * its Spearman correlation with 4-cycle count lies between
   $$
-  -0.978
-  \quad\text{and}\quad
-  -0.988.
+  -0.978   \quad\text{and}\quad  -0.988.
   $$
 
 ##### (n=16)
@@ -225,10 +209,7 @@ $$
 of the within-stratum variance and correlates with 4-cycle count at:
 
 $$
-|\rho|
-=
-
-0.978\text{--}0.985.
+|\rho| = 0.978\text{--}0.985.
 $$
 
 The sign is arbitrary because PCA eigenvectors may be reversed. In magnitude, PC1 is effectively a 4-cycle axis.
@@ -256,9 +237,7 @@ Sixteen joint strata contain at least 12 graphs.
 Across these strata:
 
 $$
-\rho_{\mathrm{C5}}
-\in
-$$0.316,0.926$$.
+\rho_{\mathrm{C5}} \in \[0.316,0.926\].
 $$
 
 All reported associations are positive.
@@ -306,9 +285,7 @@ $$
 Across all 43 strata:
 
 $$
-\rho_{\mathrm{C5}}
-\in
-$$0.193,0.974$$.
+\rho_{\mathrm{C5}} \in \[0.193,0.974\].
 $$
 
 Every association is positive, and 42 of the 43 strata have permutation:
@@ -320,13 +297,7 @@ $$
 The only nonsignificant stratum is the smallest and weakest reported case:
 
 $$
-(C_3,C_4)=(5,5),
-\qquad
-n=12,
-\qquad
-\rho=0.193,
-\qquad
-p=0.1463.
+(C_3,C_4)=(5,5), \qquad n=12, \qquad \rho=0.193, \qquad p=0.1463.
 $$
 
 Representative strong strata include:
@@ -361,13 +332,7 @@ The effect is especially pronounced in strata with few or no 4-cycles. As the fi
 The combined (n=14) and (n=16) results support the hierarchy:
 
 $$
-\boxed{
-\text{triangles}
-\rightarrow
-\text{4-cycles}
-\rightarrow
-\text{5-cycles}
-}
+\boxed{ \text{triangles} \rightarrow \text{4-cycles} \rightarrow \text{5-cycles} }
 $$
 
 The hierarchy appears in three distinct forms:
@@ -443,9 +408,7 @@ $$
 Values printed as (0.0001) are therefore at the Monte Carlo floor. Fisher combinations such as:
 
 $$
-10^{-20}
-\quad\text{or}\quad
-10^{-101}
+10^{-20} \quad\text{or}\quad 10^{-101}
 $$
 
 should not be interpreted as numerically precise tail probabilities. They indicate overwhelming aggregate evidence under the tested permutation scheme, but their exact exponents are artifacts of replacing unresolved smaller values with the Monte Carlo floor.
@@ -511,9 +474,7 @@ $$
 The resulting feature dimensions are:
 
 $$
-2^{14}=16{,}384,
-\qquad
-2^{16}=65{,}536.
+2^{14}=16{,}384, \qquad 2^{16}=65{,}536.
 $$
 
 The notebook contains four related analyses:
@@ -611,11 +572,7 @@ This is important because the (n=14) full-vector feature dimension greatly excee
 The hierarchy suggested by the decoding results is
 
 $$
-C_3,\ C_4
-;\rightarrow;
-C_5
-;\rightarrow;
-C_6,
+C_3,\ C_4;\rightarrow; C_5 ;\rightarrow; C_6,
 $$
 
 with progressively weaker and less stable linear accessibility as cycle length increases.
@@ -627,9 +584,7 @@ The next experiment tests whether the full-vector results can be reduced to a sm
 Using only
 
 $$
-\sum_z p_z^2,\qquad
-\sum_z p_z^3,\qquad
-\sum_z p_z^4,
+\sum_z p_z^2,\qquad \sum_z p_z^3,\qquad \sum_z p_z^4,
 $$
 
 the probe obtains:
@@ -667,9 +622,7 @@ The nested power-sum ladder sharpens the result.
 The same transition occurs at both graph orders:
 
 $$
-\text{4-cycle information saturates when }
-\sum_z p_z^5
-\text{ is added}.
+\text{4-cycle information saturates when } \sum_z p_z^5 \text{ is added}.
 $$
 
 This replication indicates that the (k=5) transition is structural rather than an (n=14) anomaly.
@@ -689,15 +642,13 @@ $$
 The resulting 5-cycle scores are:
 
 $$
-R^2=0.143\pm0.103
-\quad\text{at }n=14,
+R^2=0.143\pm0.103 \quad\text{at }n=14,
 $$
 
 and
 
 $$
-R^2=0.132\pm0.015
-\quad\text{at }n=16.
+R^2=0.132\pm0.015 \quad\text{at }n=16.
 $$
 
 The strong full-vector 5-cycle result is therefore not explained by a simple quadratic interaction among the low-order moments.
@@ -752,23 +703,19 @@ of the total embedding variance.
 PC2 behaves differently. It contains approximately (15%) of the total variance but is poorly explained by short-cycle counts or the first six adjacency moments:
 
 $$
-R^2_{\mathrm{moments}}=0.060
-\quad\text{at }n=14,
+R^2_{\mathrm{moments}}=0.060 \quad\text{at }n=14,
 $$
 
 and
 
 $$
-R^2_{\mathrm{moments}}=0.052
-\quad\text{at }n=16.
+R^2_{\mathrm{moments}}=0.052 \quad\text{at }n=16.
 $$
 
 The full adjacency spectrum explains more:
 
 $$
-R^2_{\mathrm{spectrum}}=0.195
-\quad\text{and}\quad
-0.275,
+R^2_{\mathrm{spectrum}}=0.195 \quad\text{and}\quad 0.275,
 $$
 
 but most of PC2 remains unexplained.
@@ -787,15 +734,13 @@ The representation therefore has a large and stable spectral backbone, but a sub
 Six-cycle count alone does not predict PC2:
 
 $$
-R^2=-0.028
-\quad\text{at }n=14,
+R^2=-0.028 \quad\text{at }n=14,
 $$
 
 and
 
 $$
-R^2=-0.003
-\quad\text{at }n=16.
+R^2=-0.003 \quad\text{at }n=16.
 $$
 
 After the adjacency moments are included, however, adding 6-cycle count raises the PC2 score from
@@ -830,9 +775,7 @@ Spectrum hashing identifies:
 The (n=14) analysis recovers the three expected pairs:
 
 $$
-(79,458),\qquad
-(201,203),\qquad
-(234,239).
+(79,458),\qquad(201,203),\qquad(234,239).
 $$
 
 Every discovered cospectral pair has a nonzero QuIC separation.
@@ -872,9 +815,7 @@ Relative to all graph pairs, the cospectral separations occupy low percentiles.
 At (n=14), the three global percentiles are approximately:
 
 $$
-0.00077,\qquad
-0.0611,\qquad
-5.817.
+0.00077,\qquad0.0611,\qquad5.817.
 $$
 
 At (n=16), the global percentiles range from approximately zero to
@@ -905,9 +846,7 @@ This produces:
 For the full (n=14) vectors, the three cospectral pairs lie at approximately the:
 
 $$
-0.0\text{th},\qquad
-10.9\text{th},\qquad
-92.7\text{th}
+0.0\text{th},\qquad 10.9\text{th},\qquad92.7\text{th}
 $$
 
 percentiles of this count-identical reference class.
@@ -999,11 +938,7 @@ The combined results support five main conclusions.
 The appropriate interpretation is not that QuIC is unrelated to classical spectral graph theory. Most of its leading geometry is spectral. The stronger result is that the representation contains both:
 
 $$
-\boxed{
-\text{a dominant spectral backbone}
-+
-\text{a smaller non-spectral residue}
-}
+\boxed{ \text{a dominant spectral backbone} + \text{a smaller non-spectral residue} }
 $$
 
 #### Necessary qualifications
@@ -1072,14 +1007,7 @@ The spectral-only features are standardized. In the concatenated representation,
 The primary comparison is
 
 $$
-\Delta R^2
-=
-R^2_{\text{QuIC+spec}}
--
-\max\left(
-R^2_{\text{eigenvalues}},
-R^2_{\text{moments}}
-\right).
+\Delta R^2 = R^2_{\text{QuIC+spec}} - \max\left( R^2_{\text{eigenvalues}}, R^2_{\text{moments}} \right).
 $$
 
 A positive value indicates that the combined representation predicts better than either linear spectral representation alone.
@@ -1099,10 +1027,7 @@ $$
 and
 
 $$
-C_5=
-\frac{
-	ext{tr}(A^5)-10	ext{tr}(A^3)
-}{10}.
+C_5= \frac{ 	ext{tr}(A^5)-10	ext{tr}(A^3) }{10}.
 $$
 
 The notebook verifies these identities exactly across all 509 graphs at $n=14$ and all 4,060 graphs at $n=16$.
@@ -1159,9 +1084,7 @@ In contrast, the moment representation contains those power sums directly and th
 The reverse occurs for the spectral gap. For a connected cubic graph,
 
 $$
-\lambda_{\max}=3,
-\qquad
-\text{gap}=3-\lambda_2.
+\lambda_{\max}=3, \qquad \text{gap}=3-\lambda_2.
 $$
 
 The spectral gap is therefore an exact linear function of a sorted eigenvalue coordinate. The eigenvalue probe obtains $R^2=1.000$, while the moment representation reaches only approximately $0.87$.
@@ -1190,15 +1113,13 @@ The 6-cycle row is the most striking interaction result.
 QuIC alone predicts 6-cycle count relatively poorly:
 
 $$
-R^2=0.485\pm0.326
-\quad\text{at }n=14,
+R^2=0.485\pm0.326 \quad\text{at }n=14,
 $$
 
 and
 
 $$
-R^2=0.642\pm0.122
-\quad\text{at }n=16.
+R^2=0.642\pm0.122 \quad\text{at }n=16.
 $$
 
 The spectral moment representation is already very strong:
@@ -1226,15 +1147,13 @@ The result is better interpreted as **complementarity** than as strong standalon
 QuIC predicts girth almost perfectly:
 
 $$
-R^2=0.993\pm0.014
-\quad\text{at }n=14,
+R^2=0.993\pm0.014 \quad\text{at }n=14,
 $$
 
 and
 
 $$
-R^2=0.999\pm0.003
-\quad\text{at }n=16.
+R^2=0.999\pm0.003 \quad\text{at }n=16.
 $$
 
 The linear spectral baselines are much weaker. The best spectral score is only $0.611$ at $n=14$ and $0.543$ at $n=16$.
@@ -1242,9 +1161,7 @@ The linear spectral baselines are much weaker. The best spectral score is only $
 This produces the largest nominal improvements:
 
 $$
-\Delta R^2=+0.382
-\quad\text{and}\quad
-+0.456.
+\Delta R^2=+0.382 \quad\text{and}\quad +0.456.
 $$
 
 However, these large values should not be interpreted as evidence that girth is non-spectral. Within these censuses, girth is determined by the presence or absence of short cycles and is therefore a nonlinear threshold function of spectrally determined cycle counts.
@@ -1260,35 +1177,25 @@ Diameter is the clearest open structural target.
 At $n=14$:
 
 $$
-R^2_{\text{QuIC}}=0.548,
-\qquad
-R^2_{\text{moments}}=0.711,
-\qquad
-R^2_{\text{combined}}=0.741.
+R^2_{\text{QuIC}}=0.548, \qquad R^2_{\text{moments}}=0.711, \qquad R^2_{\text{combined}}=0.741.
 $$
 
 At $n=16$:
 
 $$
-R^2_{\text{QuIC}}=0.737,
-\qquad
-R^2_{\text{moments}}=0.775,
-\qquad
-R^2_{\text{combined}}=0.802.
+R^2_{\text{QuIC}}=0.737, \qquad R^2_{\text{moments}}=0.775, \qquad R^2_{\text{combined}}=0.802.
 $$
 
 The resulting improvements are modest but consistent:
 
 $$
-\Delta R^2=+0.030
-\quad\text{at }n=14,
+\Delta R^2=+0.030 \quad\text{at }n=14,
 $$
 
 and
 
 $$
-\Delta R^2=+0.026
-\quad\text{at }n=16.
+\Delta R^2=+0.026 \quad\text{at }n=16.
 $$
 
 Unlike girth, the combined representation outperforms both QuIC and the spectral baselines. The replication across graph orders supports the presence of complementary structural information.
@@ -1397,11 +1304,10 @@ Each target is evaluated using the same five frozen outer folds used in the earl
 5. The final prediction is
    $$
    \hat y_{\mathrm{two-stage}}
+   $$
    ===========================
-
-   \hat y_{\mathrm{spectrum}}
-   +
-   \hat r_{\mathrm{QuIC}}.
+   $$
+   \hat y_{\mathrm{spectrum}}    +    \hat r_{\mathrm{QuIC}}. 
    $$
 
 The primary statistic is
@@ -1415,14 +1321,7 @@ A positive value indicates that QuIC predicts variation missed by the linear spe
 The experiment also reports residual-space (R^2):
 
 $$
-R^2_{\mathrm{residual}}
-=
-
-R^2
-\left(
-y-\hat y_{\mathrm{spectrum}},
-\hat r_{\mathrm{QuIC}}
-\right).
+R^2_{\mathrm{residual}} =  R^2 \left( y-\hat y_{\mathrm{spectrum}}, \hat r_{\mathrm{QuIC}}\right).
 $$
 
 This measures QuIC's ability to predict the spectral model's remaining error directly.
@@ -1545,9 +1444,7 @@ $$
 This result is especially important because the sixth spectral moment obeys the cubic-graph identity
 
 $$
-	ext{tr}(A^6)
-=
-
+	ext{tr}(A^6) =
 12(C_6+D)
 +
 87n
@@ -1988,11 +1885,10 @@ $$
 \max_{G,z}
 \left|
 p^{\mathrm{independent}}_z(G)
+$$
 -----------------------------
-
-p^{\mathrm{stored}}_z(G)
-\right|
-=
+$$
+p^{\mathrm{stored}}_z(G) \right| =
 
 2.22\times10^{-15},
 $$
@@ -2010,10 +1906,10 @@ This gate is load-bearing. It establishes that the stored vectors used elsewhere
 Each graph is recomputed in 80-bit long-double arithmetic. The numerical floor of the float64 pipeline is measured directly as
 
 $$
-\left|
-\mathbf p_{\mathrm{float64}}(G)
+\left| \mathbf p_{\mathrm{float64}}(G)
+$$
 -------------------------------
-
+$$
 \mathbf p_{\mathrm{longdouble}}(G)
 \right|_1.
 $$
@@ -2085,8 +1981,7 @@ The smallest reported distances therefore survive both an independent implementa
 For each pair, the audit compares the long-double separation with the sum of the two graphs' measured float64 reconstruction floors:
 
 $$
-\text{floor ratio}
-=
+\text{floor ratio} =
 
 \frac{
 \left|
@@ -2910,8 +2805,7 @@ The earlier constant-feature GIN and GCN models are useful negative controls, bu
 The present experiment therefore evaluates **folklore 2-WL**, defined on ordered vertex pairs. For each ordered pair ((u,v)), refinement updates its color according to
 
 $$
-c_{t+1}(u,v)
-=
+c_{t+1}(u,v) =
 
 	ext{hash}
 \left(
@@ -2952,8 +2846,7 @@ Two 2-WL representations are evaluated.
 For each refinement round, the histogram of pair colors is computed. Histograms from all rounds are concatenated into a sparse feature vector:
 
 $$
-\mathbf h_{\mathrm{cumulative}}(G)
-=
+\mathbf h_{\mathrm{cumulative}}(G) =
 
 \mathbf h_0(G)
 \oplus
@@ -4144,14 +4037,10 @@ for triangle count in every stratum.
 For general graphs,
 
 $$
-	ext{tr}(A^4)
-=
-
-8C_4
-+
-2\sum_v d_v^2
+	ext{tr}(A^4) = 8C_4+2\sum_v d_v^2
+$$
 -------------
-
+$$
 \sum_v d_v.
 $$
 
@@ -4182,8 +4071,7 @@ C5 is the primary live target because the simple cubic identity relating (	ext{t
 The spectral baselines remain moderately strong but no longer exact:
 
 $$
-R^2_{\mathrm{moments}}
-=
+R^2_{\mathrm{moments}} =
 
 0.802,\ 0.716,\ 0.707,\ 0.625
 $$
@@ -4195,8 +4083,7 @@ The decline from S1 to S4 suggests that the moment coordinates become less suffi
 QuIC alone does not retain the strong C5 accessibility observed on cubic graphs:
 
 $$
-R^2_{\mathrm{QuIC}}
-=
+R^2_{\mathrm{QuIC}}=
 
 -0.017,\ 0.284,\ -0.019,\ -0.050.
 $$
@@ -4208,8 +4095,7 @@ The concatenated representation gives a more nuanced result.
 For the two maximum-degree-4 strata:
 
 $$
-\Delta R^2_{\mathrm{concat}}
-=
+\Delta R^2_{\mathrm{concat}}=
 
 +0.061
 \quad\text{and}\quad
@@ -4223,8 +4109,7 @@ In S2, QuIC has both a moderate standalone signal and a larger complementary con
 The result does not persist in the more degree-skewed strata:
 
 $$
-\Delta R^2_{\mathrm{concat}}
-=
+\Delta R^2_{\mathrm{concat}}=
 
 -0.020
 \quad\text{and}\quad
@@ -4258,8 +4143,7 @@ in S2.
 The concatenated representation fails to outperform the best spectral baseline in every stratum:
 
 $$
-\Delta R^2_{\mathrm{concat}}
-=
+\Delta R^2_{\mathrm{concat}}=
 
 -0.096,\ -0.018,\ -0.015,\ -0.046.
 $$
@@ -4305,8 +4189,7 @@ The target also has limited spread, particularly in S1, so these values should b
 The Wiener index is strongly linearly accessible from the spectral features:
 
 $$
-R^2_{\mathrm{moments}}
-=
+R^2_{\mathrm{moments}}=
 
 0.798\text{--}0.841.
 $$
@@ -4741,8 +4624,7 @@ Explicit degree information therefore does not provide the missing ingredient ne
 The flat experiment contained two positive C5 concatenation results:
 
 $$
-\Delta R^2_{\mathrm{concat}}
-=
+\Delta R^2_{\mathrm{concat}}=
 
 +0.061
 \quad\text{in S1},
@@ -5154,8 +5036,9 @@ The most important result is the C5 concatenation:
 
 $$
 R^2_{\mathrm{concat}}
+$$
 =====================
-
+$$
 0.879\pm0.023.
 $$
 
@@ -5163,8 +5046,9 @@ This exceeds the strongest spectral baseline:
 
 $$
 R^2_{\mathrm{moments}}
+$$
 ======================
-
+$$
 0.716
 $$
 
@@ -5321,8 +5205,9 @@ At one repetition:
 
 $$
 \Delta R^2_{\mathrm{concat}}
+$$
 ============================
-
+$$
 +0.061
 $$
 
@@ -5350,8 +5235,9 @@ The complementarity strengthens:
 
 $$
 0.879-0.716
+$$
 ===========
-
+$$
 +0.163.
 $$
 
@@ -5507,8 +5393,7 @@ The analysis uses the complete connected cubic-graph censuses at:
 For each graph, the full QuIC representation is the descending sorted probability vector
 
 $$
-\mathbf p(G)
-=
+\mathbf p(G)=
 
 \left(
 p_{(1)},p_{(2)},\ldots,p_{(2^n)}
@@ -5520,8 +5405,7 @@ $$
 The truncated representation is
 
 $$
-\mathbf p_k(G)
-=
+\mathbf p_k(G)=
 
 \left(
 p_{(1)},\ldots,p_{(k)}
@@ -6104,8 +5988,7 @@ Every cospectral group agrees on (C_6).
 For cubic graphs, the notebook verifies the identity
 
 $$
-	ext{tr}(A^6)
-=
+	ext{tr}(A^6)=
 
 12(C_6+D)
 +
@@ -6199,8 +6082,7 @@ groups at (n=16).
 The Wiener index is
 
 $$
-W(G)
-=
+W(G)=
 
 \sum_{{u,v}\subseteq V}
 d(u,v),
@@ -6455,8 +6337,7 @@ $$
 Evaluation uses leave-one-cospectral-group-out cross-validation. All members and all pairs from a held-out group remain outside training. Both orientations of each training pair are included, and an intercept-free logistic model ensures that the decision function is antisymmetric:
 
 $$
-f(\mathbf p_i-\mathbf p_j)
-=
+f(\mathbf p_i-\mathbf p_j)=
 
 -f(\mathbf p_j-\mathbf p_i).
 $$
@@ -6667,8 +6548,7 @@ close to the expected value (0.5). This provides evidence that the pipeline has 
 The empirical and nominal null tails do not match exactly:
 
 $$
-\text{empirical 5/50/95 percentiles}
-=
+\text{empirical 5/50/95 percentiles}=
 
 (9,13,19),
 $$
@@ -6815,8 +6695,9 @@ Thus,
 
 $$
 \mathbf p_{\beta=0}(G)
-======================
-
+$$
+=====================
+$$
 \mathbf p_{\beta=0}(H)
 $$
 
@@ -6848,8 +6729,9 @@ for the sign associated with bit (i). Flipping bit (i) changes the graph-cut con
 
 $$
 \Delta_i c(x)
+$$
 =============
-
+$$
 z_i\sum_{j\in N(i)}z_j.
 $$
 
@@ -6887,8 +6769,9 @@ The proposed first-order probability coefficient is
 
 $$
 D_1(y)
+$$
 ======
-
+$$
 \sum_i
 \operatorname{Im}
 \left[
@@ -6903,8 +6786,9 @@ The notebook independently estimates the derivative using the central difference
 
 $$
 D_1^{(h)}(y)
+$$
 ============
-
+$$
 \frac{
 p_y(+h)-p_y(-h)
 }{
@@ -6951,8 +6835,9 @@ The second-order coefficient is estimated using:
 
 $$
 D_2(y)
+$$
 ======
-
+$$
 \frac{
 p_y(+h)-2p_y(0)+p_y(-h)
 }{
@@ -7024,8 +6909,9 @@ This is consistent with the previously derived purity mechanism. If
 
 $$
 p_y(\beta)
+$$
 ==========
-
+$$
 p_y(0)
 +
 \beta D_1(y)
@@ -7079,8 +6965,9 @@ At (n=14):
 
 $$
 R^2_{D_2}
+$$
 =========
-
+$$
 0.180
 \quad\text{for }C_5,
 $$
@@ -7096,8 +6983,9 @@ On the (n=16) subset:
 
 $$
 R^2_{D_2}
+$$
 =========
-
+$$
 0.240
 \quad\text{and}\quad
 0.204.
@@ -7549,8 +7437,9 @@ Diamond count is computed directly and checked through the cubic sixth-moment id
 
 $$
 \operatorname{tr}(A^6)
+$$
 ======================
-
+$$
 87n
 +
 6C_3
@@ -7987,8 +7876,9 @@ Most shuffled-target arms use only 25 permutations. Their empirical (p)-values t
 
 $$
 \frac{1}{25+1}
+$$
 ==============
-
+$$
 0.0385.
 $$
 
@@ -7996,8 +7886,9 @@ The C5 arm at (n=14) uses 100 permutations and has minimum resolution:
 
 $$
 \frac{1}{100+1}
+$$
 ===============
-
+$$
 0.0099.
 $$
 
@@ -8069,8 +7960,9 @@ For each graph, the complete sorted QuIC representation is:
 
 $$
 \mathbf p(G)
+$$
 ============
-
+$$
 \left(
 p_{(1)},p_{(2)},\ldots,p_{(2^n)}
 \right),
@@ -8099,37 +7991,40 @@ For each depth, four representations are constructed.
 
    $$
    \mathbf h_k
+   $$
    ===========
-
+   $$
    \left(
    p_{(1)},\ldots,p_{(k)}
    \right).
    $$
 
-2. **Normalized head**
+3. **Normalized head**
 
    $$
    \widetilde{\mathbf h}_k
+   $$
    =======================
-
+   $$
    \frac{\mathbf h_k}
    {\sum_{i=1}^{k}p_{(i)}}.
    $$
 
    This retains the shape of the probability head while removing its cumulative mass.
 
-3. **Retained mass only**
+5. **Retained mass only**
 
    $$
    m_k
+   $$
    ===
-
+   $$
    \sum_{i=1}^{k}p_{(i)}.
    $$
 
    This is a one-dimensional concentration feature.
 
-4. **Normalized head plus retained mass**
+7. **Normalized head plus retained mass**
 
    $$
    \left[
@@ -8176,8 +8071,9 @@ $$
 \operatorname{sign}
 \left(
 \log_2|\operatorname{Aut}(G_i)|
+$$
 -------------------------------
-
+$$
 \log_2|\operatorname{Aut}(G_j)|
 \right)
 $$
@@ -8207,15 +8103,17 @@ The following cubic identities hold exactly for every graph:
 
 $$
 \operatorname{tr}(A^3)
+$$
 ======================
-
+$$
 6C_3,
 $$
 
 $$
 \operatorname{tr}(A^4)
+$$
 ======================
-
+$$
 8C_4+15n,
 $$
 
@@ -8223,8 +8121,9 @@ and:
 
 $$
 \operatorname{tr}(A^6)
+$$
 ======================
-
+$$
 87n
 +
 6C_3
@@ -8438,8 +8337,9 @@ At (n=14):
 
 $$
 R^2_{\mathrm{normalized}}
+$$
 =========================
-
+$$
 0.925
 $$
 
@@ -8455,6 +8355,7 @@ At (n=16):
 
 $$
 R^2_{\mathrm{normalized}}
+$$
 =========================
 
 0.783
@@ -8979,8 +8880,9 @@ The raw head combines shape and mass multiplicatively:
 
 $$
 \mathbf h_k
+$$
 ===========
-
+$$
 m_k\widetilde{\mathbf h}_k.
 $$
 
@@ -9086,8 +8988,9 @@ Each graph is mapped to its complete descending-sorted probability vector:
 
 $$
 \mathbf p(G)
+$$
 ============
-
+$$
 \operatorname{sort}*{\downarrow}
 \left(
 |\langle z|\psi_G\rangle|^2
@@ -9143,8 +9046,9 @@ The experiment contains four components.
 
    $$
    \eta_y
+   $$
    ======
-
+   $$
    \frac{
    \text{collision sets preserving }y
    }{
@@ -9154,7 +9058,7 @@ The experiment contains four components.
 
    A value of one would indicate that every observed collision is benign for target (y), while a value below one would indicate target information lost by the quotient.
 
-4. **Distance-ordering agreement**
+5. **Distance-ordering agreement**
 
    On 4,000 sampled graph pairs, the experiment computes the Spearman correlation between readout-space (L_1) distance and target-space distance.
 
@@ -9181,8 +9085,9 @@ Diamond count is certified through the cubic identity:
 
 $$
 \operatorname{tr}(A^6)
+$$
 ======================
-
+$$
 87n
 +
 6C_3
@@ -9200,8 +9105,9 @@ The relabeled adjacency matrix is:
 
 $$
 A'
+$$
 ==
-
+$$
 PAP^\top.
 $$
 
@@ -9212,8 +9118,9 @@ Sorting discards those coordinate identities:
 $$
 \operatorname{sort}_{\downarrow}
 \mathbf p(PGP^\top)
+$$
 ===================
-
+$$
 \operatorname{sort}_{\downarrow}
 \mathbf p(G).
 $$
@@ -9314,8 +9221,9 @@ $$
 \eta_{C_3},
 \eta_{C_4},
 \eta_{\mathrm{connectivity}}
+$$
 ============================
-
+$$
 \text{not applicable}.
 $$
 
@@ -9327,8 +9235,9 @@ $$
 \eta_{C_5},
 \eta_{C_6},
 \eta_D
+$$
 ======
-
+$$
 \text{not applicable}.
 $$
 
