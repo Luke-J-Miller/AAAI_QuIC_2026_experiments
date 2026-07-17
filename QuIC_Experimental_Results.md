@@ -1,8 +1,8 @@
-# QuIC Characterization — Experimental Results
+### QuIC Characterization — Experimental Results
 
 Full per-experiment write-ups for the AAAI 2027 QuIC characterization study: experimental design, results, what each experiment establishes, qualifications, and overall assessment, for every experiment E1 through E8B. This is a results record only — for the object definition, mathematical framework, project status, and the direction the work is currently taking, see the companion project-state document.
 
-## Full Description of Experiments
+### Full Description of Experiments
 
 ### E1 - Stratified Residue
 
