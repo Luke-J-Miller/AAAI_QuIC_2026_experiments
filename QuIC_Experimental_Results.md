@@ -10347,6 +10347,595 @@ The appropriate central claim is:
 
 > In the complete connected cubic (n=18) census, QuIC functionally resolves graph properties that vary inside exact adjacency-cospectral classes. Six newly identified classes exchange one diamond for one 6-cycle while preserving the complete spectrum; QuIC correctly ranks all six at every tested truncation depth. It also ranks Wiener index and automorphism-group order significantly above full-refit sign-flip nulls across 302 and 94 unequal cospectral pairs. These results show that QuIC’s non-spectral residue is aligned with local structure, global metric geometry, and graph symmetry rather than serving only as an arbitrary collision-breaking signal.
 
+
+
+### E14N - Split-Null Confirmation
+
+#### Experimental design
+
+E14N provides a computationally tractable confirmatory test for the Wiener-index and automorphism-order ranking effects observed in E14.
+
+The experiment uses the same complete connected cubic-graph census at:
+
+* **41,301 graphs at (n=18)**;
+* **471 exact adjacency-cospectral groups**;
+* **958 total members of those groups**.
+
+As in E14, complete sorted QuIC vectors are stored for:
+
+* every member of a cospectral group varying in diamond count, Wiener index, or automorphism-group order;
+* a selected set of invariant-identical control groups.
+
+The stored representation set contains:
+
+$$906=625\text{ qualifying members}+281\text{ control members}.$$
+
+E14 evaluated each varying group through leave-one-group-out ranking. That protocol provides a descriptive estimate using nearly all available groups for training, but a full permutation audit is computationally expensive because changing labels requires refitting every leave-one-group-out model.
+
+E14N breaks this dependency through a deterministic group-level split.
+
+For each target:
+
+1. the varying exact-cospectral groups are partitioned into two fixed subsets;
+2. one subset is used to train a single antisymmetric ranking model;
+3. the trained model produces fixed margins for the held-out groups;
+4. target values are permuted only within the held-out groups;
+5. the fixed margins are rescored without refitting;
+6. the train and test partitions are reversed and the procedure is repeated.
+
+Because the held-out target values never enter model fitting, the within-test-group permutation test provides a valid conditional null under exchangeability of target assignments within each held-out cospectral group.
+
+The two targets are:
+
+* Wiener index;
+* $$\log_2|\text{Aut}(G)|.$$
+
+Diamond count is not rerun because only six diamond-varying groups exist. Dividing them into two halves would leave only three test groups in each direction. The exact six-pair E14 witness test remains the appropriate diamond analysis.
+
+#### Frozen representation and model
+
+No representation depth or model hyperparameter is selected in E14N.
+
+The protocol is fixed at the E14 primary configuration:
+
+$$k=100,\qquad C=1.$$
+
+For every unequal-target graph pair ((G_i,G_j)) within a training cospectral group, the input is:
+
+$$\mathbf x_{ij}=\mathbf p_{1:100}(G_i)-\mathbf p_{1:100}(G_j).$$
+
+The pair label is:
+
+$$y_{ij}=\text{sign}\left(t(G_i)-t(G_j)\right).$$
+
+The model is:
+
+* logistic regression;
+* no intercept;
+* (L_2) regularization;
+* train-only root-mean-square feature scaling;
+* both pair orientations included during training.
+
+Including both orientations gives:
+
+$$(-\mathbf x_{ij},-y_{ij})$$
+
+for every:
+
+$$(\mathbf x_{ij},y_{ij}).$$
+
+This enforces an antisymmetric ranking rule.
+
+For a held-out pair, the model produces a fixed decision margin. A pair is correct when the margin and the target difference have the same sign. Zero margins are counted as failures.
+
+#### Primary and secondary statistics
+
+The primary statistic is group-balanced accuracy.
+
+Within each held-out cospectral group, the model’s accuracy is computed over all unequal-target pairs. These group accuracies are then averaged:
+
+$$A_{\text{group}}=\frac{1}{|\mathcal G_{\text{test}}|}\sum_{g\in\mathcal G_{\text{test}}}\frac{\text{correct unequal pairs in }g}{\text{unequal pairs in }g}.$$
+
+Every cospectral group therefore receives equal weight, regardless of whether it contributes one pair or several pairs.
+
+Raw pooled pair accuracy is reported secondarily:
+
+$$A_{\text{pooled}}=\frac{\text{correct unequal pairs across all test groups}}{\text{unequal pairs across all test groups}}.$$
+
+The pooled statistic gives greater weight to larger cospectral groups.
+
+#### Deterministic group partition
+
+Each cospectral group is assigned to partition zero or one by applying SHA-256 to a content-addressed identifier constructed from the sorted graph6 strings of its members.
+
+The assignment depends only on group content. It does not depend on:
+
+* census enumeration order;
+* a tunable random seed;
+* model performance;
+* or repeated split generation.
+
+The split is therefore fixed and reproducible in principle.
+
+The resulting partitions are:
+
+| Target       | Total varying groups | Partition 0 | Partition 1 |    |    |
+| ------------ | -------------------: | ----------: | ----------: | -- | -- |
+| Wiener index |                  283 |         131 |         152 |    |    |
+| $$\log_2     |        \text{Aut}(G) |          $$ |          90 | 40 | 50 |
+
+Both directions are evaluated:
+
+* **Direction A:** train on partition 0 and test on partition 1;
+* **Direction B:** train on partition 1 and test on partition 0.
+
+#### Integrity checks
+
+The notebook repeats the E14 validation gates before fitting any model.
+
+The stored census table satisfies:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+$$\text{tr}(A^4)=8C_4+15n,$$
+
+$$\text{tr}(A^5)=10C_5+10\text{tr}(A^3),$$
+
+and:
+
+$$\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).$$
+
+The 471 exact cospectral groups are independently reconstructed from the integer trace tuples and exactly match the producer record.
+
+The varying-group sets are independently recomputed and match the stored counts:
+
+| Invariant    | Varying exact cospectral groups |    |    |
+| ------------ | ------------------------------: | -- | -- |
+| Diamonds     |                               6 |    |    |
+| 6-cycles     |                               6 |    |    |
+| 7-cycles     |                              18 |    |    |
+| Wiener index |                             283 |    |    |
+| Radius       |                              75 |    |    |
+| Diameter     |                              53 |    |    |
+| $$\log_2     |                   \text{Aut}(G) | $$ | 90 |
+
+All 906 stored graph members are reconstructed from graph6, and their cycle, metric, and symmetry invariants reproduce the producer table.
+
+Every stored QuIC vector is:
+
+* dimension (262,144);
+* descending sorted;
+* normalized to unit sum.
+
+Three members are independently recomputed using the canonical Qiskit circuit. Their worst coordinate discrepancy is below:
+
+$$10^{-12}.$$
+
+The representation and invariant data therefore reproduce the validated E14 inputs.
+
+#### Permutation-null construction
+
+For each split direction, the model is trained once.
+
+Its held-out pair margins are then cached and remain fixed throughout the null experiment.
+
+Each permutation draw independently shuffles the observed target-value multiset within every held-out cospectral group.
+
+This preserves:
+
+* the number of members in each group;
+* the target values present in each group;
+* all target ties;
+* the number of unequal comparisons induced by each assignment.
+
+For two-member groups, the within-group permutation reduces to randomly choosing one of the two possible target orientations.
+
+For groups with three or more members, the complete target assignment is permuted. This preserves transitivity of the target ordering and avoids generating mutually inconsistent pair labels.
+
+The primary null statistic is the group-balanced accuracy. The pooled-pair statistic is recomputed from the same permutations.
+
+Each real-data split direction uses:
+
+$$100{,}000$$
+
+permutation draws.
+
+The one-sided add-one value is:
+
+$$p=\frac{1+#{A_{\text{null}}\ge A_{\text{observed}}}}{100{,}001}.$$
+
+The minimum attainable value is therefore:
+
+$$\frac{1}{100{,}001}\approx10^{-5}.$$
+
+#### Synthetic null validation
+
+The permutation machinery is tested on synthetic groups before it is applied to the QuIC data.
+
+##### Perfect alignment
+
+When every synthetic margin agrees with the target ordering:
+
+$$A_{\text{group}}=1.000.$$
+
+Using 2,000 null draws, the permutation value reaches the add-one floor:
+
+$$p=\frac{1}{2001}=0.00050.$$
+
+##### Perfect anti-alignment
+
+When every margin opposes the target ordering:
+
+$$A_{\text{group}}=0.000,\qquad p=1.000.$$
+
+##### No-signal calibration
+
+Four hundred independent synthetic datasets are generated with margins independent of the targets.
+
+The observed empirical rejection frequencies are:
+
+| Threshold  | Expected frequency | Observed frequency |
+| ---------- | -----------------: | -----------------: |
+| (p\le0.10) |              0.100 |              0.085 |
+| (p\le0.25) |              0.250 |              0.220 |
+| (p\le0.50) |              0.500 |              0.500 |
+
+All values fall within the notebook’s prespecified tolerance of the uniform-null expectation.
+
+The validation confirms that the implemented fixed-margin permutation procedure is calibrated under its synthetic exchangeability model.
+
+#### Wiener-index results
+
+##### Direction A
+
+Direction A trains on 131 groups and tests on 152 groups.
+
+| Statistic               | Observed |           Null mean | Permutation (p) |
+| ----------------------- | -------: | ------------------: | --------------: |
+| Group-balanced accuracy |    0.603 |               0.500 |          0.0050 |
+| Raw pooled accuracy     |    0.589 | approximately 0.500 |          0.0153 |
+
+The group-balanced accuracy exceeds the null mean by:
+
+$$0.603-0.500=0.103.$$
+
+The observed ordering is significant under the held-out within-group permutation null:
+
+$$p=0.0050.$$
+
+##### Direction B
+
+Direction B trains on 152 groups and tests on 131 groups.
+
+| Statistic               | Observed |           Null mean | Permutation (p) |
+| ----------------------- | -------: | ------------------: | --------------: |
+| Group-balanced accuracy |    0.607 |               0.500 |          0.0071 |
+| Raw pooled accuracy     |    0.604 | approximately 0.500 |          0.0098 |
+
+The reverse direction produces nearly the same effect:
+
+$$0.607-0.500=0.107.$$
+
+It is also significant:
+
+$$p=0.0071.$$
+
+##### Combined interpretation
+
+Both directions satisfy:
+
+* group-balanced accuracy above chance;
+* group-balanced permutation (p<0.01);
+* pooled-pair permutation (p<0.02).
+
+The notebook reports the two-test Bonferroni omnibus value:
+
+$$p_{\text{Bonferroni}}=2\min(0.0050,0.0071)=0.0101.$$
+
+More importantly, the effect replicates inferentially in both directions. A model trained on either deterministic half of the Wiener-varying groups orders the held-out half above its within-group permutation null.
+
+This is stronger than a result driven by one favorable partition.
+
+The split accuracies are also close:
+
+$$0.603\quad\text{and}\quad0.607.$$
+
+The Wiener direction is therefore stable under a substantial reduction in training data and under reversal of the train/test partition.
+
+#### Relationship to the E14 Wiener result
+
+E14 reported:
+
+$$176/302$$
+
+correct unequal Wiener pairs under leave-one-group-out evaluation, with nominal pooled accuracy:
+
+$$58.3%.$$
+
+E14N asks a harder transfer question.
+
+Each model sees only approximately half of the varying cospectral groups during training and is then evaluated on a completely disjoint group set.
+
+Despite this reduction, the split group-balanced accuracies remain approximately:
+
+$$60%.$$
+
+The agreement between:
+
+* the full-data leave-one-group-out result;
+* Direction A;
+* Direction B
+
+supports the interpretation that QuIC contains a transferable Wiener-ordering direction across exact cospectral classes.
+
+E14 supplies the high-data descriptive estimate. E14N supplies the clean held-out group-level inferential confirmation.
+
+#### Automorphism-order results
+
+##### Direction A
+
+Direction A trains on 40 groups and tests on 50 groups.
+
+| Statistic               | Observed |           Null mean | Permutation (p) |
+| ----------------------- | -------: | ------------------: | --------------: |
+| Group-balanced accuracy |    0.740 |               0.500 |          0.0004 |
+| Raw pooled accuracy     |    0.745 | approximately 0.500 |          0.0003 |
+
+This is a strong held-out result.
+
+The group-balanced accuracy exceeds chance by:
+
+$$0.740-0.500=0.240.$$
+
+The permutation value is:
+
+$$p=0.0004.$$
+
+The pooled statistic gives the same conclusion:
+
+$$A_{\text{pooled}}=0.745,\qquad p=0.0003.$$
+
+##### Direction B
+
+Direction B trains on 50 groups and tests on 40 groups.
+
+| Statistic               | Observed |           Null mean | Permutation (p) |
+| ----------------------- | -------: | ------------------: | --------------: |
+| Group-balanced accuracy |    0.517 |               0.499 |          0.4269 |
+| Raw pooled accuracy     |    0.512 | approximately 0.500 |          0.4968 |
+
+The reverse direction is indistinguishable from the null.
+
+The group-balanced excess is only:
+
+$$0.517-0.499=0.018.$$
+
+The permutation result is:
+
+$$p=0.4269.$$
+
+The raw pooled result is likewise null:
+
+$$p=0.4968.$$
+
+##### Combined interpretation
+
+The notebook reports:
+
+$$p_{\text{Bonferroni}}=2\min(0.0004,0.4269)=0.0008.$$
+
+This is a valid familywise-corrected omnibus result for the claim that at least one of the two prespecified split directions contains an effect.
+
+It is not evidence that the effect replicates across both directions.
+
+The notebook labels the result as “same-direction replication” because both observed accuracies lie slightly above their corresponding null means:
+
+$$0.740>0.500,\qquad0.517>0.499.$$
+
+That criterion is too weak to support the word “replication.” Under a null centered near 0.5, approximately half of null results will lie above the null mean.
+
+The statistically appropriate conclusion is:
+
+* Direction A strongly confirms an automorphism-ordering direction.
+* Direction B does not confirm it.
+* The two-direction omnibus test is significant because Direction A is strong.
+* Split-to-split inferential replication is not established.
+
+The asymmetry is not explained by training-set size. The failed direction uses the larger 50-group training partition and the smaller 40-group test partition.
+
+It more likely reflects heterogeneity between the two deterministic group subsets, although E14N does not identify which graph properties produce that heterogeneity.
+
+#### Relationship to the E14 automorphism result
+
+E14 reported:
+
+$$63/94$$
+
+correct automorphism-order pairs under leave-one-group-out evaluation, corresponding to approximately:
+
+$$67.0%.$$
+
+E14N produces one split substantially above that level:
+
+$$74.0%,$$
+
+and one split near chance:
+
+$$51.7%.$$
+
+The full-data E14 result remains useful as a descriptive summary across all 90 varying groups.
+
+E14N shows that the signal is not uniformly transferable across arbitrary halves of those groups.
+
+The strong Direction A result demonstrates that a learned QuIC symmetry direction can generalize to a disjoint set of exact cospectral classes. The failed reverse direction shows that this direction is not stably learned from both halves.
+
+The appropriate interpretation is therefore weaker than the Wiener conclusion:
+
+> The automorphism-order signal is present and can transfer strongly across one prespecified group split, but E14N does not establish symmetric replication across the two halves.
+
+#### Summary of confirmatory results
+
+| Target       | Direction A group-balanced accuracy | Direction A (p) | Direction B group-balanced accuracy | Direction B (p) | Bonferroni omnibus (p) | Inferential replication |        |    |
+| ------------ | ----------------------------------: | --------------: | ----------------------------------: | --------------: | ---------------------: | ----------------------- | ------ | -- |
+| Wiener index |                               0.603 |          0.0050 |                               0.607 |          0.0071 |                 0.0101 | Yes                     |        |    |
+| $$\log_2     |                       \text{Aut}(G) |              $$ |                               0.740 |          0.0004 |                  0.517 | 0.4269                  | 0.0008 | No |
+
+The distinction between the final two columns is essential.
+
+The Bonferroni value tests whether either of the two prespecified directions is significant after accounting for the two tests.
+
+Inferential replication requires both directions to independently reject their respective nulls in the same direction.
+
+Wiener index satisfies both standards.
+
+Automorphism order satisfies only the omnibus standard.
+
+#### Relationship to the diamond witness
+
+E14N does not alter the diamond result.
+
+Only six exact cospectral groups vary in diamond count. A deterministic half split would produce approximately three groups per test partition, giving little meaningful inferential resolution.
+
+E14 already provides:
+
+* all six witness pairs correctly ranked;
+* an exact enumeration of all (2^6) pair-orientation patterns;
+* stability across all tested depths and regularization values.
+
+That result should remain separate from E14N.
+
+E14N is specifically the confirmatory inferential companion for the two larger target families.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The E14 inputs reproduce under the complete integrity-gate suite.**
+
+   The graph invariants, exact cospectral groups, stored vectors, and Qiskit spot checks all pass.
+
+2. **The deterministic partition is content addressed rather than performance selected.**
+
+3. **The representation and model are frozen at (k=100) and (C=1).**
+
+   No depth or regularization search enters the confirmation test.
+
+4. **The within-test-group permutation machinery is calibrated on synthetic null data.**
+
+5. **The Wiener-index signal confirms in both split directions.**
+
+   The group-balanced accuracies are (0.603) and (0.607), with permutation values (0.0050) and (0.0071).
+
+6. **The Wiener effect is stable under reversal of the training and test partitions.**
+
+7. **The automorphism-order signal confirms strongly in one direction.**
+
+   Direction A reaches group-balanced accuracy (0.740) with (p=0.0004).
+
+8. **The automorphism-order signal does not confirm in the reverse direction.**
+
+   Direction B reaches only (0.517) with (p=0.4269).
+
+9. **The automorphism omnibus result remains significant after two-test Bonferroni correction.**
+
+   This establishes evidence in at least one prespecified split direction, not replication across both.
+
+10. **Group balancing removes domination by the larger cospectral classes.**
+
+E14N therefore provides clean confirmatory evidence for the Wiener-ordering result and partial, split-dependent confirmation of the automorphism-order result.
+
+#### Necessary qualifications
+
+The split test evaluates a different estimator from E14’s leave-one-group-out procedure.
+
+E14 trains each held-out prediction on nearly all other varying groups. E14N trains on only one deterministic half.
+
+The E14 and E14N accuracy values should therefore not be treated as repeated measurements of exactly the same model.
+
+The validity of the permutation test depends on exchangeability of target assignments within held-out groups under the null. The synthetic calibration validates the implementation but cannot prove that the real graph targets satisfy the scientific exchangeability assumption.
+
+The 100,000-draw values are Monte Carlo permutation estimates rather than exhaustive probabilities.
+
+The approximate Monte Carlo uncertainty is small but nonzero, particularly for the smallest reported values.
+
+The Bonferroni calculation:
+
+$$2\min(p_A,p_B)$$
+
+is an omnibus correction for searching across two directions. It is not a method for combining concordant evidence from both directions.
+
+For Wiener index, this distinction is immaterial because both directions are independently significant.
+
+For automorphism order, it is critical.
+
+The notebook’s `same_direction_replication` flag checks only whether both observed accuracies exceed their null means. It should be renamed to something such as:
+
+* `both_above_null_mean`;
+* or replaced with a criterion requiring both permutation values to pass a prespecified threshold.
+
+Under a conventional:
+
+$$p<0.05$$
+
+criterion, automorphism order does not replicate across splits.
+
+The permutation random-number seed includes Python’s built-in string hash:
+
+$$\texttt{abs(hash(target_name))}.$$
+
+Python string hashes can vary across processes unless `PYTHONHASHSEED` is fixed. The deterministic group partition remains stable, but the exact sampled permutation values may not reproduce bit for bit across environments.
+
+A stable cryptographic target hash should be used for the null seed if exact computational reproducibility is required.
+
+The split was not performance selected, but only one deterministic split is examined. The automorphism asymmetry shows that the result can depend materially on group composition.
+
+Repeated random splits would characterize split variability, but they would require an explicitly prespecified aggregation rule and should not replace the fixed confirmatory split after observing the current results.
+
+No analysis identifies how the two automorphism partitions differ structurally.
+
+The group-balanced statistic gives equal weight to groups, while the original E14 figures are pooled pair counts. Their percentages answer related but nonidentical questions.
+
+Diamond count is omitted from the split confirmation. Its E14 result relies on a different exact six-pair test.
+
+All results use exact ideal QuIC probabilities. The experiment does not test finite-shot or hardware-accessible ranking.
+
+Finally, the confirmation concerns:
+
+* connected cubic graphs;
+* (n=18);
+* exact adjacency-cospectral classes;
+* one fixed circuit;
+* one fixed truncation depth;
+* one fixed regularization value.
+
+It does not establish universal ranking across graph families.
+
+#### Overall assessment
+
+E14N resolves the principal inferential concern for Wiener index.
+
+A model trained on either deterministic half of the Wiener-varying cospectral groups orders the disjoint held-out half at approximately 60% group-balanced accuracy. Both directions reject their within-group target-permutation nulls:
+
+$$p=0.0050\quad\text{and}\quad p=0.0071.$$
+
+This provides a clean replication across independent group partitions and supports the E14 conclusion that QuIC’s exact-cospectral residue contains a transferable direction associated with global metric geometry.
+
+The automorphism-order result is more limited.
+
+One split direction is strong:
+
+$$A_{\text{group}}=0.740,\qquad p=0.0004.$$
+
+The reverse direction is null:
+
+$$A_{\text{group}}=0.517,\qquad p=0.4269.$$
+
+The Bonferroni omnibus value of (0.0008) confirms that at least one of the two prespecified directions carries a genuine effect. It does not establish replication. The notebook’s current replication flag should therefore be revised.
+
+The appropriate central claim is:
+
+> Under a deterministic cospectral-group split and a fixed within-test-group target-permutation null, QuIC’s Wiener-index ordering effect confirms in both train/test directions, with group-balanced accuracies of (0.603) and (0.607) and permutation values of (0.0050) and (0.0071). The automorphism-order effect is split dependent: one direction is strong at (0.740), (p=0.0004), while the reverse direction is indistinguishable from chance at (0.517), (p=0.4269). E14N therefore supplies robust confirmatory inference for Wiener index and partial, nonreplicating confirmation for automorphism-group order.
+
 ### E16 / E17 - Readout Quotient and Label Control
 
 #### Experimental design
