@@ -7954,6 +7954,669 @@ The appropriate central claim is:
 
 > Independent SVD and dual ridge implementations, exact (n=14) sklearn reproduction, and full-pipeline shuffled-target controls confirm that QuIC’s triangle, 5-cycle, and diamond probe results are not numerical or high-dimensional chance artifacts. These signals require near-interpolation regularization because they occupy low-singular-value feature directions. The (n=16) 6-cycle result does not survive a change in the inner cross-validation partition and should be treated as protocol sensitive rather than validated.
 
+### E11 - Nonlinear Spectral Adequacy and the Diamond Residual
+
+#### Experimental design
+
+E11 tests whether QuIC’s diamond-count advantage over the spectral baseline survives when the first-stage spectral model is allowed to be nonlinear.
+
+The analysis uses the complete connected cubic-graph censuses at:
+
+* **509 graphs at (n=14)**;
+* **4,060 graphs at (n=16)**.
+
+E2R used a linear spectral first stage and found that adding a QuIC residual model improved diamond-count prediction by:
+
+$$
+\Delta R^2=+0.341\quad\text{at }n=14,
+$$
+
+and:
+
+$$
+\Delta R^2=+0.310\quad\text{at }n=16.
+$$
+
+A linear spectral baseline leaves two possible interpretations.
+
+1. QuIC contains information that the tested spectral representation does not make available.
+2. The diamond target is already encoded nonlinearly in the spectrum, and QuIC merely provides a more favorable linear coordinate system.
+
+E11 distinguishes these possibilities empirically by replacing the linear spectral model with progressively more flexible nonlinear predictors.
+
+The tested first-stage models are:
+
+1. linear ridge regression;
+2. degree-two polynomial ridge regression;
+3. radial-basis-function kernel ridge regression;
+4. ExtraTrees regression.
+
+Each model performs its own hyperparameter selection within the outer training fold.
+
+Three spectral feature sets are evaluated:
+
+1. sorted adjacency eigenvalues, excluding the constant cubic eigenvalue (\lambda_{\max}=3);
+2. trace moments (\text{tr}(A^k)) for (k=3,\ldots,8);
+3. eigenvalues concatenated with the trace moments.
+
+The third set reproduces the spectral representation used in E2R.
+
+The targets are:
+
+* diamond count;
+* 6-cycle count;
+* girth;
+* triangle count.
+
+Triangle count is included as an exact spectral control. On cubic graphs:
+
+$$
+\text{tr}(A^3)=6C_3.
+$$
+
+Diamond count and 6-cycle count are linked through:
+
+$$
+\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).
+$$
+
+The spectrum therefore fixes:
+
+$$
+C_6+D,
+$$
+
+but does not generally determine how that total is divided between 6-cycles and diamonds.
+
+#### Two-stage protocol
+
+The experiment retains the E2R residual-learning design.
+
+For each frozen outer fold:
+
+1. the spectral model is fitted on the outer training graphs;
+2. five-fold cross-fitted spectral predictions are generated within the outer training set;
+3. the cross-fitted residual target is computed;
+4. a QuIC ridge model is trained to predict that residual;
+5. the final held-out prediction is the sum of the spectral and QuIC residual predictions.
+
+For graph (G), the combined predictor has the form:
+
+$$
+\widehat y_{\text{combined}}(G)=\widehat y_{\text{spectral}}(G)+\widehat r_{\text{QuIC}}(G).
+$$
+
+The principal statistic is:
+
+$$
+\Delta R^2=R^2_{\text{combined}}-R^2_{\text{spectral}}.
+$$
+
+A positive value means that the QuIC residual stage improves held-out prediction beyond the chosen spectral model.
+
+The QuIC residual stage uses the first:
+
+$$
+k=1000
+$$
+
+sorted probability coordinates.
+
+The earlier truncation experiments showed that the diamond signal is effectively saturated at this depth. The notebook also reruns the original full-vector E2R diamond cell as a validation gate.
+
+#### Target and feature validation
+
+All target values are recomputed directly from the stored adjacency matrices.
+
+For every graph at both orders, the notebook verifies:
+
+$$
+\text{tr}(A^3)=6C_3,
+$$
+
+and:
+
+$$
+\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).
+$$
+
+Each QuIC vector is checked to be:
+
+* descending sorted;
+* normalized to unit sum;
+* consistent with the expected census size.
+
+The constructed datasets contain:
+
+* 509 validated graphs at (n=14);
+* 4,060 validated graphs at (n=16).
+
+#### E2R validation gate
+
+Before the nonlinear grid is interpreted, the notebook reproduces the E2R linear-ridge diamond result using:
+
+* eigenvalues plus traces;
+* complete QuIC vectors;
+* the same outer folds;
+* the same ridge grid.
+
+The validation results are:
+
+| Census | Spectral (R^2) | QuIC gain (\Delta R^2) |
+| ------ | -------------: | ---------------------: |
+| (n=14) |          0.585 |               (+0.341) |
+| (n=16) |          0.636 |               (+0.310) |
+
+Both values reproduce the E2R record at displayed precision.
+
+The corresponding combined scores are:
+
+$$
+R^2_{\text{combined}}=0.926\quad\text{at }n=14,
+$$
+
+and:
+
+$$
+R^2_{\text{combined}}=0.946\quad\text{at }n=16.
+$$
+
+The same linear-stage gains are obtained when the QuIC representation is truncated to the first 1,000 coordinates:
+
+$$
+\Delta R^2=+0.341\quad\text{and}\quad+0.310.
+$$
+
+The nonlinear grid therefore compares first-stage spectral capacity at a QuIC depth that retains the complete observed diamond advantage.
+
+#### Diamond-count results
+
+##### (n=14)
+
+| Spectral features       | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| ----------------------- | -----------: | ---------------: | ---------: | ---------: |
+| Eigenvalues             |     (+0.425) |         (+0.119) |   (+0.111) |   (+0.050) |
+| Traces                  |     (+0.336) |         (+0.073) |   (+0.135) |   (+0.176) |
+| Eigenvalues plus traces |     (+0.341) |         (+0.108) |   (+0.099) |   (+0.064) |
+
+##### (n=16)
+
+| Spectral features       | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| ----------------------- | -----------: | ---------------: | ---------: | ---------: |
+| Eigenvalues             |     (+0.406) |         (+0.181) |   (+0.132) |   (+0.057) |
+| Traces                  |     (+0.386) |         (+0.188) |   (+0.145) |   (+0.195) |
+| Eigenvalues plus traces |     (+0.310) |         (+0.169) |   (+0.141) |   (+0.063) |
+
+The diamond gain remains positive in every tested cell:
+
+$$
+24/24.
+$$
+
+The smallest observed gains are:
+
+$$
+\Delta R^2=+0.050\quad\text{at }n=14,
+$$
+
+and:
+
+$$
+\Delta R^2=+0.057\quad\text{at }n=16.
+$$
+
+The nonlinear models substantially reduce the original linear-stage advantage, but they do not eliminate it.
+
+Using the complete spectral feature set, the gains are:
+
+| Census | Polynomial ridge | RBF kernel | ExtraTrees |
+| ------ | ---------------: | ---------: | ---------: |
+| (n=14) |         (+0.108) |   (+0.099) |   (+0.064) |
+| (n=16) |         (+0.169) |   (+0.141) |   (+0.063) |
+
+The persistence replicates across both exhaustive censuses and across three distinct nonlinear model families.
+
+#### RBF results with the complete spectral feature set
+
+The notebook reports full details for the RBF kernel model using eigenvalues plus traces.
+
+##### (n=14)
+
+| Quantity                  |   Result |
+| ------------------------- | -------: |
+| Spectral (R^2)            |    0.829 |
+| Spectral plus QuIC (R^2)  |    0.928 |
+| QuIC residual-space (R^2) |    0.581 |
+| QuIC alone (R^2)          |    0.993 |
+| QuIC gain (\Delta R^2)    | (+0.099) |
+
+The mean reduction in absolute held-out error is:
+
+$$
+0.0506,
+$$
+
+with graph-level bootstrap interval:
+
+$$
+[0.0381,0.0635].
+$$
+
+##### (n=16)
+
+| Quantity                  |   Result |
+| ------------------------- | -------: |
+| Spectral (R^2)            |    0.792 |
+| Spectral plus QuIC (R^2)  |    0.933 |
+| QuIC residual-space (R^2) |    0.668 |
+| QuIC alone (R^2)          |    0.996 |
+| QuIC gain (\Delta R^2)    | (+0.141) |
+
+The mean reduction in absolute held-out error is:
+
+$$
+0.0620,
+$$
+
+with graph-level bootstrap interval:
+
+$$
+[0.0574,0.0669].
+$$
+
+Both intervals remain entirely positive.
+
+The improvement is therefore not produced by a small number of extreme folds or graphs. Across the held-out predictions, the combined model reduces absolute error on average.
+
+#### Interpretation of the diamond result
+
+The nonlinear spectral models recover considerably more diamond information than the original linear model.
+
+At (n=14), for example, the RBF spectral score rises from:
+
+$$
+0.585
+$$
+
+to:
+
+$$
+0.829.
+$$
+
+The ExtraTrees score reported in the notebook’s dry-run record reaches:
+
+$$
+0.871.
+$$
+
+This confirms that a substantial portion of diamond count is encoded nonlinearly in the adjacency spectrum.
+
+QuIC nevertheless improves prediction beyond each tested nonlinear model.
+
+The strongest conclusion supported directly by E11 is:
+
+> QuIC provides predictive complementarity to the tested nonlinear spectral models for diamond count.
+
+E11 alone does not prove that the additional predictive signal lies outside the complete adjacency spectrum.
+
+At (n=14) and (n=16), the exact cospectral audit found no diamond variation within the available cospectral groups. Within these finite censuses, diamond count is therefore compatible with being a function of the complete spectrum, even if the tested models do not learn that function perfectly.
+
+The later (n=18) experiment supplies the direct information-theoretic witness. E14 identifies exact cospectral pairs with different diamond counts and shows that QuIC consistently ranks them.
+
+The experiments therefore play different roles:
+
+* E11 shows persistence beyond several strong nonlinear spectral predictors;
+* E14 shows that diamond count is not universally determined by the complete spectrum.
+
+#### Six-cycle results
+
+##### (n=14)
+
+| Spectral features       | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| ----------------------- | -----------: | ---------------: | ---------: | ---------: |
+| Eigenvalues             |     (+0.020) |         (+0.005) |   (+0.002) |   (+0.014) |
+| Traces                  |     (+0.014) |         (+0.003) |   (+0.006) |   (+0.003) |
+| Eigenvalues plus traces |     (+0.008) |         (-0.000) |   (+0.003) |   (-0.001) |
+
+##### (n=16)
+
+| Spectral features       | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| ----------------------- | -----------: | ---------------: | ---------: | ---------: |
+| Eigenvalues             |     (+0.072) |         (+0.013) |   (+0.004) |   (+0.034) |
+| Traces                  |     (+0.015) |         (+0.008) |   (+0.007) |   (+0.002) |
+| Eigenvalues plus traces |     (+0.012) |         (+0.005) |   (+0.006) |   (+0.027) |
+
+The C6 gains are small throughout the grid.
+
+Using eigenvalues plus traces, the nonlinear gains lie between approximately:
+
+$$
+-0.001\quad\text{and}\quad+0.027.
+$$
+
+At (n=14), the ExtraTrees combined-feature result is slightly negative:
+
+$$
+\Delta R^2=-0.001.
+$$
+
+The C6 residual therefore largely disappears once nonlinear spectral capacity is introduced.
+
+This contrasts sharply with diamond count, even though both quantities enter the sixth spectral moment through:
+
+$$
+C_6+D.
+$$
+
+The result suggests that the tested nonlinear spectral models can recover most of the predictable C6 component, while QuIC retains a more substantial advantage for the complementary diamond direction.
+
+The small C6 values should also be interpreted alongside E10, which found that the (n=16) full-vector C6 probe is sensitive to the inner cross-validation partition.
+
+E11 provides no strong evidence for robust C6 complementarity.
+
+#### Girth results
+
+##### (n=14)
+
+| Spectral features       | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| ----------------------- | -----------: | ---------------: | ---------: | ---------: |
+| Eigenvalues             |     (+0.284) |         (+0.071) |   (+0.139) |   (+0.110) |
+| Traces                  |     (+0.602) |         (+0.219) |   (+0.109) |   (+0.000) |
+| Eigenvalues plus traces |     (+0.223) |         (+0.072) |   (+0.091) |   (+0.001) |
+
+##### (n=16)
+
+| Spectral features       | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| ----------------------- | -----------: | ---------------: | ---------: | ---------: |
+| Eigenvalues             |     (+0.401) |         (+0.116) |   (+0.001) |   (+0.074) |
+| Traces                  |     (+0.615) |         (+0.296) |   (+0.001) |   (-0.000) |
+| Eigenvalues plus traces |     (+0.302) |         (+0.097) |   (+0.010) |   (+0.000) |
+
+The linear-stage girth gains are large:
+
+$$
+\Delta R^2=+0.223\quad\text{at }n=14,
+$$
+
+and:
+
+$$
+\Delta R^2=+0.302\quad\text{at }n=16
+$$
+
+using the complete spectral feature set.
+
+These gains shrink substantially as the spectral model becomes nonlinear.
+
+Under ExtraTrees with eigenvalues plus traces, the remaining gains are:
+
+$$
++0.001\quad\text{and}\quad+0.000.
+$$
+
+The RBF result at (n=16) is also only:
+
+$$
++0.010.
+$$
+
+The large linear E2R girth residual is therefore primarily a linearization effect. A flexible nonlinear spectral model recovers nearly all of the predictive advantage.
+
+The (n=14) RBF and eigenvalue-only ExtraTrees cells retain moderate positive gains, but the persistence depends strongly on the model and spectral feature set. It does not reproduce the uniform diamond pattern.
+
+#### Triangle control
+
+##### (n=14)
+
+| Spectral features       | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| ----------------------- | -----------: | ---------------: | ---------: | ---------: |
+| Eigenvalues             |     (+0.006) |         (+0.000) |   (-0.000) |   (+0.030) |
+| Traces                  |     (+0.000) |         (+0.000) |   (+0.000) |   (+0.000) |
+| Eigenvalues plus traces |     (+0.000) |         (+0.000) |   (+0.000) |   (-0.000) |
+
+##### (n=16)
+
+| Spectral features       | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| ----------------------- | -----------: | ---------------: | ---------: | ---------: |
+| Eigenvalues             |     (+0.006) |         (+0.000) |   (+0.000) |   (+0.013) |
+| Traces                  |     (+0.000) |         (+0.000) |   (+0.000) |   (-0.000) |
+| Eigenvalues plus traces |     (+0.000) |         (+0.000) |   (+0.000) |   (-0.000) |
+
+When trace moments are supplied, the QuIC gain is zero at displayed precision for every model.
+
+This is the expected result because:
+
+$$
+C_3=\frac{\text{tr}(A^3)}{6}.
+$$
+
+The triangle control shows that the residual pipeline does not generically add positive performance after an exact spectral coordinate has already solved the target.
+
+The small eigenvalue-only ExtraTrees gains do not undermine the control. They reflect imperfect learning from the sorted eigenvalues rather than missing information, since the eigenvalues determine the trace exactly.
+
+#### Target-specific comparison
+
+The complete-feature deltas provide the cleanest comparison.
+
+##### (n=14)
+
+| Target   | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| -------- | -----------: | ---------------: | ---------: | ---------: |
+| Diamonds |     (+0.341) |         (+0.108) |   (+0.099) |   (+0.064) |
+| (C_6)    |     (+0.008) |         (-0.000) |   (+0.003) |   (-0.001) |
+| Girth    |     (+0.223) |         (+0.072) |   (+0.091) |   (+0.001) |
+| (C_3)    |     (+0.000) |         (+0.000) |   (+0.000) |   (-0.000) |
+
+##### (n=16)
+
+| Target   | Linear ridge | Polynomial ridge | RBF kernel | ExtraTrees |
+| -------- | -----------: | ---------------: | ---------: | ---------: |
+| Diamonds |     (+0.310) |         (+0.169) |   (+0.141) |   (+0.063) |
+| (C_6)    |     (+0.012) |         (+0.005) |   (+0.006) |   (+0.027) |
+| Girth    |     (+0.302) |         (+0.097) |   (+0.010) |   (+0.000) |
+| (C_3)    |     (+0.000) |         (+0.000) |   (+0.000) |   (-0.000) |
+
+Diamond count is the only target with a substantial positive gain across:
+
+* both graph orders;
+* every model family;
+* every spectral feature set.
+
+C6 is largely spectral under the tested models.
+
+Girth is highly accessible from QuIC but its advantage over the spectrum mostly disappears once nonlinear spectral models are used.
+
+Triangle count behaves as an exact null control.
+
+The persistence is therefore target specific rather than a generic benefit of adding a second high-dimensional model.
+
+#### Model capacity and feature-set effects
+
+The diamond gain generally shrinks as the first-stage model becomes more expressive.
+
+Using eigenvalues plus traces at (n=14):
+
+$$
++0.341\rightarrow+0.108\rightarrow+0.099\rightarrow+0.064.
+$$
+
+At (n=16):
+
+$$
++0.310\rightarrow+0.169\rightarrow+0.141\rightarrow+0.063.
+$$
+
+The reduction is expected. Stronger spectral models absorb the portion of the target that can be predicted from spectral correlations.
+
+The remaining gain is not monotone across every feature-set row. For example, ExtraTrees using traces alone leaves a larger diamond residual than ExtraTrees using eigenvalues.
+
+This does not indicate that traces contain more spectral information. The complete eigenvalue vector determines every trace moment. It indicates that the model’s ability to exploit a representation depends on:
+
+* feature dimension;
+* scaling;
+* sample size;
+* and the selected hyperparameter family.
+
+The most informative cells are therefore those using the complete eigenvalue-plus-trace representation rather than the largest raw delta across all feature sets.
+
+#### Relationship to E2R, E10, and E14
+
+E2R established a large QuIC gain over a linear spectral first stage.
+
+E11 shows that the diamond gain becomes smaller but remains positive after introducing nonlinear spectral models.
+
+E10 established that the strong diamond probe:
+
+* reproduces across independent ridge implementations;
+* exceeds shuffled-target controls;
+* and depends on low-variance QuIC directions.
+
+E14 later supplies the direct exact-cospectral witness missing from E11. At (n=18), six exact cospectral pairs differ in diamond count and QuIC ranks all six correctly.
+
+Together, the experiments support a layered conclusion:
+
+1. **E2R:** QuIC predicts diamonds beyond a linear spectral readout.
+2. **E11:** QuIC improves upon several nonlinear spectral predictors.
+3. **E10:** the QuIC diamond probe is not a shuffled-target or solver artifact.
+4. **E14:** diamond count genuinely varies beyond the complete adjacency spectrum and QuIC aligns with that variation.
+
+E11 is therefore an adequacy test of practical nonlinear spectral baselines, while E14 supplies the information-theoretic separation.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The E2R diamond result reproduces.**
+
+   The full-vector validation gate recovers the recorded linear spectral scores and QuIC gains at both graph orders.
+
+2. **The first 1,000 QuIC probabilities retain the complete linear-stage diamond gain.**
+
+3. **Nonlinear spectral models recover substantial diamond structure.**
+
+   The spectral first-stage score rises well above the original linear baseline.
+
+4. **QuIC still improves every tested nonlinear diamond model.**
+
+   All 24 model, feature-set, and graph-order cells have positive (\Delta R^2).
+
+5. **The strongest complete-feature nonlinear baselines retain replicated QuIC gains.**
+
+   The RBF gains are (+0.099) and (+0.141), while the ExtraTrees gains are (+0.064) and (+0.063).
+
+6. **The RBF combined models reduce held-out absolute error at both graph orders.**
+
+   Both bootstrap intervals remain entirely positive.
+
+7. **The persistence is target specific.**
+
+   C6 gains are small, girth gains largely disappear under strong nonlinear models, and triangle gains are zero when its exact trace coordinate is supplied.
+
+8. **E11 establishes nonlinear predictive complementarity, not by itself information beyond the complete spectrum.**
+
+The experiment closes the linear-baseline objection while preserving the distinction between model inadequacy and genuine non-spectral information.
+
+#### Necessary qualifications
+
+The tested nonlinear models are strong practical baselines, but they do not exhaust all possible functions of the adjacency spectrum.
+
+Failure of:
+
+* polynomial ridge;
+* one RBF kernel grid;
+* or one ExtraTrees grid
+
+does not prove that no spectral function can recover the target.
+
+This qualification is particularly important at (n=14) and (n=16). The exact cospectral groups at these orders do not vary in diamond count. A sufficiently expressive spectral predictor could therefore, in principle, recover diamond count on these finite censuses.
+
+The direct beyond-spectrum claim depends on the later (n=18) exact-cospectral witnesses, not on E11 alone.
+
+The nonlinear hyperparameter grids are limited.
+
+The RBF search uses:
+
+$$
+\alpha\in{10^{-4},10^{-3},\ldots,10^1},
+$$
+
+and:
+
+$$
+\gamma\in{10^{-3},10^{-2},\ldots,10^1}.
+$$
+
+ExtraTrees tests:
+
+* three maximum-depth settings;
+* two minimum-leaf settings;
+* 300 trees.
+
+A larger or differently regularized search could change the first-stage ceilings.
+
+The preprocessing is not fully nested within the internal hyperparameter searches. The `StandardScaler` is fitted before `RidgeCV` or `GridSearchCV` performs its internal folds.
+
+This introduces mild unsupervised leakage within the outer training set during hyperparameter selection. It does not expose outer test data, but a stricter implementation would place preprocessing inside the inner cross-validation estimator.
+
+The trace moments are redundant once the complete eigenvalue vector is available. Their inclusion reproduces E2R and supplies direct low-order coordinates, but eigenvalues plus traces do not contain more information than the eigenvalues alone.
+
+The graph-level bootstrap resamples fixed out-of-fold errors. It does not retrain the spectral and QuIC models within each bootstrap draw.
+
+The intervals therefore quantify variation across held-out graph errors under the fitted cross-validation procedure, not the complete uncertainty from model refitting and fold selection.
+
+The notebook evaluates:
+
+$$
+4\text{ targets}\times3\text{ feature sets}\times4\text{ models}\times2\text{ graph orders}.
+$$
+
+No multiple-comparison correction is applied. The primary diamond hypothesis and the complete-feature RBF and ExtraTrees cells were identified in advance, but small secondary differences should remain descriptive.
+
+The ridge residual stage uses the same near-zero regularization grid examined in E10. The diamond result survived shuffled-target controls there, but E11 does not repeat those controls for every nonlinear first-stage model.
+
+The nonlinear spectral models and the QuIC residual model are not matched in representational dimension or computational cost. The experiment evaluates predictive adequacy rather than resource efficiency.
+
+All analyses use exact ideal probabilities. E7S shows that the corresponding structural information is not necessarily accessible at practical shot budgets.
+
+Finally, the experiment concerns:
+
+* connected cubic graphs;
+* (n=14) and (n=16);
+* one canonical circuit configuration;
+* one fixed QuIC truncation depth.
+
+The result should not be generalized to arbitrary graph families or circuit parameters.
+
+#### Overall assessment
+
+E11 resolves the principal weakness of the original spectral-residual experiment.
+
+The diamond advantage is not merely an artifact of comparing QuIC with linear regression on spectral features. Polynomial ridge, RBF kernel regression, and ExtraTrees all recover additional nonlinear spectral structure, but QuIC continues to improve held-out prediction.
+
+Using eigenvalues plus trace moments, the QuIC gains remain:
+
+$$
++0.099\quad\text{and}\quad+0.141
+$$
+
+over the RBF models, and:
+
+$$
++0.064\quad\text{and}\quad+0.063
+$$
+
+over ExtraTrees.
+
+The result replicates across both complete cubic censuses. The paired absolute-error reductions under the RBF models are also positive with nonoverlapping-zero bootstrap intervals.
+
+The controls sharpen the interpretation. C6 gains nearly vanish, girth gains largely collapse under nonlinear spectral models, and triangle count shows no residual once its exact spectral coordinate is included. The diamond persistence is therefore target specific rather than a generic consequence of stacking QuIC after another model.
+
+E11 should not be presented as standalone proof that QuIC contains information outside the complete spectrum. At these graph orders, the exact cospectral classes do not vary in diamond count. The experiment instead demonstrates robust complementarity to the tested nonlinear spectral predictors. E14 later supplies the direct exact-cospectral proof.
+
+The appropriate central claim is:
+
+> Across the exhaustive connected cubic censuses at (n=14) and (n=16), QuIC improves diamond-count prediction beyond linear ridge, polynomial ridge, RBF kernel, and ExtraTrees models trained on adjacency eigenvalues and trace moments. The gain remains positive in all 24 tested diamond configurations and replicates at approximately (+0.06) to (+0.14) over the strongest complete-feature nonlinear baselines. The effect is target specific: C6 residual gains are negligible, girth gains largely disappear under nonlinear spectral models, and triangle gains vanish when its exact trace coordinate is supplied. E11 therefore establishes predictive complementarity to strong nonlinear spectral baselines, while the later exact-cospectral witnesses are required for the stronger beyond-spectrum claim.
 
 
 ### E13 - Truncation Decomposition and Completed Cospectral Tracer
