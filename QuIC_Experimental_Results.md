@@ -18195,3 +18195,804 @@ The appropriate central claim is:
 
 > Under the exact E14N ranking protocol, cumulative folklore 2-WL substantially outperforms QuIC on Wiener-index ordering within exact adjacency-cospectral classes. It reaches group-balanced accuracies of (0.904) and (0.878), compared with (0.603) and (0.607) for QuIC, and its aggregate advantage has a group-bootstrap interval of ([0.223,0.348]). The automorphism-order comparison remains unresolved: cumulative folklore 2-WL has a slightly higher point estimate, but both representations are split asymmetric and the aggregate difference is compatible with zero. E24C therefore establishes a strong classical advantage for global metric geometry, not universal dominance over QuIC’s non-spectral residue.
 
+
+
+### E25 - Degree-Typed Structural Decodability
+
+#### Experimental design
+
+E25 asks what structural information dominates QuIC’s geometry after leaving the regular-graph manifold.
+
+The experiment reuses the four fixed-degree-sequence strata produced in E6:
+
+| Stratum         | Locked degree sequence | Graphs | Edges |
+| --------------- | ---------------------- | -----: | ----: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$   |    400 |    21 |
+| S2 bimodal      | $$(4^7,2^7)$$          |    400 |    21 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$  |    400 |    22 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$  |    400 |    22 |
+
+Every comparison is performed within one stratum.
+
+The degree multiset is therefore constant across all 400 graphs in that stratum. Any variation in degree-typed structure arises from how vertices of the fixed degree classes are connected, not from variation in:
+
+* the number of vertices of each degree;
+* the total number of edges;
+* or the degree sequence itself.
+
+The central question is whether the off-regular QuIC representation is organized primarily by:
+
+* ordinary cycle totals;
+* or degree-conditioned topology such as assortative and disassortative edge mixing.
+
+#### Representation inherited from E6
+
+E25 does not run a new circuit.
+
+It consumes the exact sorted probability vectors stored by the E6 producer and retains the first:
+
+$$k=1000$$
+
+coordinates.
+
+The resulting feature matrix has shape:
+
+$$400\times1000$$
+
+within every stratum.
+
+The E6 representation uses the **flat encoder**:
+
+$$R_X(2.875)^{\otimes14},$$
+
+followed by:
+
+* edgewise $$R_{ZZ}(2.0)$$ entanglers;
+* a uniform $$R_X(0.1)$$ mixer;
+* one entangler–mixer repetition.
+
+Degrees are not supplied to the circuit as node features.
+
+This distinction is important. High decodability of degree-mixing statistics cannot be attributed to directly rotating each vertex according to its degree. It must emerge from the interaction between:
+
+* the common flat initial state;
+* the graph’s edge pattern;
+* and the sorted probability readout.
+
+#### Degree-typed target families
+
+E25 constructs three target families from each graph.
+
+##### Joint-degree edge counts
+
+For degree classes $$a\le b$$:
+
+$$M_{ab}=#{uv\in E:{\deg u,\deg v}={a,b}}.$$
+
+These counts form the joint-degree or degree-mixing matrix.
+
+They distinguish, for example:
+
+* low-degree to low-degree edges;
+* low-degree to high-degree edges;
+* and high-degree to high-degree edges.
+
+##### Degree-typed triangles
+
+For degree classes $$a\le b\le c$$:
+
+$$T_{abc}=#{\text{triangles whose vertex-degree multiset is }(a,b,c)}.$$
+
+The typed counts partition the ordinary triangle total:
+
+$$C_3=\sum_{a\le b\le c}T_{abc}.$$
+
+##### Degree-typed induced 4-cycles
+
+Each chordless 4-cycle is typed by the cyclic order of its vertex degrees.
+
+The degree ring is canonicalized over its eight dihedral symmetries:
+
+* four rotations;
+* two orientations.
+
+The degrees are not simply sorted, because sorting would discard whether two degree classes occur:
+
+* adjacent on the cycle;
+* or opposite one another.
+
+The typed counts partition the induced 4-cycle total:
+
+$$C_4^{\text{induced}}=\sum_{\tau}C_{4,\tau}^{\text{induced}}.$$
+
+This is not the same target as the producer’s ordinary 4-cycle count, which includes 4-cycles contained in chorded four-vertex subgraphs.
+
+#### Typed-feature inventory
+
+Every observed typed column varies within its stratum. No constant typed column is dropped.
+
+| Stratum         | Varying edge types | Varying triangle types | Varying induced-C4 types |
+| --------------- | -----------------: | ---------------------: | -----------------------: |
+| S1 near regular |                  6 |                      7 |                       14 |
+| S2 bimodal      |                  3 |                      3 |                        5 |
+| S3 skewed       |                 10 |                     17 |                       44 |
+| S4 hub          |                  9 |                     14 |                       29 |
+
+The number of columns should not be interpreted as the number of independent structural degrees of freedom.
+
+For every degree class $$a$$ with $$n_a$$ vertices:
+
+$$2M_{aa}+\sum_{b\ne a}M_{ab}=an_a.$$
+
+Because the degree sequence is fixed, the right-hand side is constant.
+
+The edge-type columns are therefore linearly constrained.
+
+Their maximum unconstrained dimensions are approximately:
+
+| Stratum | Edge-type columns | Degree-class constraints | Maximum free dimensions |
+| ------- | ----------------: | -----------------------: | ----------------------: |
+| S1      |                 6 |                        3 |                       3 |
+| S2      |                 3 |                        2 |                       1 |
+| S3      |                10 |                        4 |                       6 |
+| S4      |                 9 |                        4 |                       5 |
+
+In S2, for example, the three nearly perfectly decoded edge counts describe only one independent mixing coordinate.
+
+#### Integrity gates
+
+The notebook verifies for all 1,600 graphs that:
+
+* each adjacency matrix has the locked degree sequence;
+* each stored probability vector has dimension $$2^{14}=16{,}384$$;
+* each probability vector is descending sorted;
+* each vector sums to one;
+* the stored triangle and 4-cycle targets satisfy their trace identities.
+
+The identities are:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+The typed-triangle rows are also verified to sum exactly to the stored triangle totals for every graph:
+
+$$\sum_{a,b,c}T_{abc}=C_3.$$
+
+The typed induced-4-cycle rows are verified to sum to their computed induced-cycle totals for every graph.
+
+The induced-cycle implementation is additionally compared with brute-force four-vertex-subset enumeration on 60 graphs distributed across the four strata.
+
+#### Linear decodability protocol
+
+Each target is predicted from the same top-1,000 QuIC head.
+
+The notebook uses:
+
+* five shuffled outer folds;
+* fixed seed zero;
+* per-outer-fold standardization;
+* ridge regression;
+* regularization grid:
+
+$$\alpha_{\text{ridge}}\in{10^{-14},10^{-13},\ldots,10^2}.$$
+
+Predictions are assembled out of fold, and one global out-of-fold score is computed:
+
+$$R^2_{\text{OOF}}=1-\frac{\sum_i(y_i-\widehat y_i)^2}{\sum_i(y_i-\overline y)^2}.$$
+
+A synthetic null target produces:
+
+$$R^2=-0.150,$$
+
+while a target constructed as a linear combination of QuIC coordinates produces:
+
+$$R^2=0.988.$$
+
+The calibration supports the basic functioning of the probe.
+
+#### Total-count decodability
+
+The direct cycle-total scores are:
+
+| Stratum         | $$C_3$$ | Producer $$C_4$$ |  $$C_5$$ | Induced $$C_4$$ total |
+| --------------- | ------: | ---------------: | -------: | --------------------: |
+| S1 near regular |   0.707 |            0.370 | (-0.115) |                 0.424 |
+| S2 bimodal      |   0.957 |         (-0.603) | (-0.409) |                 0.155 |
+| S3 skewed       |   0.148 |         (-0.008) | (-0.141) |                 0.023 |
+| S4 hub          |   0.622 |            0.125 |    0.005 |                 0.294 |
+
+The mean across $$C_3$$, producer $$C_4$$, and $$C_5$$ is:
+
+| Stratum         | Mean cycle-total $$R^2$$ |
+| --------------- | -----------------------: |
+| S1 near regular |                    0.321 |
+| S2 bimodal      |                 (-0.018) |
+| S3 skewed       |      approximately 0.000 |
+| S4 hub          |                    0.250 |
+
+The ordinary cycle totals are therefore highly stratum dependent.
+
+Triangle count remains accessible in S1, S2, and S4, while 4- and 5-cycle totals are generally weak.
+
+#### Q1 - Joint-degree edge decodability
+
+The joint-degree edge counts are nearly perfectly decodable in every stratum.
+
+| Stratum         | Mean $$M_{ab}$$ $$R^2$$ | Minimum typed $$R^2$$ | Maximum typed $$R^2$$ | Mean cycle-total $$R^2$$ |
+| --------------- | ----------------------: | --------------------: | --------------------: | -----------------------: |
+| S1 near regular |                   0.983 |                  0.96 |                  1.00 |                    0.321 |
+| S2 bimodal      |                   0.998 |    approximately 1.00 |    approximately 1.00 |                 (-0.018) |
+| S3 skewed       |                   0.954 |                  0.86 |                  0.99 |      approximately 0.000 |
+| S4 hub          |                   0.976 |                  0.94 |                  0.99 |                    0.250 |
+
+Every stratum shows the same large separation:
+
+$$\text{mean }R^2(M_{ab})\gg\text{mean }R^2(C_3,C_4,C_5).$$
+
+The contrast is largest in S2 and S3.
+
+##### S1 near regular
+
+The six edge-type scores range from:
+
+$$0.96\text{ to }1.00.$$
+
+The strongest coordinate is $$M_{24}$$ at approximately one.
+
+##### S2 bimodal
+
+All three edge types are effectively exact:
+
+$$R^2_{22}\approx R^2_{24}\approx R^2_{44}\approx1.$$
+
+Because the degree sequence is fixed, these three counts are constrained to one free mixing coordinate. The result establishes near-perfect recovery of that coordinate rather than three independent discoveries.
+
+##### S3 skewed
+
+Ten degree-pair types are evaluated.
+
+Even the weakest types remain strongly predictable:
+
+$$R^2_{55}=0.86,\qquad R^2_{25}=0.90.$$
+
+Most other pair types lie between:
+
+$$0.96\text{ and }0.99.$$
+
+##### S4 hub
+
+All nine varying degree-pair types score between:
+
+$$0.94\text{ and }0.99.$$
+
+Edges incident to the degree-six hub remain strongly accessible, including:
+
+$$R^2_{26}=0.97,\qquad R^2_{36}=0.96,\qquad R^2_{46}=0.94.$$
+
+#### Interpretation of Q1
+
+Q1 is strongly supported.
+
+The flat-encoder sorted QuIC representation exposes how fixed degree classes connect to one another much more directly than it exposes ordinary cycle totals.
+
+This result is not caused by degree-sequence leakage.
+
+Within each stratum:
+
+* every graph has the same degree sequence;
+* every graph uses the same flat initial rotation;
+* every graph has the same number of edges.
+
+The varying object is the assignment of edges among degree classes.
+
+The strongest supported interpretation is:
+
+> Off the regular manifold, the dominant sorted QuIC geometry tracks joint-degree topology rather than untyped cycle totals.
+
+This helps explain why the regular-graph cycle hierarchy does not transfer cleanly to E6.
+
+On a regular graph, all edges have the same degree type. The joint-degree matrix collapses to one constant entry and cannot compete with cycle structure.
+
+On a nonregular graph, degree mixing becomes a large source of structural variation, and QuIC organizes that variation very strongly.
+
+#### Q2 - Degree-typed triangles
+
+The mean typed-triangle scores are:
+
+| Stratum         | Mean typed-triangle $$R^2$$ | Direct $$C_3$$ $$R^2$$ | Typed-minus-total |
+| --------------- | --------------------------: | ---------------------: | ----------------: |
+| S1 near regular |                       0.486 |                  0.707 |          (-0.221) |
+| S2 bimodal      |                       0.845 |                  0.957 |          (-0.112) |
+| S3 skewed       |                       0.187 |                  0.148 |          (+0.039) |
+| S4 hub          |                       0.322 |                  0.622 |          (-0.300) |
+
+Typed triangles do not generally outperform total triangle count.
+
+Only S3 has a positive mean difference, and that difference is small:
+
+$$0.187-0.148=0.039.$$
+
+The individual typed targets vary widely.
+
+##### S1 near regular
+
+The all-degree-three triangle type is highly accessible:
+
+$$R^2_{333}=0.96.$$
+
+Mixed low-degree types can be weak or negative:
+
+$$R^2_{223}=-0.24.$$
+
+##### S2 bimodal
+
+The triangle types are all substantially accessible:
+
+$$R^2_{224}=0.61,$$
+
+$$R^2_{244}=0.94,$$
+
+$$R^2_{444}=0.99.$$
+
+The total triangle count remains stronger than their mean.
+
+##### S3 skewed
+
+Many low-degree triangle types are at or below the prediction floor.
+
+The strongest types involve higher-degree vertices, including:
+
+$$R^2_{335}=0.57,$$
+
+$$R^2_{355}=0.56.$$
+
+##### S4 hub
+
+Triangle types involving the hub are among the strongest:
+
+$$R^2_{336}=0.71,$$
+
+$$R^2_{446}=0.71.$$
+
+Several low-degree types remain weak or negative.
+
+#### Interpretation of Q2
+
+Q2 is not supported as a general statement.
+
+QuIC does encode selected degree-typed triangle structures, especially types involving high-degree vertices. However, decomposing triangles by degree does not generally make the family easier to decode than the total triangle count.
+
+The triangle results therefore do not explain the off-regular failure through a universal hidden typed-cycle hierarchy.
+
+They support a narrower observation:
+
+> Degree typing reveals which triangle configurations are accessible, but total triangle count is usually at least as predictable as the average typed component.
+
+#### Degree-typed induced 4-cycles
+
+The mean decodability of individual induced-4-cycle types is:
+
+| Stratum         | Varying induced-C4 types | Mean typed $$R^2$$ |
+| --------------- | -----------------------: | -----------------: |
+| S1 near regular |                       14 |              0.102 |
+| S2 bimodal      |                        5 |           (-0.118) |
+| S3 skewed       |                       44 |           (-0.014) |
+| S4 hub          |                       29 |              0.050 |
+
+Unlike joint-degree edge counts, degree-typed induced 4-cycles are generally weak.
+
+The large number of cycle types in S3 and S4 does not produce strong average accessibility.
+
+Many of these targets are sparse count variables with limited within-stratum support. Their negative out-of-fold scores indicate that the ridge model often performs worse than the global mean predictor.
+
+The contrast is sharp:
+
+$$\text{edge degree mixing is highly accessible, while degree-typed induced 4-cycles are not.}$$
+
+#### Q3 - Cancellation test
+
+Q3 tests whether weak direct prediction of a total arises because separately accessible typed components cancel when the total is modeled directly.
+
+Each typed column is decoded separately under the same outer folds. Their aligned out-of-fold predictions are then summed and compared with direct prediction of the corresponding total.
+
+##### Triangle totals
+
+| Stratum         | Direct $$C_3$$ | Sum of typed predictions |     Lift |
+| --------------- | -------------: | -----------------------: | -------: |
+| S1 near regular |          0.707 |                    0.711 | (+0.004) |
+| S2 bimodal      |          0.957 |                    0.950 | (-0.007) |
+| S3 skewed       |          0.148 |                    0.129 | (-0.020) |
+| S4 hub          |          0.622 |                    0.623 | (+0.001) |
+
+The summed typed prediction provides no meaningful triangle improvement.
+
+All differences lie between:
+
+$$-0.020\text{ and }+0.004.$$
+
+##### Induced 4-cycle totals
+
+| Stratum         | Direct induced $$C_4$$ | Sum of typed predictions |                Lift |
+| --------------- | ---------------------: | -----------------------: | ------------------: |
+| S1 near regular |                  0.424 |                    0.422 |            (-0.002) |
+| S2 bimodal      |                  0.155 |                    0.354 |            (+0.199) |
+| S3 skewed       |                  0.023 |                    0.023 | approximately 0.000 |
+| S4 hub          |                  0.294 |                    0.294 | approximately 0.000 |
+
+Only S2 shows a substantial positive lift:
+
+$$0.354-0.155=0.199.$$
+
+The other three strata show no improvement.
+
+#### Interpretation of Q3
+
+The proposed cancellation mechanism is not generally supported.
+
+For triangles, separate typed regressions reconstruct essentially the same score as direct total regression.
+
+For induced 4-cycles, only the bimodal stratum shows the predicted behavior.
+
+Even in S2, the result is not a pure proof of cancellation. Each typed model selects and regularizes its coefficients separately before the predictions are summed. The improvement can arise from:
+
+* target decomposition;
+* component-specific regularization;
+* or a genuine cancellation structure.
+
+The valid conclusion is:
+
+> Typed decomposition materially improves induced-4-cycle reconstruction in the bimodal stratum, but cancellation is not a general explanation for weak cycle-total decoding.
+
+#### Q4 - Principal-component alignment
+
+E25 standardizes the 1,000 QuIC coordinates and performs PCA within each stratum.
+
+For each of the first five components, it measures alignment with:
+
+1. the joint-degree edge-count block $${M_{ab}}$$;
+2. the cycle-total block $${C_3,C_4,C_5}$$.
+
+Two alignment statistics are reported:
+
+* in-sample multiple-regression $$R^2$$ from the complete block;
+* the largest absolute correlation with any single target column.
+
+The first five standardized-head PCs explain:
+
+| Stratum         | Variance explained by first five PCs |
+| --------------- | -----------------------------------: |
+| S1 near regular |                                67.6% |
+| S2 bimodal      |                                70.9% |
+| S3 skewed       |                                73.2% |
+| S4 hub          |                                72.1% |
+
+The variance-weighted block alignments are:
+
+| Stratum         | Degree-mixing block $$R^2$$ | Cycle-total block $$R^2$$ |
+| --------------- | --------------------------: | ------------------------: |
+| S1 near regular |                       0.556 |                     0.046 |
+| S2 bimodal      |                       0.469 |                     0.421 |
+| S3 skewed       |                       0.661 |                     0.052 |
+| S4 hub          |                       0.635 |                     0.057 |
+
+#### S1 principal components
+
+The first component explains:
+
+$$23.1%$$
+
+of standardized-head variance.
+
+Its degree-mixing block alignment is:
+
+$$R^2=0.814,$$
+
+with best single-type correlation:
+
+$$|r|=0.886.$$
+
+The corresponding cycle-total values are only:
+
+$$R^2=0.016,\qquad |r|=0.113.$$
+
+The second component also favors degree mixing:
+
+$$R^2_{\text{mix}}=0.607,\qquad R^2_{\text{cycle}}=0.065.$$
+
+#### S2 principal components
+
+S2 is the important exception to a simple degree-mixing-only story.
+
+PC1 explains:
+
+$$40.9%$$
+
+of the standardized variance and is strongly aligned with degree mixing:
+
+$$R^2_{\text{mix}}=0.757.$$
+
+However, it also aligns with the cycle-total block:
+
+$$R^2_{\text{cycle}}=0.541.$$
+
+PC2 is more strongly cycle aligned:
+
+$$R^2_{\text{cycle}}=0.596,$$
+
+compared with:
+
+$$R^2_{\text{mix}}=0.082.$$
+
+The five-PC weighted summaries are therefore close:
+
+$$0.469\text{ versus }0.421.$$
+
+S2 contains a joint degree-mixing and cycle-total geometry rather than a clean dominance of one block.
+
+#### S3 principal components
+
+All first five components align more strongly with the degree-mixing block.
+
+The variance-weighted values are:
+
+$$R^2_{\text{mix}}=0.661,$$
+
+and:
+
+$$R^2_{\text{cycle}}=0.052.$$
+
+The first component alone has:
+
+$$R^2_{\text{mix}}=0.734,$$
+
+compared with:
+
+$$R^2_{\text{cycle}}=0.064.$$
+
+#### S4 principal components
+
+The degree-mixing block again dominates:
+
+$$R^2_{\text{mix}}=0.635,$$
+
+compared with:
+
+$$R^2_{\text{cycle}}=0.057.$$
+
+PC2 and PC3 have particularly strong mixing alignments:
+
+$$0.828\quad\text{and}\quad0.778.$$
+
+#### Interpretation of Q4
+
+Q4 is strongly supported in S1, S3, and S4.
+
+The leading standardized-head directions are much better explained by joint-degree mixing than by the three ordinary cycle totals.
+
+S2 remains mixed. Its dominant component contains both degree-mixing and cycle information, and its second component favors cycle totals.
+
+The dimension-fair single-column correlations support the main block result. The degree-mixing advantage is not solely caused by fitting more predictor columns in the multiple-regression comparison.
+
+The appropriate conclusion is:
+
+> Degree mixing dominates the leading standardized QuIC directions in three of four nonregular strata, while the bimodal stratum contains a more entangled degree-mixing and cycle-total geometry.
+
+#### Relationship to E6
+
+E6 showed that ordinary structural targets degrade sharply after leaving the regular manifold.
+
+The flat-encoder aggregate results were weak for:
+
+* 4-cycles;
+* 5-cycles;
+* 6-cycles;
+* girth;
+* diameter;
+* and several metric targets.
+
+E25 shows that the representation is not generally structure free.
+
+Instead, it carries an exceptionally strong description of how degree classes connect.
+
+This reframes the E6 result.
+
+The regular graph hierarchy does not simply disappear because QuIC loses structural information. The dominant structural axis changes.
+
+On regular graphs:
+
+* every vertex has one degree;
+* every edge has the same degree-pair type;
+* degree mixing is constant;
+* cycle structure becomes the principal varying signal.
+
+On fixed-degree-sequence nonregular graphs:
+
+* the degree multiset remains fixed;
+* the edge-type mixing pattern varies;
+* that mixing pattern dominates the sorted representation.
+
+E25 therefore supplies a plausible representation-level explanation for regularity dependence.
+
+#### Relationship to E6D
+
+E6D applied the normalized degree encoder to the same four strata and found weaker ordinary-target decoding than the flat encoder.
+
+E25 makes that result less paradoxical.
+
+The flat encoder already captures degree mixing through topology. Explicit degree-dependent rotations need not reveal a new clean structural coordinate; they can instead alter or disrupt the interference geometry that made degree mixing accessible.
+
+E25 does not directly decode the typed targets from E6D’s degree-encoded vectors, so this remains an interpretation rather than a tested comparison.
+
+A direct flat-versus-degree-encoded typed-target audit would be required to determine whether E6D preserves, strengthens, or destroys the near-perfect $$M_{ab}$$ accessibility.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The flat-encoder E6 representation contains highly accessible degree-mixing structure.**
+
+2. **Joint-degree edge counts are nearly perfectly decodable in every stratum.**
+
+   Mean typed scores range from:
+
+   $$0.954\text{ to }0.998.$$
+
+3. **The result cannot be attributed to variation in degree sequence.**
+
+   Every comparison occurs within a fixed-degree-sequence stratum.
+
+4. **The result cannot be attributed to direct degree encoding.**
+
+   E6 uses the same flat initial rotation on every vertex.
+
+5. **Joint-degree edge counts are much more accessible than ordinary cycle totals.**
+
+6. **Degree-typed triangles do not generally outperform total triangle count.**
+
+7. **Degree-typed induced 4-cycles are mostly weakly decodable.**
+
+8. **The cancellation hypothesis receives only isolated support.**
+
+   A substantial lift appears only for induced 4-cycles in S2.
+
+9. **The leading standardized QuIC PCs align predominantly with degree mixing in S1, S3, and S4.**
+
+10. **S2 contains both degree-mixing and cycle-total structure.**
+
+11. **The regularity effect can be interpreted as a change in the dominant structural coordinates rather than a complete loss of structure.**
+
+E25 therefore supports a degree-mixing explanation for QuIC’s off-regular geometry, but not a broad hidden typed-cycle hierarchy.
+
+#### Necessary qualifications
+
+The E25 probe is not identical to the original E6 probe.
+
+E6 used:
+
+* raw QuIC coordinates;
+* explicit outer-fold fitting;
+* `RidgeCV(cv=5)` inside each outer training fold;
+* mean test-fold $$R^2$$.
+
+E25 uses:
+
+* standardized QuIC coordinates;
+* `RidgeCV` with its default internal generalized cross-validation behavior;
+* `cross_val_predict`;
+* one pooled out-of-fold $$R^2$$.
+
+These choices can materially change high-dimensional QuIC results.
+
+E25’s within-notebook typed-versus-total comparisons are controlled because every target uses the same E25 procedure. Its numerical scores should not be described as direct reproductions of E6 or compared cell by cell with E6’s published values.
+
+A paper-facing version should rerun the principal E25 targets under the exact E6 protocol.
+
+The notebook states that the typed-versus-total comparison is invariant to the choice of head depth and regularization grid because both sides use the same settings.
+
+That is too strong.
+
+Using the same settings makes the comparison controlled, but different targets can respond differently to:
+
+* truncation depth;
+* standardization;
+* alpha selection;
+* and feature dimension.
+
+The result is demonstrated at:
+
+$$k=1000,$$
+
+not proven invariant to other depths.
+
+The near-perfect edge-type scores are not statistically independent.
+
+Fixed degree sequences impose linear constraints on the $$M_{ab}$$ columns. Mean typed $$R^2$$ therefore counts several redundant descriptions of a lower-dimensional mixing space.
+
+The S2 result is the clearest case: three nearly exact edge counts describe only one free coordinate.
+
+A cleaner block-level result would predict an independent basis of the joint-degree matrix or report multivariate reconstruction error after removing the fixed stub constraints.
+
+The mean typed-triangle and typed-cycle scores also average targets with different:
+
+* variances;
+* count ranges;
+* sparsity;
+* and frequencies.
+
+A mean over typed columns is descriptive rather than a formally balanced family statistic.
+
+No target-distribution table is printed.
+
+The PCA block regressions are in sample.
+
+They do not use held-out graphs or adjusted $$R^2$$. The degree-mixing block also contains more columns than the three-variable cycle block in most strata.
+
+The best-single-column correlations reduce but do not eliminate this concern.
+
+PCA is applied after standardizing every QuIC rank coordinate to unit variance.
+
+The reported components are therefore leading components of the correlation-standardized head, not leading variance directions of the natural raw probability representation.
+
+The phrase “high-variance QuIC PCs” should be qualified accordingly.
+
+The first-five-PC weighted summaries normalize within the first five components. They do not measure alignment over the remaining approximately 27%–32% of standardized variance.
+
+The Q3 summed prediction uses separately fitted and separately regularized models for every typed column.
+
+A lift can reflect component-specific regularization rather than literal cancellation in a common linear model.
+
+A more direct cancellation analysis would jointly fit the typed vector or analytically decompose one common coefficient model.
+
+The induced-4-cycle typing is validated against brute-force enumeration on 60 graphs rather than all 1,600 graphs. Row-wise reconciliation is checked for every graph, but that only confirms consistency with the typed counter’s own total.
+
+The all-4-cycle robustness variant is defined but not executed.
+
+The notebook therefore establishes results for chordless 4-cycles only.
+
+The producer’s $$C_4$$ target includes all 4-cycles, while the typed total in Q3 contains induced 4-cycles. These targets should remain clearly distinguished.
+
+E25 does not compare QuIC with:
+
+* the adjacency spectrum;
+* trace moments;
+* folklore 2-WL;
+* direct graph statistics;
+* or a simple model trained on alternative representations.
+
+The experiment shows that degree mixing is linearly accessible from QuIC. It does not show that this information is uniquely quantum, non-spectral, or difficult for classical methods.
+
+The four strata are sampled sets of 400 degree-preserving-switch graphs, not exhaustive fixed-degree-sequence censuses.
+
+The sampling and deduplication procedure can influence the distribution of mixing patterns.
+
+No confidence intervals, permutation tests, or paired inferential comparisons are reported across the many typed targets.
+
+Finally, all representations use exact ideal probabilities. The finite-shot accessibility of the degree-mixing coordinates is unknown.
+
+#### Overall assessment
+
+E25 provides a strong explanation for the apparent loss of QuIC’s cycle hierarchy outside regular graphs.
+
+The flat-encoder representation does not become unstructured. It becomes organized around a different structural object.
+
+Across four fixed-degree-sequence strata, joint-degree edge counts are decoded with mean scores between:
+
+$$0.954\quad\text{and}\quad0.998.$$
+
+The corresponding ordinary cycle-total means range only from approximately:
+
+$$-0.018\quad\text{to}\quad0.321.$$
+
+The leading standardized QuIC directions also align far more strongly with degree mixing than with cycle totals in S1, S3, and S4. The bimodal stratum contains a mixed geometry but still yields effectively exact recovery of its single independent edge-mixing coordinate.
+
+The typed-cycle diagnostics are weaker.
+
+Typed triangles usually underperform total triangle count. Degree-typed induced 4-cycles remain near the prediction floor. Summing typed predictions provides a substantial improvement only for induced 4-cycles in the bimodal stratum.
+
+The experiment therefore supports a specific structural interpretation rather than a general typed-motif claim:
+
+> On fixed-degree-sequence nonregular graphs, the flat-encoder sorted QuIC representation is dominated by joint-degree mixing. Edge counts between degree classes are nearly perfectly linearly accessible despite degrees never being supplied to the circuit, while ordinary and degree-typed cycle counts are much less consistently decoded. The leading standardized representation directions likewise align primarily with degree mixing in three of four strata. Regularity does not merely strengthen QuIC; it removes degree-mixing variation, allowing cycle structure to become the dominant geometry.
+
