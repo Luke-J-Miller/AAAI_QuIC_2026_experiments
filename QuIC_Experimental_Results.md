@@ -15207,6 +15207,661 @@ The appropriate central claim is:
 
 > QuIC’s strong structural accessibility transfers beyond cubic graphs to the complete connected 4-regular (n=12) census. Triangle and 4-cycle counts remain essentially exact, while 5-cycle, 6-cycle, and diamond counts remain strongly decodable, although their relative ordering changes across regularities. The same canonical circuit collapses on the complete mixed-degree (n=8) census even under full-vector decoding. Regularity therefore appears to support the organized probability geometry, but it does not impose one universal cycle hierarchy. A QAOA-style baseline shows the same broad regularity dependence, while QuIC provides stronger target-specific accessibility within the regular regime.
 
+### E23 - Invariantization by Sorting
+
+#### Experimental design
+
+E23 compares four ways of converting the same canonical QuIC circuit into a graph representation.
+
+The experiment uses two complete graph censuses:
+
+* **509 connected cubic graphs at (n=14)**;
+* **11,117 connected graphs at (n=8)**.
+
+The circuit uses the corrected canonical encoder:
+
+$$R_X\left(2.875\frac{d_i}{\Delta}\right),$$
+
+followed by:
+
+* edgewise (R_{ZZ}(2.0)) entanglers;
+* a uniform (R_X(0.1)) mixer;
+* one entangler–mixer repetition.
+
+For each graph, the circuit first produces the raw computational-basis probability vector:
+
+$$\mathbf p(G)\in\mathbb R^{2^n}.$$
+
+The four readout constructions are:
+
+1. **Canonical raw**
+
+   The graph is placed in a nauty canonical labeling before the circuit is built. The unsorted probability vector is then retained with its computational-basis coordinates.
+
+2. **Random-label raw**
+
+   Each graph is independently relabeled before the circuit is built. The raw probability coordinates are retained without alignment across graphs.
+
+   Five independently seeded relabeling replicates are evaluated.
+
+3. **Hamming-weight pooling**
+
+   Raw probabilities are aggregated over basis states with equal Hamming weight:
+
+   $$h_w(G)=\sum_{z:,|z|=w}p_G(z),\qquad w=0,\ldots,n.$$
+
+   This produces an invariant vector of dimension:
+
+   $$n+1.$$
+
+4. **Descending sort**
+
+   The full probability vector is sorted:
+
+   $$\mathbf q(G)=\text{sort}_{\downarrow}\mathbf p(G).$$
+
+   The experiment evaluates:
+
+   * the complete sorted vector;
+   * the first 100 probabilities;
+   * the first 1,000 probabilities.
+
+At (n=8), the complete vector has only 256 entries, so the 1,000-coordinate arm is identical to the full representation.
+
+#### Targets
+
+The cubic census uses:
+
+* triangle count;
+* 4-cycle count;
+* 5-cycle count;
+* diamond count;
+* girth.
+
+The complete heterogeneous census uses:
+
+* triangle count;
+* 4-cycle count;
+* vertex connectivity;
+* Wiener index.
+
+Each target is decoded using five shuffled outer folds and the standing nested ridge grid:
+
+$$\alpha_{\text{ridge}}\in{10^{-14},10^{-13},\ldots,10^2}.$$
+
+The experiment also evaluates:
+
+* 12-decimal rounded distinctness;
+* sampled pairwise-distance correlations with canonical raw;
+* mean random-label performance across five relabeling replicates.
+
+#### Information content versus linear accessibility
+
+Canonical raw and sorted full are not equal representations, but sorted full is a deterministic many-to-one function of canonical raw:
+
+$$\mathbf q(G)=\text{sort}*{\downarrow}\mathbf p*{\text{canon}}(G).$$
+
+Sorting discards the association between probabilities and computational-basis strings.
+
+It therefore cannot increase information in an unrestricted information-theoretic sense.
+
+It can, however, increase performance under a restricted decoder. Sorting is nonlinear, while the downstream probe is linear. The transformation can reorganize information into coordinates that are substantially easier for ridge regression to use.
+
+This distinction is essential to interpreting E23.
+
+Canonical raw is an information-preserving reference, but it is not an upper bound on linear (R^2).
+
+#### Census construction and completion
+
+Both representation banks complete successfully:
+
+| Census          | Graphs | Raw-vector dimension | Targets                              |
+| --------------- | -----: | -------------------: | ------------------------------------ |
+| Cubic (n=14)    |    509 |               16,384 | (C_3), (C_4), (C_5), diamonds, girth |
+| Connected (n=8) | 11,117 |                  256 | (C_3), (C_4), connectivity, Wiener   |
+
+No code cell terminates with an error.
+
+The corrected canonical encoder is used consistently in every arm.
+
+The sorted cubic results reproduce the established canonical QuIC record:
+
+$$R^2_{C_3}=1.000,\qquad R^2_{C_4}=0.998,\qquad R^2_{C_5}=0.928,$$
+
+$$R^2_D=0.993,\qquad R^2_{\text{girth}}=0.993.$$
+
+The sorted heterogeneous results also reproduce the corrected E18 and E21 values:
+
+$$R^2_{C_3}=0.007,\qquad R^2_{C_4}=0.018,\qquad R^2_{\kappa}=0.123.$$
+
+These cross-experiment matches provide a strong implementation check.
+
+#### Distinctness
+
+Every representation is distinct on every graph at 12-decimal rounding precision.
+
+| Census          | Canonical raw |   Sorted full | Hamming pooling | Random-label replicate 0 |
+| --------------- | ------------: | ------------: | --------------: | -----------------------: |
+| Cubic (n=14)    |       509/509 |       509/509 |         509/509 |                  509/509 |
+| Connected (n=8) | 11,117/11,117 | 11,117/11,117 |   11,117/11,117 |            11,117/11,117 |
+
+The Hamming-weight result contradicts the notebook’s anticipated collision-collapse story.
+
+Even the nine-dimensional (n=8) Hamming representation distinguishes all 11,117 graphs at the tested numerical precision.
+
+This is not mathematically paradoxical. A low-dimensional continuous representation can assign distinct values to arbitrarily many members of a finite set.
+
+The result establishes:
+
+$$\boxed{\text{low dimension does not imply finite-census collisions}}$$
+
+Hamming pooling may still discard useful geometry or make targets less linearly accessible, but it does not collapse either tested census into repeated vectors.
+
+Distinctness alone therefore does not distinguish the invariantization methods.
+
+#### Cubic decodability results
+
+| Target   | Canonical raw | Sorted full | Sorted 100 | Sorted 1,000 | Hamming pooling | Random-label mean |
+| -------- | ------------: | ----------: | ---------: | -----------: | --------------: | ----------------: |
+| (C_3)    |         0.990 |       1.000 |      1.000 |        1.000 |           1.000 |             0.986 |
+| (C_4)    |         0.344 |       0.998 |      0.993 |        0.998 |           1.000 |          (-0.011) |
+| (C_5)    |         0.158 |       0.928 |      0.272 |        0.928 |           0.750 |          (-0.013) |
+| Diamonds |         0.573 |       0.993 |      0.990 |        0.993 |           1.000 |             0.240 |
+| Girth    |         0.313 |       0.993 |      0.987 |        0.993 |           0.385 |             0.112 |
+
+Sorting produces large improvements over canonical raw for four of the five cubic targets.
+
+| Target   | Sorted minus canonical raw |
+| -------- | -------------------------: |
+| (C_3)    |                   (+0.010) |
+| (C_4)    |                   (+0.654) |
+| (C_5)    |                   (+0.770) |
+| Diamonds |                   (+0.420) |
+| Girth    |                   (+0.680) |
+
+The full sorted representation therefore does not merely retain canonical-raw linear accessibility. It creates a much more target-aligned coordinate system.
+
+#### Canonical raw on cubic graphs
+
+Canonical raw remains nearly exact for triangle count:
+
+$$R^2_{C_3}=0.990.$$
+
+Its performance is much weaker for:
+
+$$R^2_{C_4}=0.344,$$
+
+$$R^2_{C_5}=0.158,$$
+
+$$R^2_D=0.573,$$
+
+and:
+
+$$R^2_{\text{girth}}=0.313.$$
+
+Canonical graph labeling makes the raw vector invariant, but the computational-basis coordinates are not necessarily structurally aligned across different graphs.
+
+A basis state with a particular binary index refers to vertices selected by the canonical labeling. Canonical vertex identities can change discontinuously as graph structure changes.
+
+Canonicalization therefore solves label invariance without necessarily producing a smooth or linearly useful cross-graph coordinate system.
+
+#### Sorting on cubic graphs
+
+Sorting removes bitstring identities and retains only the probability order statistics.
+
+The resulting representation nearly solves every tested cubic target.
+
+The strongest improvements occur for:
+
+* 4-cycles;
+* 5-cycles;
+* girth.
+
+The result supports a rank-geometry interpretation:
+
+> On cubic graphs, the structural signal is more consistently organized by probability magnitude than by canonical computational-basis identity.
+
+Sorting acts as a nonlinear alignment mechanism. Large probabilities with related structural roles are placed into corresponding ranks even when their associated bitstrings differ among graphs.
+
+This is stronger than a claim that sorting preserves the raw geometry. It shows that sorting replaces the raw coordinate geometry with a much more linearly target-aligned one.
+
+#### Hamming pooling on cubic graphs
+
+Hamming-weight pooling performs substantially better than the notebook’s anticipated “destructive averaging” baseline.
+
+It reaches:
+
+$$R^2_{C_3}=1.000,\qquad R^2_{C_4}=1.000,\qquad R^2_D=1.000.$$
+
+It also reaches:
+
+$$R^2_{C_5}=0.750.$$
+
+Its main failure is girth:
+
+$$R^2_{\text{girth}}=0.385.$$
+
+The comparison with sorting is:
+
+| Target   | Sorted full | Hamming pooling | Sorted minus Hamming |
+| -------- | ----------: | --------------: | -------------------: |
+| (C_3)    |       1.000 |           1.000 |                0.000 |
+| (C_4)    |       0.998 |           1.000 |             (-0.002) |
+| (C_5)    |       0.928 |           0.750 |             (+0.178) |
+| Diamonds |       0.993 |           1.000 |             (-0.007) |
+| Girth    |       0.993 |           0.385 |             (+0.608) |
+
+Sorting is not necessary for triangles, 4-cycles, or diamonds under this decoder.
+
+Its clearest advantage appears for:
+
+* 5-cycles;
+* girth.
+
+The proper conclusion is therefore target specific.
+
+Hamming pooling preserves substantial shallow and local motif information but loses much of the finer structure needed for girth and part of the 5-cycle signal.
+
+#### Random-label raw on cubic graphs
+
+Random relabeling preserves triangle accessibility:
+
+$$R^2_{C_3}=0.986.$$
+
+It destroys most accessibility for:
+
+$$C_4,\qquad C_5,$$
+
+where the mean scores are approximately zero.
+
+Diamond count retains a modest signal:
+
+$$R^2_D=0.240,$$
+
+and girth remains weak:
+
+$$R^2_{\text{girth}}=0.112.$$
+
+The result shows that unaligned raw coordinates are unusable for several deeper targets.
+
+It does not show that random-label raw is universally at the floor.
+
+Triangle count remains nearly exact, indicating that some structural directions are encoded through permutation-insensitive aggregate behavior even before explicit invariantization.
+
+The notebook computes standard deviations across the five random-label replicates but does not print them. Its prose claim of “large replicate spread” is therefore not supported by the visible record.
+
+#### Sorted-head depth on cubic graphs
+
+The first 100 sorted probabilities are sufficient for:
+
+$$C_3,\qquad C_4,\qquad D,\qquad\text{girth}.$$
+
+The corresponding scores are:
+
+$$1.000,\qquad0.993,\qquad0.990,\qquad0.987.$$
+
+Five-cycle count behaves differently:
+
+$$R^2_{C_5}=0.272\quad\text{at }k=100,$$
+
+and:
+
+$$R^2_{C_5}=0.928\quad\text{at }k=1000.$$
+
+This reproduces the rank-depth hierarchy established in E7 and E13.
+
+The shallow head already carries triangles, 4-cycles, diamonds, and girth, while 5-cycle accessibility requires substantially deeper probability ranks.
+
+#### Heterogeneous-census decodability results
+
+| Target       | Canonical raw | Sorted full | Sorted 100 | Sorted 1,000 | Hamming pooling | Random-label mean |
+| ------------ | ------------: | ----------: | ---------: | -----------: | --------------: | ----------------: |
+| (C_3)        |         0.273 |       0.007 |      0.007 |        0.007 |           0.117 |             0.110 |
+| (C_4)        |         0.217 |       0.018 |      0.018 |        0.018 |           0.183 |             0.177 |
+| Connectivity |         0.778 |       0.123 |      0.092 |        0.123 |           0.353 |             0.346 |
+| Wiener index |         0.314 |       0.000 |      0.000 |        0.000 |           0.191 |             0.171 |
+
+The heterogeneous result reverses the cubic ordering.
+
+Canonical raw is strongest for every target.
+
+Sorting loses most of the canonical-raw linear accessibility:
+
+| Target       | Sorted minus canonical raw |
+| ------------ | -------------------------: |
+| (C_3)        |                   (-0.266) |
+| (C_4)        |                   (-0.199) |
+| Connectivity |                   (-0.655) |
+| Wiener index |                   (-0.314) |
+
+The complete sorted vector remains near the prediction floor.
+
+This agrees with E18 and E21: canonical sorted QuIC does not produce a useful global cycle geometry on the complete mixed-degree census.
+
+#### Canonical raw on heterogeneous graphs
+
+Canonical raw retains moderate information for:
+
+* triangles;
+* 4-cycles;
+* Wiener index.
+
+It is particularly strong for connectivity:
+
+$$R^2_{\kappa}=0.778.$$
+
+This shows that the canonical probability vector contains linearly accessible heterogeneous-graph information that sorting removes.
+
+The result is not inconsistent with sorted-vector injectivity.
+
+Every sorted vector remains distinct, but distinctness does not guarantee target alignment.
+
+The raw bitstring identities appear to carry information about degree roles and connectivity that is lost when probabilities are reduced to their ordered multiset.
+
+#### Hamming pooling on heterogeneous graphs
+
+Hamming pooling exceeds sorting for every tested target:
+
+| Target       | Sorted full | Hamming pooling |
+| ------------ | ----------: | --------------: |
+| (C_3)        |       0.007 |           0.117 |
+| (C_4)        |       0.018 |           0.183 |
+| Connectivity |       0.123 |           0.353 |
+| Wiener index |       0.000 |           0.191 |
+
+The Hamming representation remains weaker than canonical raw, but it preserves considerably more of the useful heterogeneous-graph signal than sorting.
+
+This directly contradicts the notebook’s expected ordering:
+
+$$\text{canonical raw}\approx\text{sorted}\gg\text{Hamming}.$$
+
+The observed heterogeneous ordering is:
+
+$$\text{canonical raw}>\text{Hamming}\approx\text{random label}>\text{sorted}.$$
+
+The result suggests that total excitation-weight structure tracks degree heterogeneity, connectivity, and distance-related variation more effectively than rank statistics do.
+
+#### Random-label raw on heterogeneous graphs
+
+Random-label raw closely tracks Hamming pooling:
+
+$$R^2_{C_3}=0.110,$$
+
+$$R^2_{C_4}=0.177,$$
+
+$$R^2_{\kappa}=0.346,$$
+
+$$R^2_{\text{Wiener}}=0.171.$$
+
+The raw coordinates are not aligned across graphs, but graph-level aggregate effects remain visible.
+
+The similarity between random-label raw and Hamming pooling suggests that a substantial portion of their usable signal may arise from permutation-insensitive or approximately aggregate distributional structure.
+
+This is a descriptive interpretation. The notebook does not decompose the random-label representation into invariant and non-invariant components.
+
+#### The proposed invariantization ratio
+
+The notebook defines:
+
+$$\eta_y=\frac{R^2_{\text{sorted},y}}{R^2_{\text{canonical},y}}.$$
+
+The reported values are:
+
+##### Cubic census
+
+| Target   | (\eta_y) |
+| -------- | -------: |
+| (C_3)    |    1.010 |
+| (C_4)    |    2.904 |
+| (C_5)    |    5.866 |
+| Diamonds |    1.731 |
+| Girth    |    3.175 |
+
+##### Heterogeneous census
+
+| Target       | (\eta_y) |
+| ------------ | -------: |
+| (C_3)        |    0.027 |
+| (C_4)        |    0.085 |
+| Connectivity |    0.158 |
+| Wiener index |    0.001 |
+
+These values cannot be interpreted as the fraction of information or geometry preserved by sorting.
+
+A preservation fraction should not generally exceed one, while the cubic ratios reach:
+
+$$5.866.$$
+
+The ratio instead compares linear-probe performance in two different coordinate systems.
+
+A more accurate name is:
+
+$$\text{relative linear accessibility ratio}.$$
+
+Even under that name, the ratio can become unstable when the denominator is small or negative. Differences in (R^2) are easier to interpret.
+
+E23 should not call (\eta_y) the “cost of invariantization.”
+
+#### Pairwise geometry
+
+The experiment samples 4,000 graph pairs and computes the Spearman correlation between each arm’s pairwise (L_1) distances and canonical-raw pairwise distances.
+
+| Census          | Sorted full | Hamming pooling | Random-label replicate 0 |
+| --------------- | ----------: | --------------: | -----------------------: |
+| Cubic (n=14)    |       0.128 |           0.098 |                 (-0.007) |
+| Connected (n=8) |       0.474 |           0.862 |                    0.485 |
+
+The cubic sorted representation has only weak correlation with canonical-raw geometry:
+
+$$\rho=0.128.$$
+
+The sorted representation therefore does not preserve most of the canonical pairwise-distance ordering.
+
+Its near-perfect target decoding arises despite this large geometric reorganization.
+
+At (n=8), sorting preserves a moderate amount of the canonical distance ordering:
+
+$$\rho=0.474.$$
+
+Hamming pooling preserves much more:
+
+$$\rho=0.862.$$
+
+Random-label replicate zero also slightly exceeds sorting:
+
+$$0.485>0.474.$$
+
+The geometry results reject the notebook’s intended interpretation that sorting closely tracks canonical raw while Hamming pooling destroys its geometry.
+
+The more accurate conclusion is:
+
+> Sorting creates a different geometry whose usefulness is highly graph-family and target dependent.
+
+#### Reconciling decodability and geometry
+
+The cubic results show:
+
+* weak global geometric correlation with canonical raw;
+* much stronger linear decoding after sorting.
+
+These findings are compatible.
+
+A representation can substantially change global pairwise distances while aligning a small number of target-relevant directions.
+
+Sorting appears to suppress basis-state identity and concentrate recurring structural probability patterns into comparable ranks.
+
+The result is not geometric preservation. It is geometric reorganization.
+
+On the heterogeneous census, that same reorganization removes useful degree-role and connectivity information, causing sorted decoding to collapse.
+
+E23 therefore identifies regularity as a boundary condition for the usefulness of the sorted quotient.
+
+#### Relationship to E16, E20, and E21
+
+E16 and corrected E20 establish that sorted QuIC is:
+
+* permutation invariant;
+* numerically injective on the complete connected (n=8) census;
+* numerically injective on the cubic (n=14) census.
+
+E23 adds that injectivity does not determine the quality of the representation geometry.
+
+At (n=8):
+
+* sorted QuIC distinguishes every graph;
+* yet it predicts none of the tested targets well.
+
+At (n=14):
+
+* sorted QuIC distinguishes every graph;
+* and its rank geometry nearly solves the tested structural targets.
+
+E21 showed that the strong sorted geometry transfers to 4-regular graphs but not to the mixed-degree census.
+
+E23 clarifies the mechanism empirically:
+
+* canonical raw retains heterogeneous degree-role information;
+* sorting removes coordinate identities;
+* the removal is beneficial on regular graphs and destructive on heterogeneous graphs.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **All four readout constructions distinguish every graph in both tested censuses at 12-decimal precision.**
+
+   Hamming pooling does not produce the expected finite-census collisions.
+
+2. **Sorting substantially improves linear structural accessibility on cubic graphs.**
+
+   It raises (C_4), (C_5), diamond, and girth scores by approximately (0.42) to (0.77) relative to canonical raw.
+
+3. **The cubic gain is not caused by preserving canonical-raw pairwise geometry.**
+
+   The sampled distance correlation is only (0.128).
+
+4. **Sorting acts as a nonlinear target-aligning transformation.**
+
+5. **Hamming pooling retains substantial cubic information.**
+
+   It exactly predicts triangles, 4-cycles, and diamonds and reaches (0.750) on 5-cycles.
+
+6. **Sorting’s clearest cubic advantages over Hamming pooling are 5-cycle count and girth.**
+
+7. **The first 100 sorted probabilities already carry triangles, 4-cycles, diamonds, and girth.**
+
+   Five-cycle accessibility requires a deeper head.
+
+8. **Sorting sharply degrades linear accessibility on the heterogeneous census.**
+
+   Canonical raw is stronger on every tested target.
+
+9. **Hamming pooling and random-label raw both outperform sorting on the heterogeneous census.**
+
+10. **Sorted-vector injectivity and target-aligned geometry are separate properties.**
+
+11. **The proposed (\eta_y) ratio is not a cost or preservation fraction.**
+
+12. **Sorting is effective within the regular-graph regime but is not a universally superior invariantization method.**
+
+#### Necessary qualifications
+
+Canonical raw is obtained through an external classical graph-canonicalization procedure.
+
+E23 does not measure the runtime, memory, or scaling cost of nauty canonicalization relative to sorting.
+
+No empirical efficiency claim is supported.
+
+Sorting itself operates on a vector of size:
+
+$$2^n,$$
+
+and therefore also inherits the exponential readout dimension.
+
+The experiment compares representational geometry, not end-to-end computational efficiency.
+
+The notebook prose states that canonicalization was verified under relabeling, but no explicit relabel-and-assert validation cell appears in the recorded run.
+
+The correctness of canonical raw relies on the behavior of `nauty-labelg` and the deterministic graph6 conversion.
+
+Sorted and Hamming-weight readouts are invariant because a vertex relabeling induces a qubit permutation, and both probability sorting and Hamming-weight aggregation remove that permutation. This relies on the underlying circuit being permutation equivariant.
+
+The distinctness test uses 12-decimal rounded fingerprints. It establishes no observed numerical collisions, not symbolic injectivity.
+
+The random-label results are means across only five relabeling replicates.
+
+The notebook calculates replicate standard deviations but does not print or persist them in the visible summary table. Claims about large or small replicate variation cannot be verified from the attached output.
+
+The canonical, sorted, and random raw feature spaces are highly dimensional relative to the cubic sample size:
+
+$$509\text{ graphs versus }16{,}384\text{ features}.$$
+
+The ridge fits emit many ill-conditioned-matrix warnings.
+
+E10 showed that some QuIC probes depend on low-variance directions and extremely weak regularization. E23 does not repeat the independent solver and shuffled-target audits.
+
+The large qualitative contrasts are unlikely to be explained entirely by numerical variation, but exact values should retain the established ridge-probe qualification.
+
+The geometry analysis uses only 4,000 randomly sampled graph pairs.
+
+It estimates global distance-order preservation but does not provide uncertainty intervals or repeat the sample under multiple seeds.
+
+Spearman correlation with canonical raw is only one geometry criterion. A low value does not imply that all local or target-specific neighborhoods are lost.
+
+The target sets differ between the two censuses. Cross-census comparisons are therefore partly target dependent.
+
+The graph orders also differ:
+
+* cubic regular graphs at (n=14);
+* heterogeneous connected graphs at (n=8).
+
+E6 provides the same-order evidence that nonregularity degrades the sorted hierarchy at (n=14), while E21 provides transfer to another regular census.
+
+Hamming pooling’s perfect distinctness should not be generalized beyond these finite censuses or parameters.
+
+The experiment evaluates ideal statevector probabilities. It does not establish whether the invariantization contrasts survive finite-shot sampling.
+
+Finally, “sorting is necessary” is not supported.
+
+Hamming pooling equals or exceeds sorting on several cubic targets and outperforms it on every heterogeneous target.
+
+The supported conclusion is that sorting is particularly effective for selected regular-graph structural coordinates.
+
+#### Overall assessment
+
+E23 is scientifically useful, but it does not support the story written into its final notebook cell.
+
+Sorting is not a nearly free invariant quotient that preserves most of canonical-raw geometry. On the cubic census, its pairwise-distance correlation with canonical raw is only:
+
+$$0.128.$$
+
+Instead, sorting performs a strong nonlinear reorganization.
+
+That reorganization raises 5-cycle prediction from:
+
+$$0.158$$
+
+to:
+
+$$0.928,$$
+
+and girth prediction from:
+
+$$0.313$$
+
+to:
+
+$$0.993.$$
+
+It also raises 4-cycle and diamond accessibility substantially.
+
+Hamming-weight pooling proves stronger than anticipated. It remains collision free on both censuses and exactly predicts cubic triangles, 4-cycles, and diamonds. Sorting’s clearest advantages over this natural linear invariant are the deeper 5-cycle signal and girth.
+
+The heterogeneous census provides the critical counterexample. Canonical raw retains substantial connectivity and metric information, while sorting collapses nearly to the prediction floor. Hamming pooling and even randomly relabeled raw vectors preserve more linear accessibility.
+
+The experiment therefore strengthens a narrower and more interesting interpretation:
+
+> Sorting is not simply an inexpensive substitute for canonical labeling. It is a nonlinear rank transform that discards basis-state identities and constructs a new probability geometry. On regular cubic graphs, that geometry strongly aligns with cycle, diamond, and girth structure, particularly for deeper rank-dependent targets. On the heterogeneous census, the same quotient removes useful degree-role and connectivity information and performs worse than canonical raw or Hamming-weight pooling. Sorting is therefore a powerful regular-graph structural readout, not a universally information-preserving invariantization procedure.
 
 
 ### E24 - Folklore 2-WL Baseline
