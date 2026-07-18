@@ -27586,3 +27586,5949 @@ It regresses a centered target on uncentered base predictions and then compares 
 The appropriate central claim is:
 
 > Degree-sector representations from the E29 circuit bank exhibit architecture-dependent but partially shared graph geometry. F-X and F-Y are most closely aligned, while normalized-degree and Hadamard preparations reorganize the representation more strongly outside the bimodal stratum. Circuit prediction errors differ most for triangles and become increasingly aligned for 5- and 6-cycles, identifying C3 as the strongest candidate for useful cross-circuit complementarity. However, E29D’s nested stacking test is invalid because it fits centered targets to uncentered base predictions and compares R² scores with inconsistent denominators. E29D therefore establishes representation non-equivalence and target-dependent error discordance, but it does not determine whether circuit combinations outperform the best standalone representation.
+
+
+
+===========================================================
+===========================================================
+
+### E29P-R - Canonical Circuit and Readout Producer
+
+#### Purpose
+
+E29P-R is the validated shared producer for the revised E29X experiment series.
+
+It regenerates the same circuit-readout artifacts used by E29A–E29D while strengthening the producer-level validation of:
+
+* circuit construction;
+* graph ordering;
+* degree-sector aggregation;
+* coordinatewise permutation invariance;
+* graph-blind controls;
+* probability conservation;
+* and artifact reproducibility.
+
+The revision is intended to change validation rather than representations. The downstream E29X notebooks can consume the new per-circuit artifacts without changing their data-loading code.
+
+#### Execution status
+
+The notebook completed successfully.
+
+All executed cells finished without error, and the final validation condition printed:
+
+```text
+SUCCESS
+```
+
+The producer generated:
+
+* 20 circuit-by-stratum artifacts;
+* eight graph-blind control artifacts;
+* one validated producer manifest.
+
+The manifest was saved as:
+
+```text
+e29p_r_validated_producer.pkl
+```
+
+#### Graph families
+
+The producer uses the four fixed-degree-sequence E6 strata at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs | Degree-sector dimension | Mixing rank |
+| --------------- | --------------------- | -----: | ----------------------: | ----------: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |                      99 |           3 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |                      64 |           1 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |                     315 |           6 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |                     216 |           5 |
+
+The producer validates every one of the:
+
+$$4\times400=1{,}600$$
+
+graph records.
+
+For each graph, it checks:
+
+* the locked degree sequence;
+* exact-vector dimension $$2^{14}$$;
+* descending probability order;
+* unit probability mass;
+* triangle trace consistency;
+* 4-cycle trace consistency.
+
+The trace gates are:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+All four strata pass.
+
+---
+
+## Circuit Bank
+
+The circuit bank is unchanged from the original E29P producer.
+
+The common angles are:
+
+$$\theta_{\text{enc}}=2.875,$$
+
+$$\theta_{\text{ent}}=2.0,$$
+
+and:
+
+$$\theta_{\text{mix}}=0.1.$$
+
+##### F-X - Flat QuIC reference
+
+Every qubit receives:
+
+$$R_X(2.875),$$
+
+followed by:
+
+* one graph-edge $$R_{ZZ}(2.0)$$ layer;
+* one uniform $$R_X(0.1)$$ mixer.
+
+F-X reproduces the E6 flat-encoder circuit.
+
+##### D-X - Normalized degree preparation
+
+Vertex $$i$$ receives:
+
+$$R_X\left(2.875\frac{d_i}{\Delta}\right),$$
+
+followed by the same graph-phase and X-mixer layers.
+
+##### H-X - Hadamard preparation
+
+The circuit begins with:
+
+$$H^{\otimes14},$$
+
+followed by:
+
+* graph-edge $$R_{ZZ}(2.0)$$ gates;
+* uniform $$R_X(0.1)$$ mixing.
+
+##### F-Y - Mixer-axis ablation
+
+F-Y uses the flat preparation and graph-phase layer but replaces the X mixer with:
+
+$$R_Y(0.1).$$
+
+##### H-H - IQP-style architecture
+
+The circuit is:
+
+$$H^{\otimes14}\rightarrow U_{ZZ}(2.0)\rightarrow H^{\otimes14}.$$
+
+#### Graph-blind controls
+
+Two controls are regenerated.
+
+* **No-edge:** flat preparation and X mixer with no graph-edge gates.
+* **No-mixer:** flat preparation and graph-edge phases with no final noncommuting mixer.
+
+---
+
+## Readout Definitions
+
+For exact Born probabilities:
+
+$$p_G(z)=|\langle z|\psi_G\rangle|^2,$$
+
+the producer constructs three invariant readouts.
+
+##### R0 - Global sorting
+
+$$R_0(G)=\text{sort}_{\downarrow}{p_G(z)}.$$
+
+The producer stores the first:
+
+$$4{,}096$$
+
+coordinates.
+
+##### R1 - Hamming-weight marginal
+
+$$R_1(G)*w=\sum*{z:|z|=w}p_G(z).$$
+
+Its dimension is:
+
+$$15.$$
+
+##### R2 - Degree-sector marginal
+
+Let the distinct vertex degrees be:
+
+$$d_1<d_2<\cdots<d_m.$$
+
+For basis state $$z$$, define:
+
+$$\kappa_G(z)=\left(\sum_{i:\deg(i)=d_1}z_i,\ldots,\sum_{i:\deg(i)=d_m}z_i\right).$$
+
+The degree-sector readout is:
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+The canonical coordinate order is:
+
+1. increasing vertex-degree class;
+2. lexicographic mixed-radix occupancy order.
+
+This canonical ordering is stored explicitly in the producer manifest.
+
+---
+
+## Shared Targets
+
+Each circuit artifact includes the common graph-level targets.
+
+##### Cycle targets
+
+$$C_3,\qquad C_4,\qquad C_5,\qquad C_6.$$
+
+##### Raw joint-degree counts
+
+For degree classes $$a\le b$$:
+
+$$M_{ab}=#{uv\in E:{\deg u,\deg v}={a,b}}.$$
+
+The raw joint-degree keys are:
+
+| Stratum | Joint-degree edge types                                         |
+| ------- | --------------------------------------------------------------- |
+| S1      | $$(2,2),(2,3),(2,4),(3,3),(3,4),(4,4)$$                         |
+| S2      | $$(2,2),(2,4),(4,4)$$                                           |
+| S3      | $$(2,2),(2,3),(2,4),(2,5),(3,3),(3,4),(3,5),(4,4),(4,5),(5,5)$$ |
+| S4      | $$(2,2),(2,3),(2,4),(2,6),(3,3),(3,4),(3,6),(4,4),(4,6)$$       |
+
+The raw count matrix is now stored directly for fingerprinting and later analytical-basis work.
+
+##### Legacy SVD mixing basis
+
+For continuity with the earlier E29 experiments, the producer also retains the globally constructed SVD mixing basis.
+
+The numerical ranks are:
+
+$$3,\quad1,\quad6,\quad5$$
+
+for S1 through S4.
+
+The producer does not change the known qualification that this basis is constructed using all 400 graphs in each stratum.
+
+---
+
+# Validation Revision
+
+## Dual R2 implementation
+
+The principal revision is an independent reconstruction of R2.
+
+##### Primary implementation
+
+The primary method:
+
+1. computes degree-class occupancies for every basis state;
+2. encodes the occupancy tuple through a mixed-radix sector identifier;
+3. aggregates probabilities using `numpy.bincount`.
+
+##### Independent implementation
+
+The second method:
+
+1. constructs a degree-class membership matrix;
+2. computes occupancies through matrix multiplication;
+3. converts occupancy tuples using `numpy.ravel_multi_index`;
+4. aggregates probabilities using `numpy.add.at`.
+
+The two implementations use different indexing and aggregation paths but emit coordinates in the same canonical order.
+
+They are compared for every F-X graph:
+
+$$1{,}600\text{ vectors in total}.$$
+
+The maximum discrepancy is:
+
+$$0.00.$$
+
+Thus:
+
+$$\max_{G,\kappa}|R_{2,\text{primary}}(G)*\kappa-R*{2,\text{independent}}(G)_\kappa|=0.$$
+
+This closes the principal R2 implementation concern from the original E29P producer.
+
+---
+
+## Coordinatewise relabeling invariance
+
+The original E29P test sorted the R2 coordinates before comparison.
+
+That established invariance only of the sector-mass multiset, not invariance of the named sector coordinates.
+
+E29P-R instead compares R2 coordinate by coordinate under vertex permutation.
+
+For a graph relabeling $$\pi$$, it verifies:
+
+$$R_2(G)*\kappa=R_2(\pi G)*\kappa$$
+
+in the same canonical occupancy order.
+
+The maximum observed coordinatewise discrepancy is:
+
+$$2.78\times10^{-17}.$$
+
+The notebook performs:
+
+* one initial self-test in every stratum;
+* 20 additional F-X permutation checks per stratum during production.
+
+R0 and R1 are also verified coordinatewise under the corresponding relabeling action.
+
+This establishes that the degree-sector coordinates are canonical rather than merely sortable into a common multiset.
+
+---
+
+## F-X reproduction of E6
+
+For every F-X graph, the producer reconstructs the unsorted statevector probabilities, globally sorts them, and compares them with the stored E6 exact vector.
+
+The maximum discrepancy is:
+
+$$2.66\times10^{-15}.$$
+
+The required tolerance is:
+
+$$10^{-12}.$$
+
+Therefore:
+
+$$\max_G|R_0^{\text{E29P-R}}(G)-R_0^{\text{E6}}(G)|_\infty<10^{-12}.$$
+
+This verifies:
+
+* graph ordering;
+* qubit convention;
+* gate ordering;
+* circuit angles;
+* and probability sorting
+
+for the F-X reference circuit.
+
+---
+
+## Probability conservation
+
+For every graph and every circuit, the producer asserts:
+
+$$\sum_w R_1(G)_w=1,$$
+
+and:
+
+$$\sum_\kappa R_2(G)_\kappa=1.$$
+
+The unsorted probability vector is also required to satisfy:
+
+$$\sum_zp_G(z)=1$$
+
+within:
+
+$$10^{-9}.$$
+
+All circuits and strata pass.
+
+---
+
+## Sector cardinalities
+
+For every canonical occupancy tuple:
+
+$$\kappa=(\kappa_1,\ldots,\kappa_m),$$
+
+the number of basis states in that sector must equal:
+
+$$|\mathcal S_\kappa|=\prod_{j=1}^m\binom{n_j}{\kappa_j},$$
+
+where $$n_j$$ is the number of vertices in degree class $$d_j$$.
+
+The producer independently compares these binomial products with the observed mixed-radix sector counts.
+
+All four strata pass exactly.
+
+---
+
+## Graph-blind controls
+
+The original producer checked only whether R0 was constant across graphs for the no-edge and no-mixer controls.
+
+E29P-R checks all three readouts.
+
+For each control and stratum, it computes:
+
+$$\max_j\text{SD}_G R_j(G).$$
+
+The largest observed standard deviations are:
+
+| Control  |          Maximum R0 SD |          Maximum R1 SD |          Maximum R2 SD |
+| -------- | ---------------------: | ---------------------: | ---------------------: |
+| No edge  | $$3.33\times10^{-16}$$ | $$3.33\times10^{-16}$$ | $$5.69\times10^{-16}$$ |
+| No mixer | $$2.11\times10^{-15}$$ | $$2.11\times10^{-15}$$ | $$2.11\times10^{-15}$$ |
+
+All values are far below the required threshold:
+
+$$10^{-12}.$$
+
+This confirms that:
+
+* graph-edge phases alone do not change computational-basis probabilities;
+* flat preparation plus a graph-independent mixer is graph blind;
+* R1 and R2 do not introduce graph variation when the underlying probability distribution is graph blind.
+
+The result is particularly important for R2 because the readout uses graph degree classes. Within each fixed-degree-sequence stratum, the degree-sector partition alone does not generate spurious graph discrimination.
+
+---
+
+## Fingerprints and Manifest
+
+E29P-R records fingerprints for:
+
+* circuit and control definitions;
+* angle configuration;
+* graph ordering;
+* canonical sector ordering;
+* all cycle-target arrays;
+* raw joint-degree count matrices;
+* every R0 array;
+* every R1 array;
+* every R2 array.
+
+The manifest also stores:
+
+* circuit names;
+* control names;
+* stratum names;
+* sector dimensions;
+* SVD mixing ranks;
+* canonical occupancy tuples;
+* control reports;
+* maximum validation discrepancies.
+
+These hashes allow downstream consumers to reject incompatible artifacts before merging results.
+
+---
+
+# Direct E26R Gate Defect
+
+The notebook claims that supplying an E26R artifact activates a direct F-X R2 reproduction gate.
+
+The configured E26R path is present, and the artifact is successfully loaded.
+
+However, the code does not:
+
+* inspect the E26R artifact layout;
+* align graph ordering;
+* align sector ordering;
+* extract the E26R R2 matrix;
+* compare any R2 values;
+* or execute a numerical assertion.
+
+It only records the message:
+
+```text
+E26R pkl loaded — align graph/sector order, then compare F-X R2 to 1e-12
+```
+
+The advertised direct E26R comparison therefore did **not** occur.
+
+This is a stale implementation claim in:
+
+* the opening notebook description;
+* the validation-cell heading;
+* the final notes.
+
+The producer nevertheless has a valid substitute:
+
+* all F-X unsorted probabilities reproduce E6 through R0;
+* R2 is reconstructed from those probabilities by two independent implementations;
+* the implementations agree exactly across all 1,600 F-X graphs;
+* coordinatewise permutation invariance passes;
+* sector cardinality and conservation gates pass.
+
+The proper statement is:
+
+> F-X R2 is independently reconstructed and internally certified, but it is not directly value matched against the E26R artifact.
+
+The absent E26R comparison does not undermine the regenerated R2 arrays, but it should not be listed as a completed validation gate.
+
+---
+
+# Artifact Structure
+
+For each circuit and stratum, the producer saves:
+
+```text
+e29p_<circuit>_<stratum>.pkl
+```
+
+Each artifact contains:
+
+* circuit name;
+* stratum name;
+* circuit specification;
+* R0 head;
+* complete R1 matrix;
+* complete R2 matrix;
+* probability sums;
+* concentration diagnostics;
+* R2 fingerprint;
+* graph identifiers;
+* raw joint-degree counts;
+* legacy mixing basis;
+* cycle targets;
+* adjacency spectra.
+
+The five circuit families across four strata produce:
+
+$$5\times4=20$$
+
+primary artifacts.
+
+The two controls across four strata produce:
+
+$$2\times4=8$$
+
+control artifacts.
+
+The manifest provides the common validation and fingerprint record.
+
+---
+
+# What the Producer Establishes
+
+The completed producer establishes that:
+
+1. **All 1,600 E6 graph records pass the degree-sequence and trace gates.**
+
+2. **The five E29 circuit families are regenerated under one common graph and qubit convention.**
+
+3. **F-X globally sorted probabilities reproduce E6 to a maximum error of (2.66\times10^{-15}).**
+
+4. **Two independent R2 implementations agree exactly across all 1,600 F-X graphs.**
+
+5. **R2 is coordinatewise invariant under vertex relabeling in the canonical sector order.**
+
+6. **R1 and R2 conserve total probability for every graph and circuit.**
+
+7. **Observed sector cardinalities exactly match their combinatorial binomial counts.**
+
+8. **No-edge and no-mixer controls are constant across graphs under R0, R1, and R2.**
+
+9. **The graph-supplied degree partition does not by itself create graph variation within a fixed-degree-sequence stratum.**
+
+10. **The producer records sufficient fingerprints to verify compatibility among downstream E29X artifacts.**
+
+11. **The revised per-circuit artifact layout remains compatible with the earlier E29X consumers.**
+
+12. **The claimed direct E26R numerical comparison was not implemented.**
+
+E29P-R therefore supplies a substantially stronger foundation for the revised E29X series than the original producer.
+
+---
+
+# Necessary Qualifications
+
+The producer validates implementation consistency, not scientific usefulness.
+
+It does not test whether any readout predicts:
+
+* joint-degree mixing;
+* cycles;
+* spectral structure;
+* or downstream targets.
+
+Those questions belong to the E29X consumer experiments.
+
+R2 remains a hybrid graph-conditioned readout.
+
+The circuit probabilities alone do not define the sector coordinates; the graph’s degree partition is supplied during aggregation.
+
+The graph-blind controls occur within fixed-degree-sequence strata.
+
+They show that degree-sector aggregation does not distinguish graphs sharing one degree sequence when the underlying probability distribution is graph blind.
+
+They do not show that R2 is independent of the degree sequence across different strata.
+
+The direct E6 reproduction gate applies only to F-X R0.
+
+The other circuit families have no independent external reproduction artifact.
+
+Their validation rests on:
+
+* common circuit construction;
+* probability normalization;
+* shared readout implementations;
+* and internal fingerprints.
+
+The dual R2 implementation is applied to every F-X graph but not every graph under every circuit.
+
+Because R2 aggregation depends only on:
+
+* the probability vector;
+* sector identifiers;
+* and canonical ordering,
+
+the F-X-wide gate is strong evidence for the implementation. A complete circuit-wide dual gate would be more exhaustive.
+
+The production-loop coordinatewise permutation audit uses only 20 graphs per stratum.
+
+The initial self-test adds one graph per stratum. It does not exhaust all 1,600 graphs.
+
+The legacy mixing basis remains a global SVD basis fitted using every graph in a stratum.
+
+The producer now stores raw joint-degree counts so that a later analytical construction can replace this target basis, but E29P-R itself does not perform that replacement.
+
+The producer installs package versions at runtime without recording exact dependency versions in the manifest.
+
+Exact reproducibility across future Qiskit or NumPy versions would be stronger if the environment versions were fingerprinted.
+
+The manifest hashes only the first 16 hexadecimal characters of each SHA-256 digest.
+
+That is adequate for accidental mismatch detection but weaker than retaining the complete digest.
+
+Finally, the notebook states that the new artifacts are identical to those from the original E29P, but it does not load the original per-circuit artifacts and compare their hashes or arrays directly.
+
+The representations are generated by materially equivalent code and are intended to be unchanged, but cross-producer byte identity is not independently asserted.
+
+---
+
+# Overall Assessment
+
+E29P-R successfully repairs the important producer-validation weaknesses identified during the first E29A–D audit.
+
+The strongest improvements are:
+
+* exact agreement between two independent R2 aggregation implementations;
+* coordinatewise rather than sorted-multiset permutation invariance;
+* graph-blind R1 and R2 controls;
+* raw joint-degree target storage;
+* canonical sector-order metadata;
+* comprehensive output fingerprints.
+
+The numerical gates are strong:
+
+$$\max|\Delta R2_{\text{dual}}|=0,$$
+
+$$\max|\Delta R0_{\text{E6}}|=2.66\times10^{-15},$$
+
+$$\max|\Delta R2_{\text{permutation}}|=2.78\times10^{-17},$$
+
+and:
+
+$$\max\text{SD}_{\text{control}}=2.11\times10^{-15}.$$
+
+The remaining defect is narrow but should be stated plainly: the notebook loads E26R but never performs the advertised value comparison.
+
+The appropriate producer claim is:
+
+> E29P-R regenerates the common five-circuit E29 representation bank and validates the degree-sector readout through exact probability conservation, combinatorial sector cardinalities, coordinatewise relabeling invariance, graph-blind R1/R2 controls, complete F-X reproduction of the E6 sorted vectors, and exact agreement between two independent R2 implementations across all 1,600 graphs. The producer also records canonical coordinate metadata and fingerprints for downstream artifact compatibility. A direct numerical comparison with the E26R R2 artifact was advertised but not executed; F-X R2 is instead certified internally through independent reconstruction from the E6-reproducing probability vectors.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===========================================================================
+===========================================================================
+
+### E29A-R - Analytical-Basis Circuit-by-Readout Replication
+
+#### Experimental purpose
+
+E29A-R repeats the E29A structural screen after replacing the graph-sample-fitted SVD mixing target with the analytical joint-degree basis constructed in E30.
+
+The revision addresses the principal target-basis concern in the original E29A experiment.
+
+The original mixing coordinates were derived by singular-value decomposition of all 400 joint-degree vectors in each stratum. Although that basis represented the correct lower-dimensional mixing space, its orientation was selected using the complete target sample.
+
+E29A-R instead uses a basis derived solely from:
+
+* fixed degree-class stub equations;
+* singleton-class constraints;
+* and a stored null-space orientation.
+
+The experiment asks whether the principal E29A result survives this correction:
+
+> Do degree-sector probability masses reconstruct the complete joint-degree mixing state across several shallow graph-phase circuits?
+
+The secondary cycle screen is repeated to verify that the validated producer revision did not materially change the previously reported readout comparisons.
+
+#### Execution status
+
+E29A-R completed successfully.
+
+The notebook:
+
+* loaded all five E29P-R circuit families;
+* loaded the E30 analytical coordinates;
+* aligned E29P-R, E30, and E6 graph ordering;
+* reran the complete circuit-by-readout mixing screen;
+* reran all cycle targets;
+* computed graph-resampling directional-stability intervals;
+* generated the requested heatmaps;
+* saved:
+
+```text
+e29a_r_analytical_basis.pkl
+```
+
+No cell terminated with an error.
+
+---
+
+## Shared graph families
+
+The experiment uses the four fixed-degree-sequence E6 strata at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs | Analytical mixing rank |
+| --------------- | --------------------- | -----: | ---------------------: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |                      3 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |                      1 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |                      6 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |                      5 |
+
+All comparisons occur within a fixed degree sequence.
+
+The following quantities are therefore constant within each stratum:
+
+* graph order;
+* edge count;
+* degree multiset;
+* number of vertices in each degree class.
+
+The mixing target measures how those fixed degree classes connect.
+
+---
+
+## Input validation
+
+For every stratum, E29A-R verifies that graph ordering is identical across:
+
+* the validated E29P-R circuit artifacts;
+* the E30 analytical-basis artifact;
+* the original E6 graph dataset.
+
+It also reasserts:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+All 1,600 graph records pass.
+
+The notebook does not load the E29P-R manifest or verify its stored array fingerprints. Its producer validation is therefore based on:
+
+* expected artifact paths;
+* graph identifiers;
+* target alignment;
+* and the prior E29P-R producer audit.
+
+---
+
+## Circuit bank
+
+The five circuit families are unchanged from E29A.
+
+| Circuit | Preparation                                | Graph phase     | Final transformation |
+| ------- | ------------------------------------------ | --------------- | -------------------- |
+| F-X     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| D-X     | Normalized degree $$R_X(2.875d_i/\Delta)$$ | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| H-X     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| F-Y     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_Y(0.1)$$         |
+| H-H     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$H^{\otimes14}$$    |
+
+The first four are the principal preparation–phase–mixer circuits.
+
+H-H remains the deliberately distinct IQP-style architecture.
+
+---
+
+## Readouts
+
+##### R0 - Global probability sorting
+
+$$R_0(G)=\text{sort}_{\downarrow}{p_G(z)}.$$
+
+The first:
+
+$$1{,}000$$
+
+coordinates are retained.
+
+##### R1 - Hamming-weight marginal
+
+$$R_1(G)*w=\sum*{z:|z|=w}p_G(z).$$
+
+Its dimension is:
+
+$$15.$$
+
+##### R2 - Degree-sector marginal
+
+For degree classes:
+
+$$d_1<\cdots<d_m,$$
+
+define:
+
+$$\kappa_G(z)=\left(\sum_{i:\deg(i)=d_1}z_i,\ldots,\sum_{i:\deg(i)=d_m}z_i\right).$$
+
+Then:
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+The R2 dimensions are:
+
+| Stratum | R2 dimension |
+| ------- | -----------: |
+| S1      |           99 |
+| S2      |           64 |
+| S3      |          315 |
+| S4      |          216 |
+
+R2 uses the graph’s degree partition during aggregation. It is therefore a hybrid graph-conditioned circuit readout rather than a transformation of the unlabeled probability multiset alone.
+
+---
+
+## Analytical mixing target
+
+Let:
+
+$$m(G)=\left(M_{ab}(G)\right)_{a\le b}$$
+
+be the raw vector of joint-degree edge counts.
+
+E30 constructs a sample-independent null-space basis:
+
+$$N_s$$
+
+for each stratum’s fixed-stub constraint system.
+
+The analytical coordinates are:
+
+$$u(G)=m(G)N_s.$$
+
+Their dimensions are:
+
+$$3,\quad1,\quad6,\quad5.$$
+
+E30 showed that these coordinates span exactly the same mixing subspace as the earlier SVD coordinates while avoiding a basis fitted to the 400 target graphs.
+
+E29A-R uses the stored E30 coordinates directly.
+
+---
+
+## Frozen decoder
+
+Every circuit, readout, stratum, and target uses the E6 ridge protocol:
+
+* raw readout features;
+* five shuffled outer folds;
+* outer seed zero;
+* inner five-fold `RidgeCV`;
+* regularization grid:
+
+$$\alpha\in{10^{-14},10^{-13},\ldots,10^2};$$
+
+* mean outer-fold test $$R^2$$;
+* outer-fold standard deviation.
+
+The synthetic calibration gives:
+
+$$R^2_{\text{null}}=-0.005,$$
+
+and:
+
+$$R^2_{\text{linear}}=1.000.$$
+
+The decoder machinery passes.
+
+---
+
+# Analytical Mixing Reconstruction
+
+## Pooled results by circuit, readout, and stratum
+
+| Circuit | Readout |      S1 |                 S2 |                 S3 |      S4 |                  Mean |
+| ------- | ------- | ------: | -----------------: | -----------------: | ------: | --------------------: |
+| F-X     | R0      |    1.00 |               1.00 |               0.97 |    0.99 |                  0.99 |
+|         | R1      |    0.61 |               1.00 |               0.33 |    0.39 |                  0.58 |
+|         | R2      |    1.00 |               1.00 |               1.00 |    1.00 |                 1.000 |
+| D-X     | R0      |    0.98 |               1.00 |               0.35 |    0.23 |                  0.64 |
+|         | R1      |    0.97 |               1.00 |               0.68 |    0.94 |                  0.90 |
+|         | R2      |    1.00 |               1.00 |              0.993 |   0.995 |                 0.997 |
+| H-X     | R0      |    0.07 |               0.55 |               0.12 |    0.09 |                  0.21 |
+|         | R1      |    0.61 |               1.00 |               0.47 |    0.38 |                  0.62 |
+|         | R2      |    1.00 |               1.00 |              0.999 |   0.999 |                 0.999 |
+| F-Y     | R0      |    1.00 |               1.00 |               0.98 |    0.99 |                  0.99 |
+|         | R1      |    0.71 |               1.00 |               0.45 |    0.41 |                  0.64 |
+|         | R2      |    1.00 |               1.00 |               1.00 |    1.00 |                 1.000 |
+| H-H     | R0      | (-0.02) | approximately 0.00 | approximately 0.00 | (-0.02) | approximately (-0.01) |
+|         | R1      |    0.08 |               0.12 |               0.03 |    0.04 |                  0.07 |
+|         | R2      |   0.253 |              0.509 |              0.196 |   0.145 |                 0.276 |
+
+The original E29A conclusion survives the target-basis correction.
+
+Degree-sector masses reconstruct the analytical joint-degree mixing state almost perfectly for:
+
+* F-X;
+* D-X;
+* H-X;
+* F-Y.
+
+H-H remains weak.
+
+The result is therefore not an artifact of fitting an SVD orientation to the complete graph sample.
+
+---
+
+## Circuit-generality result
+
+The four principal circuits have mean R2 mixing scores between:
+
+$$0.997$$
+
+and:
+
+$$1.000.$$
+
+This includes:
+
+* flat preparation;
+* normalized degree preparation;
+* Hadamard preparation;
+* X mixing;
+* Y mixing.
+
+The degree-mixing coordinate is therefore not specific to one preparation or mixer axis.
+
+The H-H score is:
+
+$$0.276.$$
+
+This rejects the universal version of the claim.
+
+The appropriate statement is:
+
+> Degree-sector masses reconstruct joint-degree mixing across the four preparation–phase–small-mixer circuits, but not across every shallow graph-phase architecture.
+
+---
+
+## Readout dependence
+
+The strongest readout interaction again occurs for H-X.
+
+Its globally sorted readout obtains a mean mixing score of approximately:
+
+$$0.21,$$
+
+while R2 reaches:
+
+$$0.999.$$
+
+Thus, H-X contains an almost complete degree-conditioned mixing state that global probability sorting largely removes.
+
+D-X exhibits a different pattern.
+
+Its Hamming-weight marginal already reaches approximately:
+
+$$0.90.$$
+
+Normalized degree preparation moves substantial mixing information into total excitation-weight statistics, although R2 remains stronger.
+
+F-X and F-Y preserve the mixing state even under R0:
+
+$$\overline{R^2}_{R0}\approx0.99.$$
+
+For these concentrated flat-preparation circuits, global rank geometry remains strongly aligned with degree mixing.
+
+---
+
+# Per-Coordinate Analytical Audit
+
+The revised experiment evaluates every analytical target coordinate separately.
+
+## F-X
+
+Every analytical coordinate in all four strata reaches:
+
+$$R^2=1.00$$
+
+to displayed precision.
+
+This includes:
+
+$$3+1+6+5=15$$
+
+independent mixing coordinates.
+
+## F-Y
+
+F-Y also reaches:
+
+$$R^2=1.00$$
+
+on every analytical coordinate to displayed precision.
+
+## H-X
+
+All H-X coordinates are approximately:
+
+$$R^2=1.00.$$
+
+No analytical direction is omitted despite the poor performance of the globally sorted H-X readout.
+
+## D-X
+
+D-X remains strong on every coordinate.
+
+* S1 and S2 coordinates reach 1.00.
+* S3 coordinates range from approximately 0.99 to 1.00.
+* S4 coordinates range from approximately 0.99 to 1.00.
+
+The slightly lower pooled D-X values therefore do not arise from one missing target direction.
+
+They reflect small errors distributed across several analytical coordinates.
+
+## H-H
+
+H-H is weak across the target space rather than failing on only one direction.
+
+Its coordinatewise results are approximately:
+
+| Stratum | Coordinatewise range |
+| ------- | -------------------: |
+| S1      |            0.15–0.31 |
+| S2      |                 0.51 |
+| S3      |            0.08–0.35 |
+| S4      |            0.06–0.19 |
+
+The H-H counterexample is therefore structural.
+
+Its low pooled score is not caused by one poorly chosen analytical coordinate.
+
+---
+
+# Reconstruction of Raw Joint-Degree Counts
+
+The notebook maps the out-of-fold coordinate predictions back to the raw joint-degree vector.
+
+For one feasible reference offset $$m_0$$:
+
+$$\widehat m(G)=m_0+\widehat u(G)N_s^\top.$$
+
+It reports the maximum absolute error over:
+
+* every graph;
+* every raw joint-degree coordinate.
+
+| Circuit |    S1 |    S2 |    S3 |    S4 |
+| ------- | ----: | ----: | ----: | ----: |
+| F-X     | 0.018 | 0.005 | 0.029 | 0.365 |
+| D-X     | 0.154 | 0.003 | 0.970 |  1.61 |
+| H-X     | 0.192 | 0.040 | 0.182 | 0.685 |
+| F-Y     | 0.046 | 0.001 | 0.036 | 0.066 |
+| H-H     |  4.75 |  4.02 |  3.70 |  3.76 |
+
+These values are prediction errors, not errors in the E30 basis reconstruction itself.
+
+E30 reconstructs true analytical coordinates at numerical precision. The values above measure how accurately out-of-fold circuit predictions recover the original integer edge counts.
+
+For F-X and F-Y, every maximum error is below:
+
+$$0.5.$$
+
+Because the true joint-degree counts are integers, nearest-integer rounding of the reconstructed vectors would recover every raw count exactly for those two circuits.
+
+The notebook does not explicitly perform or assert that rounding step, but the displayed worst-case bounds imply it.
+
+H-X also remains below 0.5 in S1–S3, but not S4.
+
+D-X exceeds one edge of error in its most difficult hub-stratum case despite a pooled score of:
+
+$$0.995.$$
+
+This illustrates an important distinction:
+
+> Near-perfect explained variance does not necessarily imply exact recovery of every integer joint-degree count.
+
+H-H remains several edges away in the worst cases.
+
+---
+
+# Comparison with Original E29A
+
+The original E29A used globally fitted SVD mixing coordinates.
+
+E29A-R uses the sample-independent E30 analytical coordinates.
+
+The principal mean R2 results are:
+
+| Circuit | Original E29A | E29A-R |
+| ------- | ------------: | -----: |
+| F-X     |         1.000 |  1.000 |
+| D-X     |         0.997 |  0.997 |
+| H-X     |         0.999 |  0.999 |
+| F-Y     |         1.000 |  1.000 |
+| H-H     |         0.265 |  0.276 |
+
+The four principal circuits are unchanged to three displayed decimals.
+
+H-H remains weak, with only a small coordinate-orientation-dependent change.
+
+The analytical-basis correction therefore leaves the scientific conclusion intact.
+
+The small numerical changes in selected R0, R1, and H-H cells are expected because the decoder:
+
+* fits each target coordinate separately;
+* selects regularization separately;
+* and is not strictly invariant to rotation of a multivariate target basis.
+
+---
+
+# Secondary Cycle Screen
+
+Cycle targets are independent of the mixing-basis revision.
+
+The revised producer readouts produce the following mean R0 and R2 scores across C3–C6 within each stratum.
+
+| Circuit | S1 R0/R2       | S2 R0/R2    | S3 R0/R2       | S4 R0/R2          |
+| ------- | -------------- | ----------- | -------------- | ----------------- |
+| F-X     | 0.13 / 0.41    | 0.47 / 0.70 | (-0.03) / 0.36 | 0.06 / 0.04       |
+| D-X     | 0.06 / 0.40    | 0.07 / 0.70 | (-0.01) / 0.00 | (-0.03) / (-0.62) |
+| H-X     | (-0.02) / 0.38 | 0.36 / 0.71 | (-0.02) / 0.06 | (-0.02) / 0.14    |
+| F-Y     | 0.20 / 0.45    | 0.55 / 0.71 | (-0.01) / 0.43 | 0.16 / 0.40       |
+| H-H     | 0.18 / 0.40    | 0.10 / 0.36 | 0.08 / 0.31    | 0.11 / 0.36       |
+
+The printed values reproduce the original E29A cycle pattern to displayed precision.
+
+The implied circuit-level mean R2-minus-R0 gains remain approximately:
+
+| Circuit | Mean cycle gain |
+| ------- | --------------: |
+| F-X     |         (+0.22) |
+| D-X     |         (+0.10) |
+| H-X     |         (+0.25) |
+| F-Y     |         (+0.28) |
+| H-H     |         (+0.24) |
+
+These correspond to the original E29A values:
+
+$$0.219,\quad0.100,\quad0.248,\quad0.276,\quad0.240.$$
+
+The revised notebook does not load the original E29A result artifact or perform a hard numerical equality assertion.
+
+The conclusion is therefore that the displayed cycle results reproduce the earlier screen, not that byte-for-byte identity was independently verified.
+
+---
+
+## Mixing recovery and cycle accessibility are distinct
+
+The revised results again show that mixing reconstruction does not determine cycle performance.
+
+D-X R2 recovers mixing at:
+
+$$R^2=0.995$$
+
+in S4 but has a mean S4 cycle score of:
+
+$$-0.62.$$
+
+Conversely, H-H has weak S4 mixing reconstruction:
+
+$$R^2=0.145,$$
+
+but a positive mean S4 cycle score of:
+
+$$0.36.$$
+
+The degree-mixing coordinate is therefore one structural channel rather than a complete explanation of every cycle result.
+
+---
+
+# Directional-Stability Audit
+
+E29A-R replaces the original bootstrap “p-value” language with a more accurate descriptive statistic.
+
+For each contrast, it resamples graphs within a stratum and recomputes:
+
+$$\Delta R^2=\frac{\text{SSE}*{\text{worse}}-\text{SSE}*{\text{better}}}{\text{SST}}.$$
+
+The reported output is:
+
+* the observed pooled out-of-fold contrast;
+* a percentile interval;
+* the fraction of resamples with positive contrast.
+
+For S1 triangle prediction, the R2-minus-R0 results are:
+
+| Circuit | Observed contrast | 95% percentile interval | Positive fraction |
+| ------- | ----------------: | ----------------------: | ----------------: |
+| F-X     |          (+0.434) |          [0.121, 0.879] |              1.00 |
+| D-X     |          (+0.667) |          [0.584, 0.762] |              1.00 |
+| H-X     |          (+0.915) |          [0.868, 0.957] |              1.00 |
+| F-Y     |          (+0.431) |          [0.182, 0.815] |              1.00 |
+| H-H     |          (+0.271) |          [0.149, 0.378] |              1.00 |
+
+These results indicate stable positive direction under empirical graph resampling.
+
+They are not null-hypothesis p-values and do not provide familywise-error control.
+
+The observed pooled contrast also differs from the difference between two mean-fold $$R^2$$ values. The two calculations use different centering and aggregation conventions.
+
+---
+
+# What the Experiment Establishes
+
+The completed results establish that:
+
+1. **E29A-R successfully aligns the validated E29P-R circuit artifacts with the E30 analytical mixing coordinates.**
+
+2. **The principal E29A mixing result survives removal of the graph-fitted SVD target basis.**
+
+3. **F-X, D-X, H-X, and F-Y recover the analytical mixing state with mean R2 scores between (0.997) and (1.000).**
+
+4. **H-H remains a clear architectural counterexample with a mean score of (0.276).**
+
+5. **Every analytical mixing coordinate is recovered by the four principal circuits.**
+
+6. **The strong pooled results are not driven by one dominant target direction.**
+
+7. **F-X and F-Y predict the raw joint-degree count vectors within less than one-half edge in every graph-coordinate cell.**
+
+8. **Global sorting can retain mixing almost perfectly for F-X and F-Y while nearly erasing it for H-X.**
+
+9. **Normalized degree preparation places unusually strong mixing information in the Hamming-weight marginal.**
+
+10. **The secondary cycle screen reproduces the original E29A pattern to displayed precision.**
+
+11. **Cycle accessibility remains architecture dependent and is not determined solely by mixing recovery.**
+
+12. **The revised bootstrap is correctly interpreted as directional stability rather than formal null inference.**
+
+E29A-R therefore removes the target-basis leakage concern without weakening the primary circuit-general degree-sector result.
+
+---
+
+# Necessary Qualifications
+
+The E30 analytical basis is sample independent but not mathematically unique.
+
+Its null space is uniquely determined, but its orthonormal coordinate orientation can depend on:
+
+* numerical linear-algebra implementation;
+* software version;
+* and basis ordering conventions.
+
+The stored E30 basis must therefore remain part of the reproducibility record.
+
+The E29A-R decoder is not rotation invariant in target space.
+
+Each analytical coordinate receives:
+
+* its own fitted ridge model;
+* its own selected regularization value;
+* and its own fold score.
+
+The revised scores can differ slightly from the earlier SVD-coordinate scores even though both coordinate systems span the same mixing space.
+
+The pooled mixing score is variance weighted across coordinates.
+
+Near-perfect pooled performance does not by itself prove equal accuracy on every target direction. E29A-R addresses this concern through its per-coordinate table, but it reports those values only to two displayed decimals.
+
+The raw-count reconstruction statistic is a maximum absolute error.
+
+It does not report:
+
+* mean absolute error;
+* exact integer-recovery rate;
+* or which edge type and graph produced the maximum.
+
+The inferred nearest-integer recovery for F-X and F-Y follows from the sub-0.5 maximum errors but was not explicitly asserted by the notebook.
+
+The R0, R1, and R2 feature spaces are not capacity matched.
+
+Their dimensions are:
+
+$$1{,}000,\qquad15,\qquad64\text{--}315.$$
+
+R2’s success reflects both:
+
+* preservation of degree-sector identity;
+* and an explicit lower-dimensional aggregation with a favorable inductive bias.
+
+The producer artifacts are aligned by graph identifiers, but E29A-R does not load the E29P-R manifest and verify its stored hashes.
+
+The notebook checks that at least one complete circuit family is available rather than asserting that all five named families are present. In the completed run, all five are present and reported.
+
+The cycle reproduction is not enforced by a direct comparison with the original E29A artifact.
+
+The directional-stability bootstrap:
+
+* resamples fixed out-of-fold predictions;
+* does not refit the ridge models;
+* does not repeat the outer folds;
+* and uses one sequential random generator across cells.
+
+Its intervals are conditional on the completed prediction pipeline and depend on evaluation order.
+
+The notebook suppresses linear-algebra warnings while allowing ridge penalties as small as:
+
+$$10^{-14}.$$
+
+No warnings or failures appear in the completed output, but the high-dimensional R0 fits inherit the numerical-sensitivity concerns identified in E10.
+
+All circuit readouts use exact ideal probabilities.
+
+No finite-shot result is established by E29A-R.
+
+Finally, R2 receives the graph’s degree partition at readout time. The experiment establishes structural accessibility in a hybrid graph-conditioned representation, not quantum advantage or recovery from circuit samples alone.
+
+---
+
+# Overall Assessment
+
+E29A-R is a successful corrective replication.
+
+The original E29A result does not depend on a target basis fitted to the complete 400-graph samples.
+
+Under the E30 analytical coordinates, degree-sector masses recover joint-degree mixing at:
+
+$$1.000$$
+
+for F-X,
+
+$$0.997$$
+
+for D-X,
+
+$$0.999$$
+
+for H-X,
+
+and:
+
+$$1.000$$
+
+for F-Y.
+
+Every analytical target direction is recovered.
+
+H-H remains weak at:
+
+$$0.276.$$
+
+The revised raw-count audit also makes the result more concrete. F-X and F-Y recover the joint-degree edge-count vectors within less than one-half edge everywhere in the held-out predictions, while D-X and H-X remain nearly exact in variance terms but have larger isolated raw-count errors.
+
+The cycle screen remains unchanged in substance and confirms that mixing reconstruction is not equivalent to general cycle accessibility.
+
+The appropriate central claim is:
+
+> Replacing the globally fitted SVD target with the sample-independent E30 analytical basis leaves the E29A conclusion intact. Degree-sector Born marginals reconstruct every independent joint-degree mixing direction under flat, normalized-degree, and Hadamard preparations with X or Y mixing, achieving mean pooled scores from (0.997) to (1.000). F-X and F-Y additionally reconstruct every raw joint-degree count within less than one-half edge in the out-of-fold predictions. The H-H architecture remains a broad counterexample rather than failing on one target direction. E29A-R therefore confirms that the circuit-general degree-mixing result is not an artifact of target-basis fitting, while retaining the qualifications that R2 uses graph-supplied degree classes, the feature spaces are not capacity matched, and the analysis uses ideal exact probabilities.
+
+
+
+### E29B-R - Analytical-Basis Conditional Structure Replication
+
+#### Experimental purpose
+
+E29B-R repeats the E29B conditional structure audit after replacing the globally fitted SVD mixing coordinates with the sample-independent analytical basis from E30.
+
+The experiment asks three questions.
+
+1. **Mixing after cycles**
+
+   Does a circuit readout predict the component of joint-degree mixing that remains after linear regression on:
+
+   $${C_3,C_4,C_5,C_6}?$$
+
+2. **Mixing after spectrum**
+
+   Does the readout predict the component of joint-degree mixing that remains after linear regression on the complete raw adjacency spectrum?
+
+3. **Cycles after mixing**
+
+   Does the readout predict cycle-count variation remaining after linear regression on the analytical mixing coordinates?
+
+The purpose of the revision is to determine whether the original E29B result depended on a target basis whose orientation was fitted using all 400 graphs.
+
+#### Execution status
+
+E29B-R completed successfully.
+
+The notebook:
+
+* loaded all five E29P-R circuit families;
+* loaded the E30 analytical coordinates;
+* aligned graph ordering across E6, E29P-R, and E30;
+* completed B1, B2, and B3 for every applicable circuit and readout;
+* generated both residual-accessibility heatmaps;
+* saved:
+
+```text
+e29b_r_analytical_conditional.pkl
+```
+
+No cell terminated with an error or emitted a visible solver warning.
+
+---
+
+## Graph families
+
+The experiment uses the four fixed-degree-sequence E6 strata at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs | Analytical mixing rank |
+| --------------- | --------------------- | -----: | ---------------------: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |                      3 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |                      1 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |                      6 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |                      5 |
+
+Every comparison occurs within one fixed degree sequence.
+
+The following quantities are therefore constant within each stratum:
+
+* graph order;
+* edge count;
+* degree multiset;
+* degree-class multiplicities.
+
+The mixing target describes how those fixed degree classes connect.
+
+#### Input gates
+
+For each stratum, the notebook verifies identical graph ordering across:
+
+* E6;
+* all available E29P-R circuit artifacts;
+* E30.
+
+It also reasserts:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+All 1,600 graph records pass.
+
+---
+
+## Circuit bank
+
+| Circuit | Preparation                                | Graph phase     | Final transformation |
+| ------- | ------------------------------------------ | --------------- | -------------------- |
+| F-X     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| D-X     | Normalized degree $$R_X(2.875d_i/\Delta)$$ | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| H-X     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| F-Y     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_Y(0.1)$$         |
+| H-H     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$H^{\otimes14}$$    |
+
+The first four are the principal preparation–phase–small-mixer circuits.
+
+H-H remains the architectural counterexample.
+
+---
+
+## Readouts
+
+##### R0 - Global probability sorting
+
+$$R_0(G)=\text{sort}_{\downarrow}{p_G(z)}.$$
+
+The first:
+
+$$1{,}000$$
+
+coordinates are used.
+
+R0 is evaluated for D-X, H-X, F-Y, and H-H.
+
+F-X R0 is omitted.
+
+##### R1 - Hamming-weight marginal
+
+$$R_1(G)*w=\sum*{z:|z|=w}p_G(z).$$
+
+Its dimension is:
+
+$$15.$$
+
+##### R2 - Degree-sector marginal
+
+For degree classes:
+
+$$d_1<\cdots<d_m,$$
+
+define:
+
+$$\kappa_G(z)=\left(\sum_{i:\deg(i)=d_1}z_i,\ldots,\sum_{i:\deg(i)=d_m}z_i\right).$$
+
+The degree-sector marginal is:
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+Its dimensions range from:
+
+$$64\text{ to }315.$$
+
+R2 uses the graph’s degree partition during aggregation. It is therefore a hybrid graph-conditioned circuit readout.
+
+---
+
+## Analytical mixing target
+
+Let:
+
+$$m(G)=\left(M_{ab}(G)\right)_{a\le b}$$
+
+be the raw joint-degree edge-count vector.
+
+E30 derives an orthonormal null-space basis:
+
+$$N_s$$
+
+from the fixed degree-class stub equations and singleton constraints.
+
+The analytical coordinates are:
+
+$$u(G)=m(G)N_s.$$
+
+Their dimensions are:
+
+$$3,\quad1,\quad6,\quad5$$
+
+for S1 through S4.
+
+The basis does not use the distribution of the 400 graph targets.
+
+E29B-R therefore removes the graph-sample-fitted target orientation used in the original E29B.
+
+---
+
+## Conditional residualization protocol
+
+Residualization occurs inside every outer fold.
+
+For target $$Y$$ and nuisance bank $$Z$$:
+
+1. the outer-training set is divided into five inner folds;
+2. nuisance models generate cross-fitted training predictions;
+3. the training residuals are formed from those predictions;
+4. one nuisance model is fitted to the complete outer-training set;
+5. independently residualized outer-test targets are formed;
+6. the circuit-readout probe is fitted to the training residuals;
+7. the probe predicts the outer-test residuals.
+
+The nuisance model uses:
+
+* train-only standardization;
+* ridge regression;
+* regularization grid:
+
+$$\alpha_{\text{nuisance}}\in{10^{-6},10^{-5.5},\ldots,10^6}.$$
+
+The second-stage readout probe uses:
+
+* raw readout coordinates;
+* five shuffled outer folds;
+* seed zero;
+* inner five-fold `RidgeCV`;
+* regularization grid:
+
+$$\alpha_{\text{readout}}\in{10^{-14},10^{-13},\ldots,10^2}.$$
+
+For multivariate mixing targets, squared errors and target sums of squares are pooled across the analytical coordinates within each outer fold.
+
+#### Calibration
+
+A target generated entirely from the nuisance bank produces:
+
+$$R^2=-0.033$$
+
+after residualization and readout decoding.
+
+A target generated linearly from the tested features produces:
+
+$$R^2=1.000.$$
+
+The calibration supports the basic nuisance-removal and second-stage decoding machinery.
+
+It does not test a combined target containing both nuisance and independently encoded feature components.
+
+---
+
+# B1 - Analytical Mixing After Cycle Residualization
+
+## R2 results
+
+| Circuit |   S1 |   S2 |   S3 |   S4 |  Mean |
+| ------- | ---: | ---: | ---: | ---: | ----: |
+| F-X     | 0.99 | 0.68 | 0.96 | 0.95 | 0.896 |
+| D-X     | 0.99 | 0.72 | 0.95 | 0.94 | 0.898 |
+| H-X     | 0.99 | 0.76 | 0.96 | 0.96 | 0.917 |
+| F-Y     | 0.99 | 0.77 | 0.97 | 0.97 | 0.925 |
+| H-H     | 0.24 | 0.32 | 0.17 | 0.12 | 0.212 |
+
+The four principal circuits retain strong residual analytical-mixing scores:
+
+$$0.896\text{ to }0.925.$$
+
+H-H remains substantially weaker:
+
+$$R^2=0.212.$$
+
+#### S1, S3, and S4
+
+Cycle residualization removes little of the accessible R2 mixing signal in:
+
+* S1;
+* S3;
+* S4.
+
+For every principal circuit, the residual score remains approximately:
+
+$$0.94\text{ to }0.99.$$
+
+Ordinary cycle totals therefore do not linearly explain the degree-mixing state exposed by R2 in these families.
+
+#### S2
+
+S2 consistently has the largest reduction.
+
+Its residual values range from:
+
+$$0.68\text{ to }0.77.$$
+
+S2 contains only one independent mixing coordinate. That coordinate overlaps more strongly with ordinary cycle variation than the higher-dimensional mixing states in the other strata.
+
+The residual remains clearly accessible, so the overlap is substantial but incomplete.
+
+---
+
+# B2 - Analytical Mixing After Spectral Residualization
+
+## R2 results
+
+| Circuit |   S1 |   S2 |   S3 |   S4 |  Mean |
+| ------- | ---: | ---: | ---: | ---: | ----: |
+| F-X     | 0.98 | 0.75 | 0.97 | 0.97 | 0.917 |
+| D-X     | 0.97 | 0.84 | 0.96 | 0.95 | 0.931 |
+| H-X     | 0.97 | 0.76 | 0.97 | 0.96 | 0.913 |
+| F-Y     | 0.98 | 0.82 | 0.98 | 0.97 | 0.935 |
+| H-H     | 0.19 | 0.33 | 0.16 | 0.14 | 0.204 |
+
+The same four circuits retain strong residual mixing after regression on the complete raw adjacency eigenvalue vector:
+
+$$0.913\text{ to }0.935.$$
+
+H-H again remains weak.
+
+The supported result is:
+
+> The R2 degree-mixing coordinate is not exhausted by a linear ridge model on the raw adjacency eigenvalues.
+
+This is not an unrestricted non-spectrality result.
+
+The spectrum determines nonlinear quantities such as:
+
+$$\text{tr}(A^k)=\sum_i\lambda_i^k.$$
+
+A linear nuisance model on the raw eigenvalues does not remove arbitrary polynomial or nonlinear spectral functions.
+
+---
+
+# Continuous R2 Summary
+
+| Circuit | Raw mixing | After cycles | Raw-minus-residual | After spectrum | Raw-minus-residual |
+| ------- | ---------: | -----------: | -----------------: | -------------: | -----------------: |
+| F-X     |      1.000 |        0.896 |              0.104 |          0.917 |              0.083 |
+| D-X     |      0.997 |        0.898 |              0.099 |          0.931 |              0.066 |
+| H-X     |      0.999 |        0.917 |              0.083 |          0.913 |              0.086 |
+| F-Y     |      1.000 |        0.925 |              0.075 |          0.935 |              0.065 |
+| H-H     |      0.276 |        0.212 |              0.063 |          0.204 |              0.072 |
+
+The four principal circuits show nearly identical behavior.
+
+The small numerical differences do not support a categorical distinction among them.
+
+The original E29B binary threshold flags have been removed. This is an improvement over classifying:
+
+$$0.099$$
+
+and:
+
+$$0.104$$
+
+as fundamentally different outcomes.
+
+The raw-minus-residual differences are descriptive changes between two different target problems. They are not fractions of mixing “explained” by the nuisance variables.
+
+---
+
+# Readout Dependence
+
+Approximate mean residual mixing scores derived from the printed stratum values are:
+
+| Circuit | Readout |       After cycles | After spectrum |
+| ------- | ------- | -----------------: | -------------: |
+| F-X     | R1      |               0.47 |           0.45 |
+| F-X     | R2      |              0.896 |          0.917 |
+| D-X     | R0      |               0.51 |           0.49 |
+| D-X     | R1      |               0.77 |           0.79 |
+| D-X     | R2      |              0.898 |          0.931 |
+| H-X     | R0      |               0.14 |           0.12 |
+| H-X     | R1      |               0.52 |           0.49 |
+| H-X     | R2      |              0.917 |          0.913 |
+| F-Y     | R0      |               0.88 |           0.89 |
+| F-Y     | R1      |               0.54 |           0.53 |
+| F-Y     | R2      |              0.925 |          0.935 |
+| H-H     | R0      | approximately 0.00 |        (-0.02) |
+| H-H     | R1      |               0.06 |           0.07 |
+| H-H     | R2      |              0.212 |          0.204 |
+
+#### Degree sectors versus Hamming weight
+
+R2 substantially exceeds R1 for:
+
+* F-X;
+* H-X;
+* F-Y.
+
+For H-X, the difference is especially large:
+
+$$R^2_{\text{mix}|\text{cycles}}:0.52\rightarrow0.917,$$
+
+and:
+
+$$R^2_{\text{mix}|\text{spectrum}}:0.49\rightarrow0.913.$$
+
+The conditional mixing channel therefore requires more than total excitation number.
+
+D-X remains the exception.
+
+Its R1 marginal retains approximately:
+
+$$0.77\text{ to }0.79.$$
+
+Normalized degree preparation moves substantial degree-conditioned information into the coarse Hamming-weight distribution.
+
+#### Global sorting
+
+F-Y retains most of its conditional mixing state under global sorting:
+
+$$R^2\approx0.88\text{--}0.89.$$
+
+D-X R0 is intermediate:
+
+$$R^2\approx0.49\text{--}0.51.$$
+
+H-X R0 remains weak:
+
+$$R^2\approx0.12\text{--}0.14.$$
+
+Thus, circuit architecture and readout quotient interact strongly.
+
+The H-X probability distribution contains an almost complete degree-mixing coordinate under R2, but global sorting largely removes it.
+
+---
+
+# B3 - Cycle Counts After Analytical-Mixing Residualization
+
+The complete R2 table is:
+
+| Circuit | Stratum |       $$C_3$$ raw→residual | $$C_4$$ raw→residual | $$C_5$$ raw→residual | $$C_6$$ raw→residual |
+| ------- | ------- | -------------------------: | -------------------: | -------------------: | -------------------: |
+| F-X     | S1      |                  0.99→0.99 |            0.45→0.45 |            0.09→0.09 |            0.12→0.12 |
+| F-X     | S2      |                  1.00→1.00 |            0.78→0.74 |            0.46→0.38 |            0.54→0.51 |
+| F-X     | S3      |                  0.81→0.79 |            0.23→0.09 |            0.25→0.24 |            0.13→0.13 |
+| F-X     | S4      |            (-0.09)→(-0.37) |            0.14→0.19 |            0.04→0.04 |            0.08→0.08 |
+| D-X     | S1      |                  0.90→0.90 |            0.58→0.58 |            0.10→0.07 |            0.03→0.04 |
+| D-X     | S2      |                  0.95→0.95 |            0.77→0.73 |            0.57→0.51 |            0.50→0.47 |
+| D-X     | S3      | approximately 0.00→(-0.02) |         0.07→(-0.04) |      (-0.02)→(-0.04) |      (-0.03)→(-0.02) |
+| D-X     | S4      |            (-2.19)→(-3.17) |      (-0.20)→(-0.01) |      (-0.05)→(-0.04) |      (-0.03)→(-0.02) |
+| H-X     | S1      |                  0.89→0.89 |            0.36→0.35 |            0.15→0.14 |            0.12→0.13 |
+| H-X     | S2      |                  0.97→0.97 |            0.81→0.78 |            0.50→0.43 |            0.54→0.51 |
+| H-X     | S3      |                  0.28→0.17 |         0.05→(-0.04) |      (-0.08)→(-0.07) |      (-0.01)→(-0.02) |
+| H-X     | S4      |                  0.41→0.37 |      (-0.01)→(-0.02) |            0.11→0.11 |            0.07→0.08 |
+| F-Y     | S1      |                  1.00→1.00 |            0.52→0.52 |            0.11→0.11 |            0.18→0.19 |
+| F-Y     | S2      |                  1.00→1.00 |            0.79→0.76 |            0.57→0.51 |            0.48→0.45 |
+| F-Y     | S3      |                  0.98→0.98 |            0.23→0.09 |            0.32→0.31 |            0.18→0.18 |
+| F-Y     | S4      |                  0.99→0.99 |            0.41→0.39 |            0.11→0.11 |            0.10→0.11 |
+| H-H     | S1      |                  0.30→0.27 |            0.86→0.86 |            0.02→0.02 |            0.43→0.44 |
+| H-H     | S2      |                  0.41→0.32 |            0.63→0.69 |            0.06→0.04 |            0.34→0.37 |
+| H-H     | S3      |                  0.26→0.21 |            0.59→0.57 |            0.05→0.05 |            0.32→0.31 |
+| H-H     | S4      |                  0.33→0.22 |            0.65→0.63 |            0.12→0.12 |            0.36→0.33 |
+
+The circuit-level means are:
+
+| Circuit | Mean residual cycle $$R^2$$ |
+| ------- | --------------------------: |
+| F-X     |                       0.342 |
+| D-X     |                       0.055 |
+| H-X     |                       0.300 |
+| F-Y     |                       0.481 |
+| H-H     |                       0.340 |
+
+These aggregate values require target-specific interpretation.
+
+---
+
+## F-X
+
+F-X retains substantial cycle accessibility after mixing removal.
+
+* S1 triangle prediction remains at (0.99).
+* S2 retains strong C3 and C4, with positive C5 and C6.
+* S3 triangle prediction remains at (0.79).
+* S3 C4 declines from (0.23) to (0.09).
+* S4 triangle prediction is absent before residualization and deteriorates further.
+
+The cycle channel is therefore not reducible to analytical degree mixing.
+
+---
+
+## D-X
+
+The mean residual value:
+
+$$0.055$$
+
+is misleading.
+
+It is dominated by one catastrophic cell:
+
+$$\text{S4 }C_3:-2.19\rightarrow-3.17.$$
+
+Using the displayed values and excluding that one cell, the mean residual across the remaining 15 cells is approximately:
+
+$$0.27.$$
+
+D-X therefore does not exhibit a general collapse of cycle accessibility after mixing removal.
+
+Its actual pattern is:
+
+* strong surviving C3 and C4 in S1 and S2;
+* positive surviving C5 and C6 in S2;
+* little cycle accessibility in S3;
+* a severe S4 triangle failure.
+
+The original E29B interpretation that D-X cycles were broadly mediated by mixing should be withdrawn.
+
+The low circuit-level mean is primarily an averaging artifact caused by one large negative value.
+
+---
+
+## H-X
+
+H-X retains:
+
+* strong triangles in S1 and S2;
+* strong S2 C4;
+* moderate S2 C5 and C6;
+* weaker triangle information in S3 and S4.
+
+The S3 C3 score declines from:
+
+$$0.28$$
+
+to:
+
+$$0.17.$$
+
+The deeper S3 targets remain at the prediction floor.
+
+H-X therefore contains separate mixing and cycle channels, but the cycle channel depends strongly on degree-sequence family.
+
+---
+
+## F-Y
+
+F-Y has the strongest and broadest residual cycle channel:
+
+$$\overline{R^2}_{\text{cycle}|\text{mixing}}=0.481.$$
+
+Its triangle scores remain nearly exact in all four strata:
+
+$$1.00,\quad1.00,\quad0.98,\quad0.99.$$
+
+It also retains:
+
+* strong C4 in S1, S2, and S4;
+* positive C5 in every stratum;
+* positive C6 in every stratum.
+
+The principal loss occurs for S3 C4:
+
+$$0.23\rightarrow0.09.$$
+
+The Y-mixer representation therefore retains substantial cycle structure outside the analytical joint-degree mixing state.
+
+---
+
+## H-H
+
+H-H remains the degree-mixing counterexample but exhibits a distinct cycle channel.
+
+Its analytical-mixing reconstruction is weak:
+
+$$R^2_{\text{mixing}}=0.276.$$
+
+Nevertheless, after mixing residualization it retains:
+
+* C4 scores from (0.57) to (0.86);
+* C6 scores from (0.31) to (0.44);
+* moderate triangle scores;
+* almost no C5 signal.
+
+This is an even-cycle-weighted pattern.
+
+The result shows that failure to reconstruct degree mixing does not imply absence of structural information.
+
+H-H contains a cycle-oriented representation that is largely distinct from the degree-mixing channel emphasized by the four principal circuits.
+
+The experiment does not identify the mechanism of this even-cycle sensitivity, but the pattern is consistent across all four strata.
+
+---
+
+# Comparison with Original E29B
+
+## Conditional mixing means
+
+| Circuit | Original after cycles | E29B-R after cycles | Original after spectrum | E29B-R after spectrum |
+| ------- | --------------------: | ------------------: | ----------------------: | --------------------: |
+| F-X     |                 0.896 |               0.896 |                   0.915 |                 0.917 |
+| D-X     |                 0.895 |               0.898 |                   0.930 |                 0.931 |
+| H-X     |                 0.915 |               0.917 |                   0.913 |                 0.913 |
+| F-Y     |                 0.923 |               0.925 |                   0.930 |                 0.935 |
+| H-H     |                 0.199 |               0.212 |                   0.202 |                 0.204 |
+
+The analytical-basis correction changes no principal conclusion.
+
+The four principal circuits remain tightly grouped, and H-H remains weak.
+
+## Cycle residual means
+
+| Circuit | Original E29B | E29B-R |
+| ------- | ------------: | -----: |
+| F-X     |         0.347 |  0.342 |
+| D-X     |         0.066 |  0.055 |
+| H-X     |         0.300 |  0.300 |
+| F-Y     |         0.480 |  0.481 |
+| H-H     |         0.341 |  0.340 |
+
+The aggregate values are also nearly unchanged.
+
+The important revision is interpretive rather than numerical: the complete B3 table reveals that D-X’s low mean is dominated by one severe S4 C3 failure.
+
+---
+
+# Relationship to E29A-R
+
+E29A-R showed that R2 reconstructs the raw analytical mixing state at:
+
+$$0.997\text{ to }1.000$$
+
+for the four principal circuits.
+
+E29B-R shows that most of this accessibility survives linear removal of:
+
+* ordinary cycle totals;
+* raw adjacency eigenvalues.
+
+The result is therefore not a consequence of the graph-fitted SVD target orientation.
+
+E29A-R also showed that H-H fails across the analytical mixing coordinates. E29B-R confirms that residualization does not reveal a hidden H-H mixing channel.
+
+---
+
+# Missing F-X R0 Analytical Replication
+
+E29B-R omits the F-X R0 readout because the original E27 experiment already evaluated globally sorted F-X probabilities.
+
+That earlier result used the empirical SVD mixing coordinates.
+
+E30 explicitly established that coordinatewise ridge scores need not remain numerically identical after target rotation.
+
+Consequently, the E27 result cannot serve as a complete analytical-basis replication of F-X R0.
+
+The omission does not affect the primary R2 conclusion.
+
+It does leave one gap in the revised readout comparison:
+
+> F-X global-sorting conditional mixing has not been rerun using the E30 analytical coordinates.
+
+This cell should be added if the paper directly compares F-X R0 and R2 under the corrected target basis.
+
+---
+
+# What the Experiment Establishes
+
+The completed results establish that:
+
+1. **E29B-R successfully aligns E29P-R readouts with the E30 analytical mixing coordinates.**
+
+2. **The principal conditional mixing result survives removal of the graph-fitted SVD target basis.**
+
+3. **R2 residual mixing after cycle removal remains between (0.896) and (0.925) for the four principal circuits.**
+
+4. **R2 residual mixing after raw-spectrum removal remains between (0.913) and (0.935).**
+
+5. **H-H remains a clear mixing counterexample.**
+
+6. **S2 consistently exhibits the greatest linear overlap among mixing, cycles, and spectrum.**
+
+7. **R2 retains substantially more conditional mixing information than R1 for F-X, H-X, and F-Y.**
+
+8. **D-X places unusually strong conditional mixing information in its Hamming-weight marginal.**
+
+9. **Global sorting preserves the conditional channel for F-Y, partially preserves it for D-X, and largely removes it for H-X.**
+
+10. **F-X, H-X, and F-Y retain substantial cycle accessibility after analytical-mixing removal.**
+
+11. **D-X’s low aggregate cycle residual is dominated by one catastrophic S4 triangle cell and does not support broad cycle mediation.**
+
+12. **H-H retains a strong C4/C6-oriented cycle channel despite weak mixing reconstruction.**
+
+13. **The original E29B numerical conclusions are stable under the analytical target correction.**
+
+14. **The revised experiment correctly removes the previous binary interpretation flags.**
+
+15. **F-X R0 remains missing from the analytical-basis rerun.**
+
+E29B-R therefore confirms a circuit-general, readout-dependent degree-mixing channel while providing a more accurate target-specific account of the remaining cycle structure.
+
+---
+
+# Necessary Qualifications
+
+The nuisance models are linear ridge regressions.
+
+Residual mixing after cycle removal can still contain nonlinear functions of:
+
+$$C_3,C_4,C_5,C_6.$$
+
+Residual mixing after spectral removal can still contain nonlinear functions of the spectrum.
+
+The experiment establishes survival under the specific linear nuisance models tested, not statistical independence or unrestricted non-spectrality.
+
+The cycle and spectral nuisance banks are tested separately.
+
+E29B-R does not condition jointly on both banks.
+
+Raw and residual $$R^2$$ values use different target variances.
+
+Their difference cannot be interpreted as a fraction of information explained or mediated.
+
+The notebook describes the pooled multivariate score as rotation invariant.
+
+That description is not strictly correct.
+
+Each analytical coordinate receives:
+
+* a separate nuisance model;
+* a separate readout model;
+* a separately selected ridge penalty;
+* and a possible low-variance skip.
+
+The pooled score is not generally invariant under arbitrary target-space rotation.
+
+E30 removes the sample-fitted target orientation, so this no longer creates target-basis leakage, but the mathematical description should still be corrected.
+
+The E30 analytical null-space basis is sample independent but not mathematically canonical across all numerical linear-algebra implementations.
+
+The stored basis matrix remains part of the experimental definition.
+
+The calibration does not test whether a feature-linear signal survives when combined with a nuisance component in the same target.
+
+B1 and B2 fold standard deviations are stored but not printed in the completed notebook output.
+
+B3 stores only residual fold standard deviations and discards the raw fold standard deviations.
+
+No:
+
+* bootstrap interval;
+* permutation test;
+* repeated outer split;
+* or cross-circuit significance test
+
+is performed.
+
+The D-X S4 C3 result demonstrates why circuit-level averages of signed $$R^2$$ values can be unstable.
+
+One large negative cell can dominate 15 otherwise moderate or positive results.
+
+The B3 table should therefore be interpreted target by target rather than through the circuit mean.
+
+The notebook verifies graph ordering but does not load the E29P-R manifest or validate its stored array fingerprints.
+
+It asserts only that at least one complete circuit family exists. All five were present in the completed run, but the code does not require all five.
+
+F-X R0 is omitted despite the analytical target change.
+
+The earlier E27 score cannot be assumed numerically identical under E30 because the decoder is coordinate dependent.
+
+R0, R1, and R2 are not dimension matched:
+
+$$1{,}000,\qquad15,\qquad64\text{--}315.$$
+
+Their comparisons combine semantic information loss with different regression conditioning and inductive bias.
+
+All readouts use exact ideal probabilities.
+
+Finite-shot recovery is not tested.
+
+Finally, R2 receives graph-supplied degree classes at readout time. The result concerns a hybrid graph-conditioned circuit representation and does not establish quantum advantage.
+
+---
+
+# Overall Assessment
+
+E29B-R is a successful corrective replication of the principal conditional mixing result.
+
+Using the sample-independent E30 coordinates, degree-sector masses retain:
+
+$$R^2=0.896\text{--}0.925$$
+
+after linear cycle removal and:
+
+$$R^2=0.913\text{--}0.935$$
+
+after linear raw-spectrum removal across F-X, D-X, H-X, and F-Y.
+
+These values are nearly identical to the original E29B results.
+
+The common degree-mixing channel is therefore not an artifact of fitting the target basis to all 400 graphs.
+
+The complete B3 output also improves the scientific interpretation.
+
+F-Y retains the strongest broad cycle channel. F-X and H-X retain family-dependent cycle information beyond mixing. H-H fails at mixing but strongly retains C4 and C6, demonstrating a distinct structural orientation.
+
+D-X should no longer be described as broadly cycle mediated by mixing. Its low aggregate residual score is driven largely by the catastrophic S4 triangle result:
+
+$$R^2=-3.17.$$
+
+Excluding that one displayed cell raises its approximate 15-cell residual mean from:
+
+$$0.055$$
+
+to:
+
+$$0.27.$$
+
+The appropriate central claim is:
+
+> Replacing the graph-fitted SVD target with the E30 analytical mixing coordinates leaves the E29B conclusion intact. Degree-sector Born marginals retain strong joint-degree mixing accessibility after linear removal of ordinary cycles and raw adjacency eigenvalues across flat, normalized-degree, and Hadamard preparations with X or Y mixing. The H-H architecture remains a mixing counterexample but retains a separate C4/C6-oriented cycle channel. The complete target-level audit also shows that D-X’s low aggregate cycle residual is caused by one severe hub-stratum triangle failure rather than broad mediation through mixing. E29B-R therefore confirms a robust conditional mixing coordinate while narrowing all claims to the specific linear nuisance models and target-level results actually tested.
+
+
+
+### E29C-R - Stabilized Classical-Location Audit
+
+#### Experimental purpose
+
+E29C-R revisits the E29C classical-location experiment after two corrections:
+
+* replacement of the graph-fitted mixing SVD with the E30 analytical joint-degree basis;
+* replacement of scikit-learn’s warning-prone ridge solver with an explicitly instrumented SVD ridge implementation.
+
+The experiment asks whether the degree-sector readout R2 improves cycle prediction after directly supplying:
+
+* analytical joint-degree mixing;
+* the complete raw adjacency spectrum.
+
+Its primary statistic remains:
+
+$$\Delta R^2_{\text{inc}}=R^2(M+\lambda+R2)-R^2(M+\lambda).$$
+
+The intended role of E29C-R is diagnostic.
+
+It tests whether the positive E29C increments—especially the S2 C5 and C6 gains—survive a more numerically controlled regression procedure, and whether the catastrophic F-Y S4 triangle result was only a solver artifact.
+
+#### Execution status
+
+E29C-R completed all cells and saved:
+
+```text
+e29c_r_stable_classical.pkl
+```
+
+The notebook successfully:
+
+* loaded all five E29P-R circuit families;
+* aligned graph ordering across E6, E29P-R, and E30;
+* used the E30 analytical mixing coordinates;
+* evaluated all 80 circuit–stratum–cycle cells;
+* evaluated two ridge regularization grids;
+* recorded fold-level ranks, selected penalties, condition numbers, and scores;
+* reran the reverse reconstruction of R2 from classical features.
+
+No execution exception occurred.
+
+Computational completion does not imply that the revised decoder is a valid replacement for the original nested ridge protocol.
+
+---
+
+## Graph families
+
+The experiment uses the four fixed-degree-sequence E6 strata at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs | Analytical mixing rank |
+| --------------- | --------------------- | -----: | ---------------------: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |                      3 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |                      1 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |                      6 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |                      5 |
+
+Every graph passes:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+Graph ordering agrees across all three input sources.
+
+---
+
+## Circuit bank
+
+| Circuit | Preparation                                | Graph phase     | Final transformation |
+| ------- | ------------------------------------------ | --------------- | -------------------- |
+| F-X     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| D-X     | Normalized degree $$R_X(2.875d_i/\Delta)$$ | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| H-X     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| F-Y     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_Y(0.1)$$         |
+| H-H     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$H^{\otimes14}$$    |
+
+The circuit representations come from the validated E29P-R producer.
+
+---
+
+## Feature banks
+
+##### Analytical mixing
+
+For raw joint-degree count vector $$m(G)$$ and E30 null-space basis $$N_s$$:
+
+$$u(G)=m(G)N_s.$$
+
+The analytical coordinates have dimensions:
+
+$$3,\quad1,\quad6,\quad5.$$
+
+##### Spectrum
+
+The spectral bank contains all 14 sorted adjacency eigenvalues:
+
+$$\lambda(G)=(\lambda_1,\ldots,\lambda_{14}).$$
+
+##### Classical bank
+
+The primary classical model receives:
+
+$$X_{\text{classical}}=[u(G),\lambda(G)].$$
+
+Its dimensions are:
+
+| Stratum | Classical dimension |
+| ------- | ------------------: |
+| S1      |                  17 |
+| S2      |                  15 |
+| S3      |                  20 |
+| S4      |                  19 |
+
+##### Degree-sector readout
+
+For degree-occupancy signature $$\kappa_G(z)$$:
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+Its dimensions range from:
+
+$$64\text{ to }315.$$
+
+The augmented model receives:
+
+$$X_{\text{augmented}}=[u(G),\lambda(G),R_2(G)].$$
+
+---
+
+# Revised Decoder
+
+#### Outer evaluation
+
+The experiment retains:
+
+* five shuffled outer folds;
+* outer seed zero;
+* train-only feature standardization;
+* mean outer-fold test $$R^2$$.
+
+#### SVD ridge solution
+
+For standardized training matrix:
+
+$$X=USV^\top,$$
+
+ridge coefficients are computed through:
+
+$$\widehat\beta_\alpha=V\text{diag}\left(\frac{s_i}{s_i^2+\alpha}\right)U^\top y.$$
+
+This avoids the singular-system fallback warnings emitted by the original E29C solver.
+
+#### Regularization grids
+
+Two grids are tested.
+
+##### Primary grid
+
+$$\alpha\in{10^{-14},10^{-13},\ldots,10^2}.$$
+
+##### Stability grid
+
+$$\alpha\in{10^{-8},10^{-7},\ldots,10^2}.$$
+
+The stability grid removes the six smallest penalties.
+
+#### Instrumentation
+
+For every outer fold, the notebook records:
+
+* selected ridge penalty;
+* fold $$R^2$$;
+* effective design rank;
+* number of supplied features;
+* condition number over the retained singular subspace;
+* whether the selected penalty lies at the grid floor.
+
+A cell is labeled unstable when any relevant fold:
+
+* selects the minimum available penalty;
+* or has a reported design condition number above:
+
+$$10^{10}.$$
+
+---
+
+# Critical GCV Implementation Audit
+
+E29C-R does not use the original inner five-fold `RidgeCV` protocol.
+
+It selects the ridge penalty using a custom generalized cross-validation calculation.
+
+For centered target $$y$$, standardized design $$X=USV^\top$$, projected target $$z=U^\top y$$, and orthogonal residual:
+
+$$y_\perp=y-Uz,$$
+
+the complete GCV numerator should include both the residual inside and outside the design column space:
+
+$$\text{GCV}(\alpha)=\frac{n\left[|y_\perp|_2^2+\sum_i\left(\frac{\alpha}{s_i^2+\alpha}\right)^2z_i^2\right]}{\left[n-\sum_i\frac{s_i^2}{s_i^2+\alpha}\right]^2}.$$
+
+The notebook computes only:
+
+$$\sum_i\left(\frac{\alpha}{s_i^2+\alpha}\right)^2z_i^2.$$
+
+It omits:
+
+$$|y_\perp|_2^2.$$
+
+A code comment states that this fixed orthogonal residual is added by the caller, but the caller does not add it.
+
+This omission affects models for which the design has fewer columns than training graphs, including:
+
+* every classical-only model;
+* every S1 augmented model;
+* every S2 augmented model;
+* every S4 augmented model.
+
+The omitted quantity is constant with respect to $$\alpha$$ in the residual sum of squares, but it is divided by an $$\alpha$$-dependent effective-degrees-of-freedom denominator. It can therefore change which penalty minimizes GCV.
+
+The revised procedure is consequently not a mathematically complete GCV implementation for those cells.
+
+For S3 augmented models, the feature count can exceed the outer-training sample size, so the SVD spans the complete row space. The omitted orthogonal term is less relevant there. The severe S3 failures nevertheless show that GCV itself can select poorly generalizing near-interpolating solutions in this high-dimensional setting.
+
+#### Protocol consequence
+
+E29C-R is not an exact stable-solver replication of E29C.
+
+It changes both:
+
+* the numerical solver;
+* the regularization-selection procedure.
+
+The original experiment used an explicit inner five-fold cross-validation protocol. E29C-R uses incomplete GCV.
+
+Differences between the two experiments cannot be attributed solely to improved numerical stability.
+
+---
+
+# Calibration
+
+The decoder reports:
+
+$$R^2_{\text{null}}=-0.013,$$
+
+and:
+
+$$R^2_{\text{linear}}=1.000.$$
+
+This establishes that the implementation can reject one synthetic null and recover one exactly linear signal.
+
+It does not validate:
+
+* the GCV formula;
+* high-dimensional penalty selection;
+* heterogeneous concatenated banks;
+* or the stability annotation.
+
+The synthetic calibration uses only eight features and does not reproduce the highly redundant 79–335-dimensional augmented designs that drive the difficult E29C-R cells.
+
+---
+
+# Complete Stability-Grid Increments
+
+The following table reports the stability-grid increment:
+
+$$R^2(M+\lambda+R2)-R^2(M+\lambda).$$
+
+A dagger marks cells labeled unstable under the primary grid.
+
+| Circuit | Stratum |             $$C_3$$ |             $$C_4$$ |   $$C_5$$ |   $$C_6$$ |
+| ------- | ------- | ------------------: | ------------------: | --------: | --------: |
+| F-X     | S1      |           (+0.008)† |            (-0.002) |  (+0.217) | (-0.002)† |
+| F-X     | S2      |           (+0.014)† |           (+0.010)† | (+0.312)† | (+0.156)† |
+| F-X     | S3      |            (-0.004) |            (-0.010) |  (+0.197) |  (-0.039) |
+| F-X     | S4      | approximately 0.000 |           (-0.014)† |  (+0.131) |  (-0.417) |
+| D-X     | S1      |           (-0.043)† |           (-0.004)† | (-0.095)† | (-0.034)† |
+| D-X     | S2      |           (+0.008)† |           (+0.002)† | (+0.280)† | (+0.136)† |
+| D-X     | S3      |            (-0.603) |            (-1.930) | (-11.159) |  (-9.551) |
+| D-X     | S4      |            (-0.208) |            (-0.148) |  (-6.431) |  (-5.117) |
+| H-X     | S1      |            (-0.002) |            (-0.005) |  (+0.163) |  (+0.006) |
+| H-X     | S2      |            (+0.006) |            (+0.014) |  (+0.309) |  (+0.084) |
+| H-X     | S3      |            (-0.004) |            (-0.013) |  (+0.022) |  (-0.041) |
+| H-X     | S4      |            (-0.004) |            (-0.015) |  (-0.028) |  (-0.045) |
+| F-Y     | S1      |           (+0.007)† |           (-0.015)† |  (+0.185) |  (-0.010) |
+| F-Y     | S2      |           (+0.014)† |           (+0.009)† | (+0.311)† | (+0.114)† |
+| F-Y     | S3      |            (+0.003) |            (-0.010) |  (+0.190) |  (-0.060) |
+| F-Y     | S4      |           (-0.636)† |           (-4.841)† |  (+0.276) |  (-3.213) |
+| H-H     | S1      |            (-0.002) | approximately 0.000 |  (+0.027) |  (+0.108) |
+| H-H     | S2      | approximately 0.000 |            (-0.001) |  (+0.067) |  (+0.091) |
+| H-H     | S3      |            (-0.011) |            (-0.028) |  (-0.036) |  (+0.067) |
+| H-H     | S4      |            (-0.006) |            (-0.018) |  (-0.108) |  (+0.068) |
+
+These results do not form a coherent stable replacement for the original E29C table.
+
+---
+
+# Circuit-Level Summaries
+
+| Circuit | Original E29C mean increment | E29C-R primary | E29C-R stability grid | Stability-grid median |
+| ------- | ---------------------------: | -------------: | --------------------: | --------------------: |
+| F-X     |                     (+0.025) |       (+0.027) |              (+0.035) |              (+0.004) |
+| D-X     |                     (+0.014) |       (-2.181) |              (-2.181) |              (-0.122) |
+| H-X     |                     (+0.034) |       (+0.028) |              (+0.028) |              (-0.003) |
+| F-Y     |                     (-0.124) |       (-0.879) |              (-0.480) |              (+0.005) |
+| H-H     |                     (-0.010) |       (+0.014) |              (+0.014) |   approximately 0.000 |
+
+H-X and H-H remain numerically close to the original experiment.
+
+F-X retains a similar mean but undergoes substantial cell-level changes.
+
+D-X and F-Y do not replicate.
+
+#### Maximum cellwise changes from E29C
+
+The largest absolute change in an incremental cell is approximately:
+
+| Circuit | Maximum absolute change |
+| ------- | ----------------------: |
+| F-X     |                   0.364 |
+| D-X     |                  11.125 |
+| H-X     |                   0.063 |
+| F-Y     |                   4.825 |
+| H-H     |                   0.078 |
+
+The H-X screen is the only broad result that reproduces closely across the two decoder procedures.
+
+---
+
+# S2 Deeper-Cycle Result
+
+The most consistent positive result remains the bimodal stratum.
+
+## S2 C5
+
+The classical-only fold scores average approximately:
+
+$$R^2(M+\lambda)=0.606.$$
+
+The stability-grid augmented results are approximately:
+
+| Circuit | Increment | Combined score | Internal stability verdict |
+| ------- | --------: | -------------: | -------------------------- |
+| F-X     |  (+0.312) |          0.918 | Unstable                   |
+| D-X     |  (+0.280) |          0.886 | Stable                     |
+| H-X     |  (+0.309) |          0.915 | Stable                     |
+| F-Y     |  (+0.311) |          0.917 | Unstable                   |
+| H-H     |  (+0.067) |          0.673 | Stable                     |
+
+All five circuits retain a positive direction.
+
+The four principal preparation–phase–mixer circuits retain large gains:
+
+$$0.280\text{ to }0.312.$$
+
+Only D-X and H-X pass the notebook’s stability-grid criterion among those four.
+
+F-X and F-Y repeatedly select the minimum stability-grid penalty:
+
+$$10^{-8}.$$
+
+Their numerical gains therefore remain near-interpolation results under the notebook’s own definition.
+
+## S2 C6
+
+The classical-only fold scores average approximately:
+
+$$R^2(M+\lambda)=0.660.$$
+
+| Circuit | Increment | Approximate combined score | Internal stability verdict |
+| ------- | --------: | -------------------------: | -------------------------- |
+| F-X     |  (+0.156) |                      0.816 | Unstable                   |
+| D-X     |  (+0.136) |                      0.796 | Stable                     |
+| H-X     |  (+0.084) |                      0.744 | Stable                     |
+| F-Y     |  (+0.114) |                      0.774 | Unstable                   |
+| H-H     |  (+0.091) |                      0.751 | Stable                     |
+
+The positive S2 C6 direction also survives throughout the circuit bank.
+
+Again, only D-X, H-X, and H-H pass the internal stability-grid rule.
+
+#### Supported S2 conclusion
+
+The S2 deeper-cycle result is the most defensible remnant of E29C-R:
+
+> Adding degree-sector coordinates improves C5 and C6 prediction in the bimodal family under every tested circuit. The cleanest stable results occur for H-X and D-X, while the F-X and F-Y gains remain tied to the minimum available ridge penalty.
+
+Even here, the result is a regularized coordinate-addition result rather than evidence of information outside the classical feature span.
+
+---
+
+# S1 C5
+
+S1 C5 remains positive for:
+
+* F-X: (+0.217);
+* H-X: (+0.163);
+* F-Y: (+0.185).
+
+D-X remains negative:
+
+$$-0.095.$$
+
+H-H produces only:
+
+$$+0.027.$$
+
+The H-X result is the cleanest because:
+
+* all folds remain stable;
+* selected penalties range from $$10^{-4}$$ to $$10^{-2}$$;
+* fold scores are consistently positive;
+* the stability grid leaves the result unchanged.
+
+F-X also passes the notebook’s stability verdict for this cell.
+
+F-Y retains the positive mean, but one stability-grid fold selects the grid floor and the cell is labeled unstable.
+
+---
+
+# Irregular-Stratum Failures
+
+The revised procedure produces extreme failures that were absent from E29C.
+
+## D-X
+
+The stability-grid increments in S3 are:
+
+$$-0.603,\quad-1.930,\quad-11.159,\quad-9.551.$$
+
+The S4 C5 and C6 increments are:
+
+$$-6.431,\quad-5.117.$$
+
+These cells are labeled stable because:
+
+* the reported design condition numbers are only approximately $$10^4$$;
+* the selected penalties do not equal the grid minimum.
+
+The labels demonstrate that the notebook’s stability rule detects only two narrow numerical symptoms.
+
+It does not detect severe held-out overfitting or poor GCV model selection.
+
+The original E29C D-X increments in these cells were close to zero.
+
+The revised values therefore do not represent a stable replication of the earlier result.
+
+## F-Y
+
+The original catastrophic F-Y S4 C3 increment was:
+
+$$-2.394.$$
+
+E29C-R reduces it to:
+
+$$-0.636,$$
+
+but the failure does not disappear.
+
+Four of five stability-grid augmented folds select:
+
+$$\alpha=10^{-8},$$
+
+and the fifth fold produces:
+
+$$R^2=-2.236.$$
+
+The instability is explicitly identified, so the notebook successfully diagnoses that cell as nonreportable.
+
+However, other severe F-Y failures appear:
+
+$$\text{S4 }C_4=-4.841,$$
+
+and:
+
+$$\text{S4 }C_6=-3.213.$$
+
+The catastrophic behavior has therefore not been removed. It has shifted among targets under the new penalty-selection procedure.
+
+## F-X
+
+F-X also changes materially in irregular strata.
+
+Examples include:
+
+* S3 C5: from (-0.051) to (+0.197);
+* S4 C5: from (-0.011) to (+0.131);
+* S4 C6: from (-0.053) to (-0.417).
+
+The similar circuit-level mean conceals unstable target-level conclusions.
+
+---
+
+# Stability Annotation Audit
+
+The notebook flags:
+
+$$23/80$$
+
+primary-grid cells as unstable.
+
+No H-X or H-H cell is flagged.
+
+The annotation is not sufficient to identify all unreliable results.
+
+#### Design condition is not ridge-solution condition
+
+The reported condition number is calculated from the nonzero singular values of the standardized design matrix.
+
+It does not include the stabilizing effect of the selected ridge penalty.
+
+Conversely, a moderate raw design condition number does not guarantee good held-out regularization selection.
+
+D-X S3 and S4 provide direct counterexamples.
+
+#### Floor selection is grid dependent
+
+A solution selecting:
+
+$$10^{-8}$$
+
+is labeled unstable under the stability grid.
+
+A solution selecting:
+
+$$10^{-7}$$
+
+is labeled stable even when the feature bank is highly redundant and the design condition number is near:
+
+$$10^9.$$
+
+The boundary is therefore procedural rather than a demonstrated numerical threshold.
+
+#### Stable does not mean predictive robustness
+
+The large negative D-X values and the F-Y S4 C6 value are labeled stable.
+
+The annotation should be read only as:
+
+> No selected penalty equaled the grid floor, and the retained design singular values did not cross the chosen condition-number threshold.
+
+It is not a certificate that the result is reproducible or scientifically reliable.
+
+---
+
+# Reverse Reconstruction of R2
+
+The primary-grid reconstruction of R2 from analytical mixing and spectrum is:
+
+| Circuit |   S1 |   S2 |   S3 |   S4 |               Mean |
+| ------- | ---: | ---: | ---: | ---: | -----------------: |
+| F-X     | 1.00 | 1.00 | 1.00 | 1.00 | approximately 1.00 |
+| D-X     | 0.94 | 0.84 | 0.61 | 0.41 | approximately 0.70 |
+| H-X     | 0.89 | 0.92 | 0.61 | 0.75 | approximately 0.79 |
+| F-Y     | 1.00 | 1.00 | 1.00 | 1.00 | approximately 1.00 |
+| H-H     | 0.23 | 0.27 | 0.08 | 0.09 | approximately 0.17 |
+
+These values closely reproduce the original E29C reverse audit.
+
+The broad location result therefore survives:
+
+* F-X and F-Y R2 lie almost entirely on a manifold linearly reconstructed from mixing and spectrum;
+* D-X and H-X contain additional sector variation;
+* H-H is largely unreconstructed.
+
+This remains the strongest stable conclusion from the E29C series.
+
+It also reinforces the limitation of the forward incremental statistic.
+
+F-X and F-Y can show positive cycle increments despite R2 being almost perfectly reconstructed from the classical bank. Those gains can arise from altered ridge geometry rather than new graph information.
+
+---
+
+# Concatenation Is Not an Information Test
+
+E29C-R retains the original concatenation design:
+
+$$[M,\lambda]\longrightarrow[M,\lambda,R2].$$
+
+This does not isolate the component of R2 outside the classical feature span.
+
+If:
+
+$$R2\approx[M,\lambda]B,$$
+
+then adding R2 can still change prediction because it:
+
+* duplicates directions;
+* rescales directions after standardization;
+* changes the ridge penalty geometry;
+* changes the selected penalty;
+* introduces a favorable transformed coordinate system.
+
+The reverse reconstruction results show that this concern is decisive for F-X and F-Y.
+
+A cleaner test would cross-fit:
+
+$$\widehat{R2}(M,\lambda),$$
+
+construct:
+
+$$R2_\perp=R2-\widehat{R2}(M,\lambda),$$
+
+and evaluate:
+
+$$[M,\lambda,R2_\perp].$$
+
+E29C-R does not perform that orthogonal residual test.
+
+Its positive increments remain coordinate-addition effects rather than evidence of classically unavailable structural information.
+
+---
+
+# Comparison with Original E29C
+
+E29C-R confirms three limited features of the original result.
+
+1. **S2 C5 remains the dominant positive cell.**
+
+2. **S2 C6 remains consistently positive.**
+
+3. **The reverse reconstruction of R2 from mixing and spectrum is nearly unchanged.**
+
+It does not reproduce the complete incremental table.
+
+The revised decoder creates large positive and negative changes that are far larger than any effect of replacing the empirical mixing basis with E30.
+
+The discrepancy must therefore be attributed primarily to:
+
+* changed penalty selection;
+* high-dimensional model conditioning;
+* and the incomplete GCV calculation.
+
+E29C-R should not replace E29C as a corrected numerical table.
+
+Instead, it demonstrates that the original concatenation experiment is too estimator sensitive to support a broad paper claim.
+
+---
+
+# What the Experiment Establishes
+
+The completed experiment establishes that:
+
+1. **E29C-R successfully integrates the E29P-R readouts with the E30 analytical mixing coordinates.**
+
+2. **An explicit SVD ridge solution removes scikit-learn’s singular-system fallback warnings.**
+
+3. **The positive S2 C5 and C6 directions persist across the complete circuit bank.**
+
+4. **D-X, H-X, and H-H pass the notebook’s conservative-grid stability rule for both S2 deeper-cycle targets.**
+
+5. **F-X and F-Y retain large S2 gains but continue selecting the stability-grid floor.**
+
+6. **H-X provides the closest broad replication of the original E29C table.**
+
+7. **The original F-Y S4 C3 catastrophe shrinks but remains an unstable one-fold failure.**
+
+8. **New catastrophic D-X and F-Y cells appear under the revised decoder.**
+
+9. **The notebook’s stability label does not detect severe held-out overfitting.**
+
+10. **The custom GCV implementation omits the target residual orthogonal to the design column space.**
+
+11. **E29C-R therefore does not provide a valid stable numerical replacement for E29C.**
+
+12. **The reverse reconstruction result remains stable: F-X and F-Y R2 are almost completely reconstructed from mixing and spectrum.**
+
+13. **No broad incremental information claim survives the combined E29C and E29C-R audit.**
+
+14. **The strongest remaining forward result is the S2 C5–C6 coordinate-addition effect.**
+
+E29C-R is best interpreted as a robustness failure that narrows the scientifically defensible conclusion.
+
+---
+
+# Necessary Qualifications
+
+The GCV formula must be corrected before the SVD decoder is reused.
+
+The revised penalty selector also differs fundamentally from the original inner five-fold ridge selection. Even a corrected GCV implementation would not be an exact protocol-matched replication.
+
+The stability grid still permits penalties as small as:
+
+$$10^{-8}.$$
+
+For redundant standardized feature banks, this can remain effectively near interpolation.
+
+The condition threshold:
+
+$$10^{10}$$
+
+is arbitrary and does not measure held-out model-selection reliability.
+
+The experiment evaluates:
+
+$$80$$
+
+incremental cells without:
+
+* repeated outer folds;
+* bootstrap intervals;
+* permutation tests;
+* or multiplicity correction.
+
+Fold dispersion is reported, but it is the standard deviation of only five incremental fold differences.
+
+The circuit-level means are highly sensitive to extreme negative $$R^2$$ values.
+
+D-X and F-Y demonstrate that one or two failed cells can dominate the average.
+
+The primary and stability grids are evaluated on the same outer folds and data. Agreement between them is a sensitivity check, not independent replication.
+
+The reverse reconstruction is pooled across heterogeneous R2 coordinates and is variance weighted.
+
+R2, mixing, spectrum, and concatenated banks differ substantially in dimension and redundancy.
+
+The experiment does not capacity match the competing representations.
+
+The notebook confirms graph order but does not load and verify all fingerprints in the E29P-R manifest.
+
+All representations use exact ideal probabilities.
+
+Finally, R2 uses the graph’s degree partition at readout time. The experiment tests a hybrid graph-conditioned representation and does not establish quantum advantage.
+
+---
+
+# Overall Assessment
+
+E29C-R does not successfully stabilize the complete E29C incremental analysis.
+
+It removes the original scikit-learn solver warnings, but changes the regularization procedure to an incomplete custom GCV calculation. The resulting table is highly estimator dependent.
+
+The most severe changes are:
+
+* D-X S3 C5: (-0.034) to (-11.159);
+* D-X S4 C5: (+0.018) to (-6.431);
+* F-Y S4 C4: (-0.016) to (-4.841);
+* F-Y S4 C6: (-0.053) to (-3.213).
+
+These are not minor numerical corrections.
+
+The intended positive result does partially survive.
+
+S2 C5 improves by:
+
+$$0.280\text{--}0.312$$
+
+under the four principal circuits, and S2 C6 improves by:
+
+$$0.084\text{--}0.156.$$
+
+The H-X results are cleanest. D-X also passes the internal stability-grid rule for these two cells. F-X and F-Y remain tied to the minimum allowed penalty.
+
+The reverse audit remains much more stable than the forward concatenation experiment. F-X and F-Y R2 are still reconstructed almost perfectly from analytical mixing and spectrum, while D-X and H-X are partially reconstructed and H-H remains largely outside that linear bank.
+
+The appropriate central claim is:
+
+> E29C-R confirms that the bimodal S2 family retains a repeatable R2 coordinate-addition effect for 5- and 6-cycle prediction, with the cleanest stable gains under H-X and D-X. It does not confirm a broad incremental advantage beyond analytical mixing and spectrum. The revised table is highly sensitive to the penalty-selection procedure, produces new catastrophic failures, and uses a custom GCV calculation that omits the target residual outside the feature column space. The stable conclusion of the E29C series is therefore the reverse location result—F-X and F-Y degree-sector vectors are almost completely reconstructed from mixing and spectrum—while the forward S2 gains remain regularization-dependent coordinate effects rather than evidence of new information outside the classical feature span.
+
+
+
+### E29C-O - Cross-Fitted Orthogonalized R2 Increment Audit
+
+#### Experimental purpose
+
+E29C-O addresses the central interpretive weakness of E29C.
+
+E29C directly concatenated the degree-sector readout with the classical feature bank:
+
+$$[M,\lambda]\longrightarrow[M,\lambda,R2].$$
+
+A positive prediction gain under that design did not establish that R2 contained information outside the classical feature span. Even a classically reconstructible transformation of the same information could improve ridge prediction by changing:
+
+* feature scaling;
+* coordinate orientation;
+* duplication of directions;
+* regularization geometry;
+* or numerical conditioning.
+
+E29C-O therefore attempts to remove the component of R2 predictable from analytical joint-degree mixing and the adjacency spectrum before adding R2 to the cycle model.
+
+The primary questions are:
+
+1. Does the residual sector representation improve cycle prediction beyond the classical bank?
+2. Do the deeper-cycle gains identified in E29C survive this residualization?
+3. Which circuits retain target-aligned R2 variation after the classically predictable component is removed?
+
+The prespecified headline cells are:
+
+* S2 C5;
+* S2 C6;
+* S1 C5.
+
+#### Execution status
+
+E29C-O completed successfully.
+
+The notebook:
+
+* loaded all five E29P-R circuit families;
+* loaded the E30 analytical mixing coordinates;
+* aligned graph ordering across E6, E29P-R, and E30;
+* completed all 80 circuit–stratum–cycle cells;
+* generated the orthogonalized-increment heatmap;
+* saved:
+
+```text
+e29c_o_orthogonal_increment.pkl
+```
+
+and:
+
+```text
+e29c_o_orthogonal_increment.png
+```
+
+No cell terminated with an exception.
+
+The completed fitting cell emitted extensive numerical warnings, discussed below.
+
+---
+
+## Graph families
+
+The experiment uses the four fixed-degree-sequence E6 strata at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs | Analytical mixing rank |
+| --------------- | --------------------- | -----: | ---------------------: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |                      3 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |                      1 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |                      6 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |                      5 |
+
+Every analysis occurs within one fixed degree sequence.
+
+The experiment therefore controls:
+
+* graph order;
+* edge count;
+* degree multiset;
+* degree-class multiplicities.
+
+For every graph, the notebook reasserts:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+All 1,600 graph records pass.
+
+---
+
+## Circuit bank
+
+| Circuit | Preparation                                | Graph phase     | Final transformation |
+| ------- | ------------------------------------------ | --------------- | -------------------- |
+| F-X     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| D-X     | Normalized degree $$R_X(2.875d_i/\Delta)$$ | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| H-X     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| F-Y     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_Y(0.1)$$         |
+| H-H     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$H^{\otimes14}$$    |
+
+The circuit readouts come from the validated E29P-R producer.
+
+---
+
+## Feature banks
+
+### Analytical joint-degree mixing
+
+Let:
+
+$$m(G)=\left(M_{ab}(G)\right)_{a\le b}$$
+
+be the raw joint-degree edge-count vector.
+
+E30 constructs an analytical null-space basis:
+
+$$N_s$$
+
+from the fixed degree-class stub equations and singleton-class constraints.
+
+The analytical mixing coordinates are:
+
+$$u(G)=m(G)N_s.$$
+
+Their dimensions are:
+
+$$3,\quad1,\quad6,\quad5$$
+
+for S1 through S4.
+
+### Adjacency spectrum
+
+The spectral bank contains all 14 sorted adjacency eigenvalues:
+
+$$\lambda(G)=(\lambda_1,\ldots,\lambda_{14}).$$
+
+### Classical bank
+
+The complete classical nuisance and prediction bank is:
+
+$$X_C(G)=[u(G),\lambda(G)].$$
+
+Its dimensions are:
+
+| Stratum | Classical dimension |
+| ------- | ------------------: |
+| S1      |                  17 |
+| S2      |                  15 |
+| S3      |                  20 |
+| S4      |                  19 |
+
+### Degree-sector readout
+
+For degree-occupancy signature:
+
+$$\kappa_G(z)=\left(\sum_{i:\deg(i)=d_1}z_i,\ldots,\sum_{i:\deg(i)=d_m}z_i\right),$$
+
+the sector-mass readout is:
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+Its dimensions are:
+
+| Stratum | R2 dimension |
+| ------- | -----------: |
+| S1      |           99 |
+| S2      |           64 |
+| S3      |          315 |
+| S4      |          216 |
+
+R2 uses graph-supplied degree classes during aggregation and is therefore a hybrid graph-conditioned circuit readout.
+
+---
+
+# Cross-Fitted R2 Residualization
+
+For each outer fold, E29C-O predicts R2 from the classical bank.
+
+The nuisance model is:
+
+* train-only `StandardScaler`;
+* multioutput `RidgeCV`;
+* regularization grid:
+
+$$\alpha_{\text{nuisance}}\in{10^{-6},10^{-5.5},\ldots,10^6}.$$
+
+The outer-training R2 predictions are generated through five inner cross-fitting folds.
+
+For each training graph:
+
+$$R2_{\perp,\text{train}}=R2-\widehat{R2}_{\text{inner-CF}}(X_C).$$
+
+One nuisance model is then fitted on the complete outer-training set and used on the outer-test graphs:
+
+$$R2_{\perp,\text{test}}=R2-\widehat{R2}_{\text{outer-train}}(X_C).$$
+
+The cycle models compare:
+
+$$C_k\sim X_C$$
+
+against:
+
+$$C_k\sim[X_C,R2_\perp].$$
+
+The target decoder uses:
+
+* train-only standardization;
+* five-fold inner `RidgeCV`;
+* regularization grid:
+
+$$\alpha_{\text{target}}\in{10^{-14},10^{-13},\ldots,10^2};$$
+
+* the same five outer graph folds used throughout the E6 protocol.
+
+The primary statistic is:
+
+$$\Delta R^2_\perp=R^2(X_C+R2_\perp)-R^2(X_C).$$
+
+#### Calibration
+
+A synthetic target depending on variation outside the nuisance span gives:
+
+$$\Delta R^2_\perp=1.015.$$
+
+A target generated entirely from the nuisance bank gives:
+
+$$\Delta R^2_\perp=0.000.$$
+
+The calibration shows that the implementation can:
+
+* remove a synthetic nuisance-contained signal;
+* preserve a synthetic feature-unique signal;
+* and evaluate that signal on held-out outer folds.
+
+It does not reproduce the high-dimensional and highly collinear conditions of the real augmented models.
+
+---
+
+# Reconstruction of R2 from the Classical Bank
+
+The notebook reports the mean cross-fitted reconstruction of R2 by analytical mixing and spectrum.
+
+| Circuit | Mean reconstructed R2 $$R^2$$ |
+| ------- | ----------------------------: |
+| F-X     |            approximately 1.00 |
+| D-X     |            approximately 0.71 |
+| H-X     |            approximately 0.80 |
+| F-Y     |            approximately 1.00 |
+| H-H     |            approximately 0.18 |
+
+This reproduces the main reverse-location result from E29C.
+
+* F-X and F-Y sector vectors are almost completely predicted from analytical mixing and spectrum.
+* D-X and H-X contain substantial residual sector variation.
+* H-H lies mostly outside the tested linear classical reconstruction model.
+
+The reconstruction values are printed only to two decimal places. “1.00” therefore means nearly complete pooled reconstruction, not an exactly zero residual matrix.
+
+---
+
+# Prespecified Headline Results
+
+## S2 C5
+
+| Circuit | Classical baseline | Augmented with $$R2_\perp$$ | Increment | Fold dispersion |
+| ------- | -----------------: | --------------------------: | --------: | --------------: |
+| F-X     |              0.611 |                       0.901 |  (+0.290) |           0.077 |
+| D-X     |              0.611 |                       0.917 |  (+0.306) |           0.071 |
+| H-X     |              0.611 |                       0.911 |  (+0.300) |           0.069 |
+| F-Y     |              0.611 |                       0.920 |  (+0.309) |           0.082 |
+| H-H     |              0.611 |                       0.639 |  (+0.027) |           0.042 |
+
+The four principal preparation–phase–mixer circuits all retain a large positive increment:
+
+$$0.290\text{ to }0.309.$$
+
+The combined scores reach:
+
+$$0.901\text{ to }0.920.$$
+
+H-H produces only a small gain.
+
+This is the strongest result in E29C-O.
+
+## S2 C6
+
+| Circuit | Classical baseline | Augmented with $$R2_\perp$$ | Increment | Fold dispersion |
+| ------- | -----------------: | --------------------------: | --------: | --------------: |
+| F-X     |              0.666 |                       0.815 |  (+0.149) |           0.041 |
+| D-X     |              0.666 |                       0.843 |  (+0.177) |           0.027 |
+| H-X     |              0.666 |                       0.750 |  (+0.084) |           0.014 |
+| F-Y     |              0.666 |                       0.790 |  (+0.124) |           0.024 |
+| H-H     |              0.666 |                       0.745 |  (+0.078) |           0.059 |
+
+Every circuit retains a positive C6 increment.
+
+The four principal circuits improve by:
+
+$$0.084\text{ to }0.177.$$
+
+The positive direction and magnitude closely reproduce the original E29C result.
+
+## S1 C5
+
+| Circuit | Classical baseline | Augmented with $$R2_\perp$$ | Increment | Fold dispersion |
+| ------- | -----------------: | --------------------------: | --------: | --------------: |
+| F-X     |              0.719 |                       0.913 |  (+0.193) |           0.041 |
+| D-X     |              0.719 |                       0.884 |  (+0.165) |           0.045 |
+| H-X     |              0.719 |                       0.887 |  (+0.167) |           0.023 |
+| F-Y     |              0.719 |                       0.910 |  (+0.190) |           0.042 |
+| H-H     |              0.719 |                       0.726 |  (+0.006) |           0.046 |
+
+F-X, D-X, H-X, and F-Y all retain substantial positive increments:
+
+$$0.165\text{ to }0.193.$$
+
+H-H provides essentially no improvement.
+
+This result changes the D-X interpretation materially.
+
+In the original raw-concatenation E29C experiment, D-X S1 C5 declined by:
+
+$$-0.106.$$
+
+After residualizing R2 against the classical bank, it improves by:
+
+$$+0.165.$$
+
+The classically predictable component of D-X R2 appears to have harmed the original concatenated ridge fit, while the residual component carries useful C5-aligned variation.
+
+---
+
+# Complete Increment Table
+
+| Circuit | Stratum |             $$C_3$$ |  $$C_4$$ |  $$C_5$$ |  $$C_6$$ |
+| ------- | ------- | ------------------: | -------: | -------: | -------: |
+| F-X     | S1      |            (+0.007) | (-0.003) | (+0.193) | (-0.013) |
+| F-X     | S2      |            (+0.013) | (+0.013) | (+0.290) | (+0.149) |
+| F-X     | S3      |            (-0.005) | (-0.021) | (+0.001) | (-0.055) |
+| F-X     | S4      |            (-0.011) | (-0.023) | (+0.135) | (-0.085) |
+| D-X     | S1      |            (-0.036) | (-0.002) | (+0.165) | (+0.062) |
+| D-X     | S2      |            (+0.008) | (+0.009) | (+0.306) | (+0.177) |
+| D-X     | S3      |            (-0.007) | (-0.024) | (-0.014) | (-0.033) |
+| D-X     | S4      |            (-0.004) | (-0.011) | (+0.088) | (-0.031) |
+| H-X     | S1      | approximately 0.000 | (-0.003) | (+0.167) | (+0.007) |
+| H-X     | S2      |            (+0.006) | (+0.013) | (+0.300) | (+0.084) |
+| H-X     | S3      |            (-0.004) | (-0.010) | (+0.017) | (-0.039) |
+| H-X     | S4      |            (-0.002) | (-0.011) | (+0.052) | (-0.015) |
+| F-Y     | S1      |            (+0.009) | (-0.008) | (+0.190) | (-0.005) |
+| F-Y     | S2      |            (+0.013) | (+0.016) | (+0.309) | (+0.124) |
+| F-Y     | S3      |            (-0.009) | (-0.030) | (+0.052) | (-0.063) |
+| F-Y     | S4      |            (-1.954) | (-0.016) | (+0.019) | (-0.064) |
+| H-H     | S1      |            (-0.003) | (-0.004) | (+0.006) | (+0.089) |
+| H-H     | S2      |            (-0.002) | (-0.008) | (+0.027) | (+0.078) |
+| H-H     | S3      |            (-0.018) | (-0.064) | (-0.071) | (+0.030) |
+| H-H     | S4      |            (-0.012) | (-0.059) | (-0.024) | (+0.045) |
+
+---
+
+# Circuit-Level Summaries
+
+| Circuit | Mean increment | Median increment | Positive cells |
+| ------- | -------------: | ---------------: | -------------: |
+| F-X     |       (+0.037) |         (-0.001) |           8/16 |
+| D-X     |       (+0.041) |         (-0.003) |           7/16 |
+| H-X     |       (+0.035) |         (+0.003) |           8/16 |
+| F-Y     |       (-0.089) |         (+0.002) |           8/16 |
+| H-H     |       (+0.001) |         (-0.004) |           6/16 |
+
+The medians remain approximately zero.
+
+The positive mean values for F-X, D-X, and H-X are driven mainly by:
+
+* S1 C5;
+* S2 C5;
+* S2 C6;
+* selected S4 C5 gains.
+
+E29C-O does not establish a broad improvement across all cycle lengths and strata.
+
+## F-Y outlier
+
+F-Y’s mean is dominated by:
+
+$$\text{S4 }C_3:\Delta R^2_\perp=-1.954.$$
+
+The augmented score is:
+
+$$R^2=-0.967,$$
+
+compared with the classical baseline:
+
+$$R^2=0.988.$$
+
+The fold dispersion is:
+
+$$3.923.$$
+
+Removing this one cell changes the mean F-Y increment from:
+
+$$-0.089$$
+
+to approximately:
+
+$$+0.036.$$
+
+The circuit-level F-Y mean is therefore not a useful representation summary.
+
+The failure is a recurrence of the F-Y S4 triangle instability seen in E29C and E29C-R.
+
+---
+
+# Target-Level Pattern
+
+## C3 and C4
+
+The classical bank already predicts C3 and C4 at approximately:
+
+$$R^2=0.96\text{--}0.99.$$
+
+Consequently, most increments are near zero or slightly negative.
+
+The small positive S2 values do not materially alter the already saturated scores.
+
+No general C3 or C4 advantage is established.
+
+## C5
+
+C5 is the clearest beneficiary of the residual sector representation.
+
+The positive pattern includes:
+
+* S1 under F-X, D-X, H-X, and F-Y;
+* S2 under every circuit;
+* S4 under F-X, D-X, and H-X;
+* selected smaller S3 and S4 gains.
+
+The effect is not universal.
+
+* H-H contributes almost no S1 or S2 C5 gain.
+* S3 remains weak or inconsistent.
+* F-Y S4 C5 has a small mean and large fold dispersion.
+
+## C6
+
+The strongest C6 result is confined to S2.
+
+Every circuit improves S2 C6.
+
+Outside S2:
+
+* D-X produces a smaller positive S1 gain;
+* H-H produces positive gains in every stratum;
+* most other circuit–stratum cells are near zero or negative.
+
+H-H’s repeated C6 gains are consistent with the C4/C6-oriented structure identified in E29B-R.
+
+---
+
+# Comparison with E29C
+
+The headline comparisons are:
+
+| Circuit | Cell  | Raw E29C increment | E29C-O increment |
+| ------- | ----- | -----------------: | ---------------: |
+| F-X     | S1 C5 |           (+0.202) |         (+0.193) |
+| F-X     | S2 C5 |           (+0.294) |         (+0.290) |
+| F-X     | S2 C6 |           (+0.147) |         (+0.149) |
+| D-X     | S1 C5 |           (-0.106) |         (+0.165) |
+| D-X     | S2 C5 |           (+0.305) |         (+0.306) |
+| D-X     | S2 C6 |           (+0.176) |         (+0.177) |
+| H-X     | S1 C5 |           (+0.171) |         (+0.167) |
+| H-X     | S2 C5 |           (+0.307) |         (+0.300) |
+| H-X     | S2 C6 |           (+0.088) |         (+0.084) |
+| F-Y     | S1 C5 |           (+0.159) |         (+0.190) |
+| F-Y     | S2 C5 |           (+0.304) |         (+0.309) |
+| F-Y     | S2 C6 |           (+0.118) |         (+0.124) |
+| H-H     | S1 C5 |           (-0.010) |         (+0.006) |
+| H-H     | S2 C5 |           (+0.005) |         (+0.027) |
+| H-H     | S2 C6 |           (+0.074) |         (+0.078) |
+
+The S2 C5 and C6 effects are almost unchanged.
+
+For F-X, H-X, and F-Y, S1 C5 is also nearly unchanged.
+
+D-X S1 C5 reverses from a negative raw-concatenation result to a substantial positive residual result.
+
+This indicates that the original D-X failure was not evidence that the circuit lacked C5-aligned sector structure. It was specific to adding the complete redundant R2 vector to the classical bank.
+
+---
+
+# Comparison with E29C-R
+
+E29C-R attempted to stabilize the raw-concatenation analysis through a custom SVD/GCV decoder.
+
+That decoder produced catastrophic failures for D-X and F-Y in S3 and S4.
+
+E29C-O returns D-X to moderate, coherent values:
+
+* S3 increments between (-0.033) and (-0.007);
+* S4 increments between (-0.031) and (+0.088).
+
+The enormous E29C-R D-X values, including:
+
+$$-11.159$$
+
+and:
+
+$$-9.551,$$
+
+do not appear.
+
+This supports the conclusion that the E29C-R failures were created by its changed penalty-selection procedure rather than by the analytical target basis.
+
+F-Y S4 C3 remains catastrophically unstable under every version:
+
+* E29C: (-2.394);
+* E29C-R: approximately (-0.636);
+* E29C-O: (-1.954).
+
+That cell should be excluded from any aggregated circuit claim until a stable decoder or independently repeated outer split resolves it.
+
+---
+
+# What “Orthogonalized” Establishes
+
+The notebook describes a positive result as cycle-aligned R2 variation that mixing and spectrum cannot linearly supply.
+
+That interpretation requires qualification.
+
+The residual representation is:
+
+$$R2_\perp=R2-\widehat{R2}_{\text{ridge}}(M,\lambda).$$
+
+This is the residual of a selected ridge model.
+
+It is not the exact Euclidean projection of R2 onto the orthogonal complement of the classical feature span.
+
+Because the nuisance model is regularized:
+
+* the residual can retain directions linearly present in the classical bank;
+* it need not be orthogonal to the classical coordinates;
+* its magnitude depends on nuisance regularization;
+* its orientation depends on the cross-fitting procedure.
+
+The supported interpretation is:
+
+> Positive increments identify cycle-aligned sector variation not removed by the specified cross-fitted ridge reconstruction from analytical mixing and raw spectrum.
+
+The stronger statement:
+
+> R2 contains information outside the complete linear span of mixing and spectrum
+
+is not established exactly.
+
+A mathematically exact linear-span audit would use:
+
+* outer-training least-squares projection where feasible;
+* explicit QR or SVD projection;
+* or a Frisch–Waugh–Lovell construction residualizing both the target and R2 against the same classical design.
+
+---
+
+# Standardization of Tiny Residual Coordinates
+
+The augmented target model standardizes every R2 residual coordinate.
+
+This matters particularly for F-X and F-Y.
+
+Their complete R2 vectors are reconstructed from the classical bank at approximately:
+
+$$R^2=1.00.$$
+
+The remaining residual coordinates therefore have very small raw variance.
+
+`StandardScaler` rescales every nonconstant residual coordinate to unit variance.
+
+Consequently, tiny:
+
+* nuisance-model errors;
+* low-variance structural directions;
+* or floating-point residuals
+
+can receive the same nominal scale as the principal classical coordinates.
+
+A positive held-out gain may reflect a real low-amplitude target-aligned residual direction.
+
+It can also reflect an amplified reconstruction artifact or an alternative regularized coordinate system.
+
+The nearly unchanged S2 and S1 headline gains are noteworthy, but the near-perfect F-X/F-Y reverse reconstruction prevents interpreting them as large amounts of classically unavailable representation variance.
+
+---
+
+# Numerical Stability
+
+The principal fitting cell emits:
+
+$$6{,}113$$
+
+warnings of the form:
+
+```text
+LinAlgWarning: Ill-conditioned matrix
+```
+
+The warnings arise during the repeated inner ridge fits over feature spaces with:
+
+* up to 335 standardized coordinates;
+* only 320 outer-training graphs;
+* extensive redundancy;
+* residual features with very small raw variance;
+* ridge penalties as small as $$10^{-14}$$.
+
+E29C-O does not record:
+
+* selected penalties;
+* effective rank;
+* singular values;
+* condition numbers;
+* or fold-specific warning status.
+
+It also does not run a conservative penalty-grid sensitivity analysis.
+
+The large positive headline results have moderate fold dispersion and occur consistently across circuits, which is reassuring.
+
+The warnings nevertheless prevent treating the current numerical values as fully stable.
+
+The F-Y S4 C3 catastrophe demonstrates that the risk is active rather than theoretical.
+
+---
+
+# What the Experiment Establishes
+
+The completed experiment establishes that:
+
+1. **E29C-O successfully aligns E29P-R readouts with the E30 analytical mixing coordinates.**
+
+2. **The cross-fitted residualization machinery passes its synthetic nuisance and unique-signal calibration.**
+
+3. **All 15 circuit-by-headline combinations have positive mean increments.**
+
+4. **S2 C5 retains a large increment under F-X, D-X, H-X, and F-Y.**
+
+5. **S2 C6 retains a positive increment under every circuit.**
+
+6. **S1 C5 retains a substantial increment under the four principal circuits.**
+
+7. **The S2 C5 and C6 increments are nearly unchanged from the original E29C values.**
+
+8. **D-X S1 C5 reverses from a raw-concatenation failure to a positive residual result.**
+
+9. **The deeper-cycle effects are therefore not explained solely by supplying a redundant copy of the complete R2 vector.**
+
+10. **The effects remain relative to the specific ridge nuisance model rather than an exact orthogonal complement.**
+
+11. **C3 and C4 receive no broad benefit beyond the already strong classical baseline.**
+
+12. **C5 is the principal residual target, followed by S2 C6.**
+
+13. **H-H retains a small but repeated C6 residual channel while contributing little C5 information.**
+
+14. **F-Y S4 C3 remains catastrophically unstable.**
+
+15. **The target-fitting stage emits 6,113 ill-conditioned-matrix warnings.**
+
+16. **E29C-O therefore narrows rather than eliminates the numerical and regularization qualifications of the E29C series.**
+
+---
+
+# Necessary Qualifications
+
+The term “orthogonalized” is approximate.
+
+The nuisance residuals come from ridge regression and are not guaranteed to be mathematically orthogonal to the classical bank.
+
+The nuisance model uses `RidgeCV` with its default generalized cross-validation behavior, while the target decoder uses explicit five-fold inner cross-validation.
+
+The two stages therefore use different hyperparameter-selection procedures.
+
+The multioutput nuisance model selects one shared ridge penalty for all R2 sector coordinates.
+
+Different sectors can have very different:
+
+* variances;
+* sparsities;
+* reconstruction difficulty;
+* and structural relevance.
+
+A shared penalty may underfit some sectors and overfit others.
+
+The outer-training residuals are generated from inner-fold models, while outer-test residuals come from a model fitted on the complete outer-training set.
+
+This is leakage controlled, but the training and test residual features are produced by nuisance models trained on different sample sizes.
+
+The R2 reconstruction score is pooled across all sector coordinates and is variance weighted.
+
+A value near one does not mean every sector is reconstructed accurately.
+
+Conversely, target-relevant low-variance sectors may contribute little to the pooled reconstruction statistic.
+
+The feature spaces are not capacity matched.
+
+The augmented dimensions are:
+
+| Stratum | Classical dimensions | R2 residual dimensions | Total |
+| ------- | -------------------: | ---------------------: | ----: |
+| S1      |                   17 |                     99 |   116 |
+| S2      |                   15 |                     64 |    79 |
+| S3      |                   20 |                    315 |   335 |
+| S4      |                   19 |                    216 |   235 |
+
+S3 has more augmented features than outer-training graphs.
+
+The ridge grid extends to:
+
+$$10^{-14},$$
+
+and no selected-alpha diagnostics are retained.
+
+The fold dispersion is the standard deviation of only five outer-fold score differences.
+
+No:
+
+* repeated outer split;
+* bootstrap interval;
+* permutation test;
+* conservative-grid rerun;
+* or multiplicity correction
+
+is performed.
+
+The experiment evaluates:
+
+$$80$$
+
+incremental cells.
+
+The prespecified headline cells reduce the post-selection concern for the main claims, but the complete table remains exploratory.
+
+The circuit-level means are unstable in the presence of large negative $$R^2$$ values.
+
+F-Y demonstrates that one cell can dominate the complete average.
+
+The notebook asserts only that at least one complete circuit family exists. All five were present in the completed run, but the code does not require them all.
+
+The notebook aligns graph identifiers but does not verify the E29P-R manifest fingerprints.
+
+All analyses use exact ideal probabilities.
+
+Finally, R2 uses the graph’s degree partition during readout. The experiment identifies target-aligned structure in a hybrid graph-conditioned circuit representation, not quantum advantage.
+
+---
+
+# Overall Assessment
+
+E29C-O is the strongest forward incremental test in the E29C series, but it remains a regularized residual-feature experiment rather than an exact information decomposition.
+
+The prespecified deeper-cycle results survive.
+
+For S2 C5, the four principal circuits improve the classical baseline from:
+
+$$0.611$$
+
+to:
+
+$$0.901\text{--}0.920.$$
+
+For S2 C6, they improve:
+
+$$0.666$$
+
+to:
+
+$$0.750\text{--}0.843.$$
+
+For S1 C5, they improve:
+
+$$0.719$$
+
+to:
+
+$$0.884\text{--}0.913.$$
+
+These gains remain after first predicting R2 from analytical mixing and the raw spectrum through a cross-fitted nuisance model.
+
+The D-X S1 C5 result is particularly informative. Its raw concatenation reduced performance, while its residual sector coordinates improve performance by:
+
+$$0.165.$$
+
+This supports a target-aligned R2 component that was obscured by redundant full-vector concatenation.
+
+The result should not be described as a proof of information outside the classical linear span.
+
+The residuals are ridge-model residuals, are standardized before target fitting, and generate thousands of ill-conditioning warnings. F-X and F-Y R2 are also almost completely reconstructed by the classical bank, so their useful residual directions are necessarily small and potentially sensitive.
+
+The appropriate central claim is:
+
+> After cross-fitted ridge reconstruction of degree-sector masses from the E30 analytical mixing coordinates and the raw adjacency spectrum, the residual sector representation retains substantial held-out 5-cycle information in S1 and S2 and 6-cycle information in S2. Across F-X, D-X, H-X, and F-Y, the residual readout improves S2 C5 by (0.290)–(0.309), S2 C6 by (0.084)–(0.177), and S1 C5 by (0.165)–(0.193). These effects closely reproduce the original E29C headline cells and reverse the anomalous D-X S1 C5 failure. E29C-O therefore shows that the deeper-cycle gains are not solely caused by adding the complete redundant R2 vector as an alternative coordinate system. The conclusion remains model relative, however: the residuals are produced by regularized ridge rather than exact projection, tiny residual coordinates are standardized, and the augmented fits emit extensive ill-conditioning warnings.
+
+
+### E29D-R - Corrected Cross-Circuit Stacking Audit
+
+#### Experimental purpose
+
+E29D-R replaces the invalid stacking analysis from E29D with a properly nested and explicitly centered meta-model.
+
+The original E29D stacking implementation had two decisive defects:
+
+* it regressed a centered target on uncentered base predictions;
+* it compared stacked and standalone $$R^2$$ values computed with different target-variance denominators.
+
+Those defects caused the cycle stacks to collapse toward the training mean and made the reported gains uninterpretable.
+
+E29D-R corrects both problems and asks:
+
+> Do combinations of degree-sector readouts from different circuit architectures predict cycle counts better than the strongest standalone circuit representation?
+
+The experiment evaluates:
+
+* C3 and C4 as primary targets;
+* C5 and C6 as secondary targets.
+
+Joint-degree mixing is not stacked because standalone R2 prediction is already saturated.
+
+#### Execution status
+
+E29D-R completed successfully.
+
+The notebook:
+
+* loaded all five validated E29P-R circuit families;
+* verified graph ordering against E6;
+* reasserted triangle and 4-cycle trace identities;
+* generated nested out-of-fold base predictions;
+* fit centered nonnegative stacking models;
+* evaluated five circuit combinations;
+* repeated the C3 analysis across five outer-fold seeds;
+* computed graph-resampling directional-stability intervals;
+* saved:
+
+```text
+e29d_r_corrected_stacking.pkl
+```
+
+and:
+
+```text
+e29d_r_stacking_gain.png
+```
+
+No cell terminated with an error.
+
+The completed runtime was approximately 98 minutes.
+
+---
+
+## Graph families
+
+The experiment uses the four fixed-degree-sequence E6 strata at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs |
+| --------------- | --------------------- | -----: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |
+
+For every graph, the notebook verifies:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+All 1,600 graph records pass.
+
+E29D-R does not use the E30 analytical mixing basis because no mixing target is evaluated.
+
+---
+
+## Circuit bank
+
+| Circuit | Preparation                                | Graph phase     | Final transformation |
+| ------- | ------------------------------------------ | --------------- | -------------------- |
+| F-X     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| D-X     | Normalized degree $$R_X(2.875d_i/\Delta)$$ | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| H-X     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| F-Y     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_Y(0.1)$$         |
+| H-H     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$H^{\otimes14}$$    |
+
+The first four circuits define the primary circuit bank.
+
+H-H is included as a secondary architectural control.
+
+---
+
+## Degree-sector readout
+
+For degree classes:
+
+$$d_1<\cdots<d_m,$$
+
+define the occupancy signature:
+
+$$\kappa_G(z)=\left(\sum_{i:\deg(i)=d_1}z_i,\ldots,\sum_{i:\deg(i)=d_m}z_i\right).$$
+
+The R2 representation is:
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+Its dimensions are:
+
+| Stratum | R2 dimension |
+| ------- | -----------: |
+| S1      |           99 |
+| S2      |           64 |
+| S3      |          315 |
+| S4      |          216 |
+
+R2 is a hybrid graph-conditioned circuit readout because the graph’s degree partition is supplied during probability aggregation.
+
+---
+
+# Corrected Nested Stacking Protocol
+
+## Base predictions
+
+For every:
+
+$$\text{stratum}\times\text{cycle}\times\text{circuit}$$
+
+combination, the notebook constructs base predictions inside five outer graph folds.
+
+Within each outer-training set:
+
+1. five inner folds generate out-of-fold base predictions for the meta-model;
+2. each inner base learner uses its own five-fold `RidgeCV`;
+3. one full outer-training base learner predicts the outer-test graphs.
+
+The base ridge grid is:
+
+$$\alpha\in{10^{-14},10^{-13},\ldots,10^2}.$$
+
+The circuit readout coordinates are used raw, matching the E6 and E29A-R decoder protocol.
+
+## Centered meta-model
+
+Let:
+
+$$B_{\text{train}}\in\mathbb R^{n_{\text{train}}\times q}$$
+
+be the inner out-of-fold prediction matrix from the $$q$$ member circuits.
+
+The corrected procedure computes:
+
+$$\widetilde B_{\text{train}}=B_{\text{train}}-\overline B_{\text{train}},$$
+
+and:
+
+$$\widetilde y_{\text{train}}=y_{\text{train}}-\overline y_{\text{train}}.$$
+
+Nonnegative weights are fitted through:
+
+$$\widehat w=\arg\min_{w\ge0}|\widetilde B_{\text{train}}w-\widetilde y_{\text{train}}|_2^2.$$
+
+The outer-test predictions are:
+
+$$\widehat y_{\text{stack}}=(B_{\text{test}}-\overline B_{\text{train}})\widehat w+\overline y_{\text{train}}.$$
+
+This directly fixes the original E29D centering defect.
+
+The weights are constrained only to be nonnegative.
+
+They are not required to sum to one, so the stack is a nonnegative linear ensemble rather than a convex average.
+
+## Common evaluation denominator
+
+Within the final pooled analysis, stacked and standalone predictions use the same target set and the same per-stratum target centering:
+
+$$R^2=1-\frac{\sum_s\sum_{i\in s}(y_i-\widehat y_i)^2}{\sum_s\sum_{i\in s}(y_i-\overline y_s)^2}.$$
+
+This fixes the original inconsistent-denominator defect.
+
+## Calibration
+
+Two synthetic feature banks containing complementary target components produce:
+
+$$R^2_{\text{stack}}=0.974,$$
+
+compared with:
+
+$$R^2_{\text{best standalone}}=0.669.$$
+
+The stacking gain is:
+
+$$\Delta R^2=0.305.$$
+
+The calibration confirms that the corrected implementation can combine complementary base signals.
+
+---
+
+# Stack Configurations
+
+The tested configurations are:
+
+1. F-X plus H-X;
+2. F-X plus D-X;
+3. F-X plus F-Y;
+4. F-X plus D-X plus H-X plus F-Y;
+5. all five circuits, including H-H.
+
+The four-circuit stack is the primary full-bank combination.
+
+The all-five stack tests whether the structurally distinct H-H representation adds useful information.
+
+Each meta-model is fitted separately within each:
+
+$$\text{stratum}\times\text{outer fold}.$$
+
+The reported pooled result therefore combines four stratum-specific stacking systems rather than one universal set of weights shared across all degree sequences.
+
+---
+
+# Complete Corrected Results
+
+The table reports the pooled stack score, the notebook’s standalone comparator, and their difference.
+
+| Target | Stack                 | Stacked $$R^2$$ | Standalone comparator |     Gain |
+| ------ | --------------------- | --------------: | --------------------: | -------: |
+| C3     | F-X + H-X             |           0.749 |                 0.789 | (-0.040) |
+| C3     | F-X + D-X             |           0.719 |                 0.704 | (+0.016) |
+| C3     | F-X + F-Y             |           0.992 |                 0.993 | (-0.001) |
+| C3     | Four primary circuits |           0.991 |                 0.993 | (-0.001) |
+| C3     | All five circuits     |           0.991 |                 0.993 | (-0.001) |
+| C4     | F-X + H-X             |           0.499 |                 0.433 | (+0.065) |
+| C4     | F-X + D-X             |           0.510 |                 0.451 | (+0.059) |
+| C4     | F-X + F-Y             |           0.553 |                 0.510 | (+0.043) |
+| C4     | Four primary circuits |           0.581 |                 0.520 | (+0.060) |
+| C4     | All five circuits     |           0.851 |                 0.731 | (+0.120) |
+| C5     | F-X + H-X             |           0.286 |                 0.275 | (+0.011) |
+| C5     | F-X + D-X             |           0.273 |                 0.262 | (+0.011) |
+| C5     | F-X + F-Y             |           0.312 |                 0.306 | (+0.006) |
+| C5     | Four primary circuits |           0.337 |                 0.313 | (+0.024) |
+| C5     | All five circuits     |           0.363 |                 0.313 | (+0.051) |
+| C6     | F-X + H-X             |           0.265 |                 0.232 | (+0.033) |
+| C6     | F-X + D-X             |           0.243 |                 0.231 | (+0.013) |
+| C6     | F-X + F-Y             |           0.269 |                 0.265 | (+0.004) |
+| C6     | Four primary circuits |           0.283 |                 0.265 | (+0.019) |
+| C6     | All five circuits     |           0.528 |                 0.413 | (+0.114) |
+
+The corrected results differ fundamentally from the original invalid near-zero stacking output.
+
+---
+
+# C3 - No Robust Complementarity
+
+At the primary outer-fold seed, only F-X plus D-X produces a positive pooled gain:
+
+$$\Delta R^2=0.016.$$
+
+Its directional-stability interval is:
+
+$$[-0.001,0.042],$$
+
+with:
+
+$$93%$$
+
+of graph resamples producing a positive direction.
+
+The interval includes zero.
+
+The remaining stacks are either negative or effectively tied with their standalone comparator.
+
+## Repeated outer-fold seeds
+
+C3 is repeated for seeds zero through four.
+
+| Stack                 |   Seed 0 |              Seed 1 |              Seed 2 |   Seed 3 |              Seed 4 |                Mean |
+| --------------------- | -------: | ------------------: | ------------------: | -------: | ------------------: | ------------------: |
+| F-X + H-X             | (-0.040) |            (+0.002) | approximately 0.000 | (-0.084) |            (+0.003) |            (-0.024) |
+| F-X + D-X             | (+0.016) |            (-0.003) |            (-0.010) | (-0.116) |            (-0.007) |            (-0.024) |
+| F-X + F-Y             | (-0.001) | approximately 0.000 | approximately 0.000 | (-0.001) | approximately 0.000 | approximately 0.000 |
+| Four primary circuits | (-0.001) | approximately 0.000 | approximately 0.000 | (-0.001) | approximately 0.000 | approximately 0.000 |
+| All five circuits     | (-0.001) | approximately 0.000 | approximately 0.000 | (-0.001) | approximately 0.000 | approximately 0.000 |
+
+The seed-zero F-X plus D-X gain does not replicate.
+
+The broad stacks collapse almost entirely onto F-Y, whose standalone C3 performance is already approximately:
+
+$$R^2=0.993.$$
+
+The average four-circuit C3 weights are:
+
+$$w_{F-X}=0.07,\quad w_{D-X}=0.01,\quad w_{H-X}=0.03,\quad w_{F-Y}=0.90.$$
+
+The corrected conclusion is:
+
+> E29D-R finds no robust C3 stacking advantage. F-Y already nearly saturates triangle prediction, leaving little useful residual opportunity for the other circuits.
+
+This reverses the expectation generated by the original E29D error-correlation analysis.
+
+Low triangle-error correlation was a necessary indication of potentially complementary mistakes, but it was not sufficient to overcome the near-perfect F-Y base predictor.
+
+---
+
+# C4 - Consistent Cross-Circuit Complementarity
+
+Every tested C4 stack improves over its comparator.
+
+The pairwise gains are:
+
+$$0.043\text{ to }0.065.$$
+
+The four-primary-circuit stack improves from:
+
+$$0.520$$
+
+to:
+
+$$0.581,$$
+
+for a gain of:
+
+$$0.060.$$
+
+Its directional-stability interval is:
+
+$$[0.035,0.088],$$
+
+with all graph resamples positive.
+
+The four-primary mean weights are:
+
+$$w_{F-X}=0.36,$$
+
+$$w_{D-X}=0.18,$$
+
+$$w_{H-X}=0.08,$$
+
+$$w_{F-Y}=0.40.$$
+
+The weight does not collapse onto one circuit.
+
+All four principal representations contribute on average, although F-X and F-Y carry the largest weights.
+
+This is direct evidence of complementary C4 coordinates within the primary circuit bank.
+
+## H-H contribution
+
+The all-five stack reaches:
+
+$$R^2=0.851,$$
+
+compared with:
+
+$$0.731$$
+
+for the standalone comparator.
+
+The gain is:
+
+$$0.120,$$
+
+with directional-stability interval:
+
+$$[0.100,0.144].$$
+
+Every graph resample has positive direction.
+
+The average all-five weights are:
+
+$$w_{F-X}=0.23,\quad w_{D-X}=0.09,\quad w_{H-X}=0.04,\quad w_{F-Y}=0.28,\quad w_{H-H}=0.64.$$
+
+Because the weights are not normalized, these values are not percentages.
+
+H-H nevertheless receives the largest mean coefficient and approximately doubles the gain obtained from the four primary circuits.
+
+The notebook’s expectation that H-H would not alter the primary conclusion is contradicted by the completed result.
+
+The result is consistent with E29B-R, where H-H retained unusually strong C4 accessibility despite weak degree-mixing reconstruction.
+
+---
+
+# C5 - Limited Complementarity
+
+The pairwise C5 gains are small:
+
+$$0.006\text{ to }0.011.$$
+
+Their directional-stability intervals include zero.
+
+The four-primary-circuit stack gains:
+
+$$0.024,$$
+
+with interval:
+
+$$[-0.001,0.049].$$
+
+This remains borderline.
+
+The all-five stack reaches:
+
+$$R^2=0.363,$$
+
+compared with:
+
+$$0.313$$
+
+for the comparator.
+
+The gain is:
+
+$$0.051,$$
+
+with interval:
+
+$$[0.023,0.078].$$
+
+The all-five average weights are:
+
+$$w_{F-X}=0.11,\quad w_{D-X}=0.13,\quad w_{H-X}=0.18,\quad w_{F-Y}=0.48,\quad w_{H-H}=0.40.$$
+
+The completed result supports modest C5 complementarity only for the full heterogeneous circuit bank.
+
+It does not establish a strong pairwise or primary-four-circuit effect.
+
+---
+
+# C6 - H-H Reveals a Strong Complementary Channel
+
+Among the primary circuits, F-X plus H-X produces the clearest pairwise C6 gain:
+
+$$\Delta R^2=0.033,$$
+
+with interval:
+
+$$[0.017,0.051].$$
+
+The four-primary stack improves by:
+
+$$0.019,$$
+
+with interval:
+
+$$[0.003,0.035].$$
+
+Thus, the primary circuit bank contains a small but positive C6 ensemble effect.
+
+The all-five result is substantially larger:
+
+$$R^2_{\text{stack}}=0.528,$$
+
+$$R^2_{\text{comparator}}=0.413,$$
+
+$$\Delta R^2=0.114.$$
+
+Its interval is:
+
+$$[0.086,0.143],$$
+
+with all graph resamples positive.
+
+The mean all-five weights are:
+
+$$w_{F-X}=0.15,\quad w_{D-X}=0.06,\quad w_{H-X}=0.16,\quad w_{F-Y}=0.33,\quad w_{H-H}=0.72.$$
+
+H-H again receives the largest coefficient.
+
+This result aligns with the H-H C6-oriented channel observed in E29B-R.
+
+The original E29D pairwise error analysis found high C6 error correlation among F-X, D-X, H-X, and F-Y. E29D-R confirms that the primary circuits have only limited C6 complementarity.
+
+The large all-five gain appears because H-H supplies a structurally different even-cycle representation that was absent from the original pairwise error analysis.
+
+---
+
+# Interpretation of the Stacking Weights
+
+The average weights provide qualitative evidence about whether a stack collapses onto one base circuit.
+
+They require several qualifications.
+
+* The weights are constrained to be nonnegative but not to sum to one.
+* They are averaged equally over four strata and five outer folds.
+* A large coefficient can compensate for a base predictor with compressed variation.
+* Correlated predictors can exchange weight across folds without changing the stack prediction.
+* No standard deviation or fold-level weight distribution is printed.
+
+The weights should therefore be interpreted as evidence of contribution, not as fractions of explained structure.
+
+The clearest weight-collapse result is C3, where F-Y receives approximately:
+
+$$0.90$$
+
+in the broad stacks.
+
+The clearest multi-circuit results are:
+
+* C4 under the four-primary stack;
+* C4 under the all-five stack;
+* C6 under the all-five stack.
+
+---
+
+# Standalone Comparator Qualification
+
+The notebook labels its reference as the “best standalone” model.
+
+More precisely, it selects the best member circuit separately within each stratum using the completed out-of-fold squared errors, then pools those four selected prediction vectors.
+
+The reported comparator is therefore a:
+
+> stratum-wise oracle standalone benchmark.
+
+It is generally stronger than requiring one fixed circuit to be used across all four strata.
+
+A positive gain over this benchmark is conservative evidence that the stack improves over the member circuits even when the comparator may change with degree sequence.
+
+However, the comparator selection uses the completed held-out outcomes.
+
+It is not a preselected deployable standalone model.
+
+The graph-resampling intervals also condition on the selected comparator rather than repeating the circuit-selection step inside each resample.
+
+The result should therefore be described as improvement over a fixed, post-selected stratum-wise oracle benchmark rather than an unbiased estimate against a prespecified standalone circuit.
+
+---
+
+# Directional-Stability Audit
+
+The notebook resamples graph-level held-out squared errors and reports:
+
+* the observed pooled gain;
+* a percentile interval;
+* the fraction of resamples with positive direction.
+
+This is a directional-stability analysis rather than a null-hypothesis test.
+
+It does not refit:
+
+* base ridge models;
+* inner out-of-fold predictions;
+* stacking weights;
+* outer partitions;
+* or the stratum-wise comparator.
+
+The resampling is also performed over the concatenated 1,600 graph records rather than separately within each stratum.
+
+This permits the relative contribution of the four strata to vary across bootstrap draws.
+
+The intervals therefore summarize empirical graph-level error stability conditional on the completed models.
+
+They do not include model-training or split uncertainty.
+
+The repeated C3 seed audit supplies direct split sensitivity for C3 and overturns its seed-zero positive result.
+
+No equivalent repeated-seed audit is performed for C4, C5, or C6.
+
+---
+
+# Comparison with Original E29D
+
+The original E29D produced near-zero cycle stacks because its meta-model was implemented incorrectly.
+
+Those values should be replaced entirely by E29D-R.
+
+The corrected results are:
+
+| Target | Original conclusion                | Corrected conclusion                                    |
+| ------ | ---------------------------------- | ------------------------------------------------------- |
+| C3     | Stacking appeared strongly harmful | No robust gain; broad stacks reproduce saturated F-Y    |
+| C4     | Stacking appeared harmful          | Consistent primary-circuit gain; larger gain with H-H   |
+| C5     | Stacking appeared harmful          | Small primary effect; modest all-five gain              |
+| C6     | Stacking appeared harmful          | Small primary effect; strong all-five H-H-assisted gain |
+
+The representation-geometry and prediction-error analyses from E29D were not rerun in E29D-R.
+
+Their descriptive findings remain separate from the corrected ensemble test.
+
+The corrected stack also refines their interpretation:
+
+* low C3 error correlation does not yield useful stacking because one circuit already saturates the target;
+* moderate C4 error differences do produce a reliable ensemble gain;
+* high C6 error alignment among the primary circuits limits their ensemble gain;
+* H-H introduces an additional even-cycle channel and changes the C6 result materially.
+
+---
+
+# Relationship to E29A-R
+
+E29A-R showed that F-X, D-X, H-X, and F-Y all reconstruct degree mixing almost perfectly under R2, while their cycle accessibility differs.
+
+E29D-R confirms that similar access to one dominant structural coordinate does not make the circuits predictively identical.
+
+The circuits combine usefully for C4 and, to a lesser degree, C6.
+
+H-H remains weak at degree mixing but becomes highly valuable for even-cycle stacking.
+
+---
+
+# Relationship to E29B-R
+
+E29B-R identified:
+
+* a common degree-mixing channel across the four principal circuits;
+* an H-H representation oriented toward C4 and C6 rather than mixing.
+
+E29D-R supplies a direct predictive confirmation of that distinction.
+
+Adding H-H increases the stacking gain from:
+
+$$0.060\rightarrow0.120$$
+
+for C4 and:
+
+$$0.019\rightarrow0.114$$
+
+for C6.
+
+The H-H counterexample is therefore not merely a weak or failed circuit.
+
+It encodes a different structural channel that complements the primary degree-mixing-oriented representations.
+
+---
+
+# What the Experiment Establishes
+
+The completed results establish that:
+
+1. **E29D-R corrects the two decisive implementation defects in the original stacking experiment.**
+
+2. **The synthetic calibration confirms that complementary base signals can be combined.**
+
+3. **No robust C3 stacking advantage is observed.**
+
+4. **The lone positive seed-zero C3 gain reverses under repeated outer-fold seeds.**
+
+5. **C4 exhibits consistent complementarity across every tested circuit combination.**
+
+6. **The four-primary C4 stack improves by (0.060).**
+
+7. **Adding H-H raises the C4 gain to (0.120).**
+
+8. **C5 complementarity is weak among the primary circuits but positive in the all-five stack.**
+
+9. **The four-primary C6 stack produces a small positive gain of (0.019).**
+
+10. **The all-five C6 stack produces a much larger gain of (0.114).**
+
+11. **H-H receives the largest average C4 and C6 coefficients.**
+
+12. **The H-H circuit exposes a useful even-cycle channel despite weak degree-mixing reconstruction.**
+
+13. **Low pairwise error correlation is not sufficient for stacking improvement when one base predictor already saturates the target.**
+
+14. **The reported comparator is a post-selected stratum-wise oracle rather than one fixed standalone circuit.**
+
+15. **The directional-stability intervals condition on the completed models and do not include split or training uncertainty.**
+
+16. **E29D-R supersedes only the invalid stacking portion of E29D; the earlier geometry audit remains separate.**
+
+E29D-R therefore establishes target-specific cross-circuit complementarity rather than one universal ensemble advantage.
+
+---
+
+# Necessary Qualifications
+
+The positive C4 result is evaluated at only one outer-fold seed.
+
+Its graph-resampling intervals are strongly positive, but a repeated-seed analysis analogous to C3 would provide a more complete robustness check.
+
+Five stack configurations are evaluated for each of four targets.
+
+No multiplicity correction is applied when selecting the strongest configuration.
+
+C3 and C4 were prespecified as primary targets, but the choice of the best stack within a target remains post hoc.
+
+The all-five stack is labeled a secondary control.
+
+Its unexpectedly large C4 and C6 gains are scientifically important but should be presented as an additional architectural result rather than part of the original primary hypothesis.
+
+The meta-model is fitted separately within each stratum.
+
+The results do not establish that one common set of circuit weights transfers across degree sequences.
+
+The standalone comparator is selected separately in each stratum using out-of-fold test performance.
+
+This makes it a strong but post-selected oracle benchmark.
+
+The bootstrap does not repeat that selection.
+
+The nonnegative meta-model has no sum-to-one constraint or regularization.
+
+With only two to five base-prediction columns and 320 outer-training graphs, this is reasonable, but the coefficients are not convex weights.
+
+The mean weights conceal fold- and stratum-level variability.
+
+The base learners use exact ideal R2 vectors.
+
+No finite-shot stacking result is established.
+
+The notebook checks graph ordering but does not verify the E29P-R manifest fingerprints.
+
+The code does not require all five circuit families to exist; it silently removes unavailable members and configurations. All five are present in the completed run.
+
+The ridge grid extends to:
+
+$$10^{-14}.$$
+
+No selected-alpha or numerical-condition diagnostics are retained for the base models.
+
+Finally, R2 uses graph-supplied degree classes. E29D-R establishes complementarity among hybrid graph-conditioned circuit representations, not quantum advantage.
+
+---
+
+# Overall Assessment
+
+E29D-R successfully resolves the original stacking failure.
+
+The corrected experiment does not support a universal circuit-ensemble advantage.
+
+Its result is structurally specific.
+
+C3 is effectively saturated by F-Y, and no stacking gain survives repeated outer-fold seeds.
+
+C4 shows consistent complementarity across every tested configuration. The four primary circuits improve the pooled score by:
+
+$$0.060,$$
+
+while the addition of H-H raises the gain to:
+
+$$0.120.$$
+
+C5 receives only a modest all-five gain:
+
+$$0.051.$$
+
+C6 shows limited complementarity among the primary circuits but a large all-five gain:
+
+$$0.114.$$
+
+The H-H coefficients dominate the all-five C4 and C6 stacks, directly confirming the distinct even-cycle channel inferred from E29B-R.
+
+The appropriate central claim is:
+
+> Correctly centered nested stacking reveals target-specific complementarity among the E29 degree-sector representations. No robust triangle gain survives repeated outer-fold seeds because F-Y already reaches approximately (0.993). In contrast, the four principal circuits improve 4-cycle prediction by (0.060), and adding the structurally distinct H-H circuit increases the gain to (0.120). The all-five stack also improves 6-cycle prediction by (0.114), with H-H receiving the largest mean coefficient. C5 complementarity is smaller and appears only clearly in the full circuit bank. E29D-R therefore shows that the circuit families are neither universally redundant nor universally complementary: the primary preparation–phase–mixer circuits share a dominant degree-mixing channel, while H-H contributes an additional even-cycle coordinate that materially improves C4 and C6 prediction.
+
+### E29E-L - Local Circuit-Angle Robustness
+
+#### Experimental purpose
+
+E29E-L tests whether selected E29 conclusions persist around the shared circuit schedule:
+
+$$\gamma=2.0,\qquad\beta=0.1.$$
+
+The canonical E29 experiments use one fixed entangling angle and one fixed mixer angle. A result observed at one parameter point could reflect:
+
+* a broad architectural property;
+* a narrow favorable operating point;
+* or an accidental ranking at the selected schedule.
+
+E29E-L therefore re-embeds every graph at nearby parameter values and repeats the frozen E6 decoding protocol.
+
+The experiment focuses on three circuits:
+
+* H-X;
+* F-Y;
+* H-H.
+
+It evaluates two graph strata:
+
+* S2 bimodal;
+* S3 skewed.
+
+The readout is R2 degree-sector mass.
+
+The targets are:
+
+* the E30 analytical joint-degree mixing block;
+* $$C_3$$;
+* $$C_5$$;
+* $$C_6$$.
+
+The experiment does not evaluate:
+
+* F-X;
+* D-X;
+* S1;
+* S4;
+* or $$C_4$$.
+
+Its scope is therefore local robustness of selected E29 architectural contrasts rather than robustness of the complete E29 series.
+
+---
+
+## Execution status
+
+E29E-L completed successfully.
+
+The notebook:
+
+* gated all 800 S2 and S3 graph records;
+* aligned E30 analytical targets with E6 graph ordering;
+* regenerated every statevector at every angle point;
+* constructed R2 independently for each graph and parameter point;
+* completed both parameter transects;
+* produced score-versus-angle figures;
+* computed minimum, median, and maximum scores;
+* evaluated circuit-ranking stability;
+* saved:
+
+```text
+e29e_l_local_angle_robustness.pkl
+```
+
+The re-embedding and decoding sweep required approximately 60 minutes.
+
+No cell terminated with an error, and no numerical warning appeared in the displayed output.
+
+---
+
+# Parameter Transects
+
+## Entangling-angle transect
+
+The entangling angle varies over:
+
+$$\gamma\in{1.50,1.75,2.00,2.25,2.50},$$
+
+with:
+
+$$\beta=0.10.$$
+
+This transect includes:
+
+* H-X;
+* F-Y;
+* H-H.
+
+The range corresponds to a perturbation of:
+
+$$\pm25%$$
+
+around the canonical entangling angle.
+
+## Mixer-angle transect
+
+The continuous mixer angle varies over:
+
+$$\beta\in{0.050,0.075,0.100,0.125,0.150},$$
+
+with:
+
+$$\gamma=2.0.$$
+
+This transect includes:
+
+* H-X;
+* F-Y.
+
+H-H has a final Hadamard layer rather than a continuously parameterized mixer and is therefore excluded.
+
+The mixer range corresponds to:
+
+$$-50%\text{ to }+50%$$
+
+around the canonical mixer angle.
+
+These are one-dimensional transects. The experiment does not evaluate the complete two-dimensional neighborhood:
+
+$${(\gamma,\beta)}.$$
+
+It therefore does not test interaction effects between simultaneous entangling- and mixer-angle perturbations.
+
+---
+
+# Graph and Target Validation
+
+For both strata, the notebook verifies:
+
+* 400 graph records;
+* the locked degree sequence;
+* E30 and E6 graph-order equality;
+* the triangle trace identity;
+* the 4-cycle trace identity.
+
+The trace gates are:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+The analytical mixing ranks are:
+
+| Stratum    | Analytical mixing rank |
+| ---------- | ---------------------: |
+| S2 bimodal |                      1 |
+| S3 skewed  |                      6 |
+
+All graph and target gates pass.
+
+---
+
+# Circuit Construction
+
+## H-X
+
+H-X uses:
+
+$$H^{\otimes14}\rightarrow U_{ZZ}(\gamma)\rightarrow R_X(\beta)^{\otimes14}.$$
+
+## F-Y
+
+F-Y uses:
+
+$$R_X(2.875)^{\otimes14}\rightarrow U_{ZZ}(\gamma)\rightarrow R_Y(\beta)^{\otimes14}.$$
+
+## H-H
+
+H-H uses:
+
+$$H^{\otimes14}\rightarrow U_{ZZ}(\gamma)\rightarrow H^{\otimes14}.$$
+
+The flat encoder angle remains fixed:
+
+$$\theta_{\text{enc}}=2.875.$$
+
+The graph-dependent phase is one $$R_{ZZ}(\gamma)$$ gate per graph edge.
+
+---
+
+# Degree-Sector Readout
+
+For degree classes:
+
+$$d_1<\cdots<d_m,$$
+
+the occupancy signature of basis state $$z$$ is:
+
+$$\kappa_G(z)=\left(\sum_{i:\deg(i)=d_1}z_i,\ldots,\sum_{i:\deg(i)=d_m}z_i\right).$$
+
+The R2 coordinate for sector $$\kappa$$ is:
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+The dimensions are:
+
+| Stratum    | R2 dimension |
+| ---------- | -----------: |
+| S2 bimodal |           64 |
+| S3 skewed  |          315 |
+
+R2 remains a hybrid graph-conditioned readout because the graph’s degree partition is supplied during aggregation.
+
+---
+
+# Frozen Decoder
+
+Every angle point uses the E6 probe:
+
+* raw R2 coordinates;
+* five shuffled outer folds;
+* outer seed zero;
+* inner five-fold `RidgeCV`;
+* ridge grid:
+
+$$\alpha\in{10^{-14},10^{-13},\ldots,10^2};$$
+
+* mean outer-test-fold $$R^2$$;
+* pooled squared errors for multivariate mixing targets.
+
+The synthetic calibration produces:
+
+$$R^2_{\text{null}}=-0.005,$$
+
+and:
+
+$$R^2_{\text{linear}}=1.000.$$
+
+The decoder implementation passes its basic calibration.
+
+---
+
+# Entangling-Angle Robustness
+
+## Complete score ranges
+
+The following values are the minimum and maximum over:
+
+$$\gamma\in{1.50,1.75,2.00,2.25,2.50}.$$
+
+### S2 bimodal
+
+| Circuit |    Mixing |      $$C_3$$ |      $$C_5$$ |   $$C_6$$ |
+| ------- | --------: | -----------: | -----------: | --------: |
+| H-X     | 1.00–1.00 |    0.83–0.99 |    0.38–0.60 | 0.34–0.56 |
+| F-Y     | 1.00–1.00 |    1.00–1.00 |    0.38–0.64 | 0.30–0.48 |
+| H-H     | 0.15–0.97 | (-0.02)–0.41 | (-0.04)–0.13 | 0.06–0.62 |
+
+### S3 skewed
+
+| Circuit |       Mixing |   $$C_3$$ |      $$C_5$$ |      $$C_6$$ |
+| ------- | -----------: | --------: | -----------: | -----------: |
+| H-X     |    0.99–1.00 | 0.01–0.97 | (-0.08)–0.28 | (-0.01)–0.08 |
+| F-Y     |    1.00–1.00 | 0.80–0.98 |    0.21–0.32 |    0.18–0.23 |
+| H-H     | (-0.01)–0.82 | 0.05–0.26 | (-0.05)–0.05 | (-0.03)–0.70 |
+
+---
+
+# H-X Results
+
+## Mixing recovery
+
+H-X analytical mixing recovery is essentially invariant over the entangling-angle transect.
+
+It remains:
+
+$$R^2=1.00$$
+
+to displayed precision in S2 and between:
+
+$$0.99\text{ and }1.00$$
+
+in S3.
+
+Thus, the H-X degree-mixing result is not tied to the exact canonical entangling angle.
+
+## S2 cycles
+
+H-X also retains positive S2 cycle accessibility throughout the transect:
+
+$$C_3:0.83\text{--}0.99,$$
+
+$$C_5:0.38\text{--}0.60,$$
+
+$$C_6:0.34\text{--}0.56.$$
+
+The exact values change, but the substantive S2 result is stable.
+
+## S3 cycles
+
+The S3 cycle result is much more angle dependent.
+
+Triangle prediction ranges from:
+
+$$0.01$$
+
+to:
+
+$$0.97.$$
+
+The canonical H-X S3 triangle result is therefore not representative of the complete local gamma neighborhood.
+
+The deeper S3 cycles remain weak:
+
+$$C_5:-0.08\text{ to }0.28,$$
+
+and:
+
+$$C_6:-0.01\text{ to }0.08.$$
+
+H-X has a robust degree-mixing channel but a strongly angle-dependent S3 cycle channel.
+
+---
+
+# F-Y Results
+
+## Mixing recovery
+
+F-Y analytical mixing recovery remains:
+
+$$R^2=1.00$$
+
+to displayed precision at every sampled gamma value in both strata.
+
+This is the strongest local robustness result in the notebook.
+
+## S2 cycles
+
+F-Y retains:
+
+$$C_3=1.00$$
+
+at every gamma point.
+
+Its deeper-cycle ranges are:
+
+$$C_5:0.38\text{--}0.64,$$
+
+and:
+
+$$C_6:0.30\text{--}0.48.$$
+
+The median gamma-transect scores are approximately:
+
+$$C_3=1.00,\qquad C_5=0.57,\qquad C_6=0.46.$$
+
+## S3 cycles
+
+F-Y also retains positive S3 cycle accessibility throughout the entangling-angle transect:
+
+$$C_3:0.80\text{--}0.98,$$
+
+$$C_5:0.21\text{--}0.32,$$
+
+$$C_6:0.18\text{--}0.23.$$
+
+The corresponding medians are approximately:
+
+$$0.85,\qquad0.26,\qquad0.19.$$
+
+Unlike H-X, F-Y never falls to the prediction floor on any tested S3 cycle target.
+
+The F-Y cycle result is therefore a neighborhood property over the sampled gamma transect rather than a phenomenon restricted to:
+
+$$\gamma=2.0.$$
+
+---
+
+# H-H Results
+
+The original E29A-R and E29B-R analyses treated H-H as an architectural counterexample to the strong degree-mixing result at the canonical schedule.
+
+E29E-L materially qualifies that interpretation.
+
+## Mixing is highly angle dependent
+
+In S2, H-H mixing recovery ranges from:
+
+$$0.15$$
+
+to:
+
+$$0.97.$$
+
+In S3, it ranges from:
+
+$$-0.01$$
+
+to:
+
+$$0.82.$$
+
+H-H is therefore not intrinsically unable to expose joint-degree mixing through R2.
+
+At some nearby entangling angles, its mixing accessibility becomes strong or nearly perfect.
+
+The accurate conclusion is:
+
+> H-H is a counterexample at the canonical angle schedule, but not throughout the sampled local entangling-angle neighborhood.
+
+H-H remains ranked below H-X and F-Y at every sampled gamma point, but the absolute difference can shrink substantially.
+
+Ranking stability and absolute weakness are not the same claim.
+
+## C5 remains weak
+
+H-H C5 prediction remains near the floor throughout both strata:
+
+$$-0.04\text{ to }0.13$$
+
+in S2 and:
+
+$$-0.05\text{ to }0.05$$
+
+in S3.
+
+The absence of a strong H-H C5 channel is locally robust.
+
+## C6 is strongly angle tunable
+
+H-H C6 ranges from:
+
+$$0.06\text{ to }0.62$$
+
+in S2 and:
+
+$$-0.03\text{ to }0.70$$
+
+in S3.
+
+The H-H even-cycle channel identified in E29B-R and E29D-R is therefore highly dependent on the entangling angle.
+
+The architecture can provide strong C6 information, but the magnitude observed at the canonical point should not be treated as a parameter-insensitive property.
+
+E29E-L does not evaluate C4, so it does not establish local angle robustness for the strongest H-H-assisted stacking result from E29D-R.
+
+---
+
+# Mixer-Angle Robustness
+
+## Complete score ranges
+
+The following values are the minimum and maximum over:
+
+$$\beta\in{0.050,0.075,0.100,0.125,0.150}$$
+
+at:
+
+$$\gamma=2.0.$$
+
+### S2 bimodal
+
+| Circuit |    Mixing |   $$C_3$$ |   $$C_5$$ |   $$C_6$$ |
+| ------- | --------: | --------: | --------: | --------: |
+| H-X     | 1.00–1.00 | 0.94–0.99 | 0.49–0.52 | 0.51–0.56 |
+| F-Y     | 1.00–1.00 | 1.00–1.00 | 0.49–0.58 | 0.45–0.49 |
+
+### S3 skewed
+
+| Circuit |    Mixing |   $$C_3$$ |         $$C_5$$ |               $$C_6$$ |
+| ------- | --------: | --------: | --------------: | --------------------: |
+| H-X     | 1.00–1.00 | 0.12–0.28 | (-0.08)–(-0.04) | approximately (-0.01) |
+| F-Y     | 1.00–1.00 | 0.98–0.98 |       0.29–0.34 |             0.17–0.20 |
+
+The mixer-angle variation is substantially smaller than the entangling-angle variation.
+
+Both circuits retain perfect displayed mixing recovery throughout.
+
+F-Y remains strongly positive on every cycle target.
+
+H-X remains strong in S2 but weak on the S3 deeper cycles.
+
+---
+
+# The Mixer-Axis Claim Is Not Isolated
+
+The notebook describes the H-X-versus-F-Y mixer transect as isolating whether the mixer-axis effect persists away from the canonical beta.
+
+That interpretation is not supported by the circuit design.
+
+H-X and F-Y differ in both:
+
+* preparation;
+* mixer axis.
+
+Specifically:
+
+$$\text{H-X}:H\text{ preparation}+R_X\text{ mixer},$$
+
+while:
+
+$$\text{F-Y}:R_X(2.875)\text{ preparation}+R_Y\text{ mixer}.$$
+
+Their performance difference cannot be attributed specifically to X versus Y mixing.
+
+A clean mixer-axis comparison would require either:
+
+* F-X versus F-Y;
+* or H-X versus an H-Y circuit.
+
+F-X support exists as a configuration option, but:
+
+```text
+INCLUDE_FX_REF = False
+```
+
+in the completed run.
+
+The current beta transect establishes schedule robustness of the two complete architectures, not an isolated mixer-axis effect.
+
+---
+
+# Circuit-Ranking Stability
+
+## Entangling-angle rankings
+
+### Stable rankings
+
+The following orderings remain identical at all five gamma values:
+
+| Stratum | Target  | Ordering        |
+| ------- | ------- | --------------- |
+| S2      | Mixing  | F-Y > H-X > H-H |
+| S2      | $$C_3$$ | F-Y > H-X > H-H |
+| S3      | Mixing  | F-Y > H-X > H-H |
+
+### Variable rankings
+
+| Stratum | Target  | Modal ordering  | Modal frequency |
+| ------- | ------- | --------------- | --------------: |
+| S2      | $$C_5$$ | F-Y > H-X > H-H |             4/5 |
+| S2      | $$C_6$$ | H-X > F-Y > H-H |             3/5 |
+| S3      | $$C_3$$ | F-Y > H-X > H-H |             3/5 |
+| S3      | $$C_5$$ | F-Y > H-H > H-X |             2/5 |
+| S3      | $$C_6$$ | H-H > F-Y > H-X |             3/5 |
+
+Only one of the six cycle rankings is strictly stable across the gamma transect.
+
+The architecture ordering for cycle accessibility is therefore substantially more angle sensitive than the ordering for mixing recovery.
+
+A modal frequency of 60% means that the listed ordering appears at only three of five sampled points.
+
+## Mixer-angle rankings
+
+Across beta, the orderings are more stable.
+
+* F-Y exceeds H-X for mixing and C3 in both strata.
+* F-Y exceeds H-X for S3 C5 and C6.
+* H-X exceeds F-Y for S2 C6.
+* S2 C5 changes ordering at one of the five beta points.
+
+Seven of the eight stratum-target rankings are constant.
+
+This supports the conclusion that the tested architectures are more sensitive to the entangling angle than to the small final mixer rotation.
+
+---
+
+# Ranking Precision Qualification
+
+The ranking audit uses strict numerical ordering with no tie tolerance.
+
+This matters for mixing because H-X and F-Y both report:
+
+$$R^2=1.00$$
+
+throughout most or all of the transects.
+
+A stable ordering such as:
+
+$$\text{F-Y}>\text{H-X}$$
+
+may be determined by differences below the displayed precision.
+
+The robust scientific result is that both circuits remain essentially perfect.
+
+The experiment does not establish a meaningful superiority of F-Y over H-X for mixing.
+
+A tolerance-aware ranking or paired score-difference table would be preferable.
+
+---
+
+# Relationship to E29A-R
+
+E29A-R showed nearly perfect canonical-point R2 mixing reconstruction for H-X and F-Y and weak canonical-point reconstruction for H-H.
+
+E29E-L shows:
+
+* H-X and F-Y mixing recovery is stable across both angle transects;
+* H-H’s canonical weakness is not stable across gamma.
+
+Thus, E29A-R’s principal four-circuit mixing result is locally strengthened for H-X and F-Y.
+
+Its description of H-H as an architectural counterexample must be narrowed to the tested canonical schedule.
+
+E29E-L does not evaluate F-X or D-X, so it does not establish angle robustness for the complete four-circuit principal bank.
+
+---
+
+# Relationship to E29B-R
+
+E29B-R identified:
+
+* a robust H-X/F-Y degree-mixing channel;
+* a distinct H-H even-cycle channel.
+
+E29E-L confirms the H-X/F-Y mixing result across nearby schedules.
+
+It also shows that H-H’s structural orientation changes substantially with gamma.
+
+H-H can move from:
+
+* weak to strong mixing accessibility;
+* weak to strong C6 accessibility.
+
+The circuit architecture does not uniquely determine the observed structural channel without reference to its angle schedule.
+
+---
+
+# Relationship to E29D-R
+
+E29D-R found that H-H materially improves C4 and C6 stacking at the canonical point.
+
+E29E-L supports the existence of an angle-dependent H-H C6 channel, reaching:
+
+$$R^2=0.62$$
+
+in S2 and:
+
+$$R^2=0.70$$
+
+in S3 at some sampled gamma values.
+
+However, C4 is omitted.
+
+The strongest E29D-R result—H-H-assisted C4 complementarity—therefore remains untested away from the canonical angle.
+
+The angle sensitivity also suggests that circuit-stack performance could change materially after angle perturbation or tuning.
+
+E29E-L does not rerun the stack at noncanonical angles.
+
+---
+
+# What the Experiment Establishes
+
+The completed experiment establishes that:
+
+1. **E29E-L successfully regenerates R2 representations over two local angle transects.**
+
+2. **H-X analytical mixing recovery remains between (0.99) and (1.00) throughout all tested points.**
+
+3. **F-Y analytical mixing recovery remains at (1.00) to displayed precision throughout all tested points.**
+
+4. **The principal H-X/F-Y mixing result is not an artifact of the exact canonical schedule in S2 or S3.**
+
+5. **F-Y retains positive C3, C5, and C6 accessibility throughout both transects and both strata.**
+
+6. **H-X retains stable positive cycle accessibility in S2.**
+
+7. **H-X S3 triangle accessibility is strongly dependent on the entangling angle, ranging from (0.01) to (0.97).**
+
+8. **H-H does not remain weak throughout the gamma neighborhood.**
+
+9. **H-H mixing reaches as high as (0.97) in S2 and (0.82) in S3.**
+
+10. **H-H C5 remains weak across the complete gamma transect.**
+
+11. **H-H C6 is strongly angle tunable, reaching (0.62) in S2 and (0.70) in S3.**
+
+12. **Mixing rankings are stable, but most cycle rankings vary with gamma.**
+
+13. **Beta perturbations produce much less variation than gamma perturbations for the tested circuits.**
+
+14. **The H-X-versus-F-Y beta comparison does not isolate mixer axis because preparation also differs.**
+
+15. **The experiment does not establish angle robustness for F-X, D-X, S1, S4, or C4.**
+
+E29E-L therefore supports local robustness of the primary H-X/F-Y degree-mixing result while replacing the broad H-H architectural-counterexample claim with a schedule-dependent interpretation.
+
+---
+
+# Necessary Qualifications
+
+The notebook does not load the E29P-R circuit artifacts or compare the regenerated canonical-point R2 arrays with them.
+
+The canonical point is included in both transects, and the reported ranges are consistent with E29A-R, but there is no direct array-level reproduction gate.
+
+A stronger implementation would assert:
+
+$$\max_G|R_2^{\text{E29E-L}}(G;2.0,0.1)-R_2^{\text{E29P-R}}(G)|_\infty<10^{-12}.$$
+
+The R2 implementation is not independently duplicated in this notebook.
+
+It relies on one mixed-radix sector aggregation path.
+
+The parameter study samples only five points per transect.
+
+It does not establish smoothness or exclude narrow behavior between those points.
+
+The experiment varies one parameter at a time.
+
+It cannot detect:
+
+* gamma-beta interaction;
+* diagonal directions through parameter space;
+* or a nearby isolated ridge or failure basin.
+
+Only two of the four E6 degree-sequence strata are included.
+
+The S1 and S4 conclusions remain canonical-point results.
+
+Only three circuits are evaluated.
+
+F-X and D-X are absent despite their importance to the circuit-generality claim.
+
+C4 is omitted despite becoming the strongest cross-circuit complementarity target in E29D-R.
+
+The ranking analysis uses strict ordering without an equivalence tolerance.
+
+Near-perfect scores can therefore produce an apparently stable ordering from numerically negligible differences.
+
+The decoder uses one outer-fold seed.
+
+No repeated-fold audit or uncertainty interval is computed for the angle curves.
+
+The reported minima and maxima combine:
+
+* true representation variation;
+* fixed-split regression variation;
+* possible regularization-selection changes.
+
+The notebook does not print:
+
+* fold standard deviations;
+* selected ridge penalties;
+* effective ranks;
+* or score differences relative to the canonical point.
+
+The ridge grid extends to:
+
+$$10^{-14}.$$
+
+No numerical-sensitivity audit accompanies the high-dimensional S3 R2 fits.
+
+All results use exact ideal probabilities.
+
+No finite-shot angle robustness is established.
+
+Finally, the parameter values are circuit angles rather than trained or optimized parameters. The experiment establishes local schedule sensitivity under a fixed shallow circuit family, not trainability or variational optimization robustness.
+
+---
+
+# Overall Assessment
+
+E29E-L produces a mixed but scientifically useful result.
+
+The strongest positive conclusion is clear.
+
+H-X and F-Y retain essentially perfect analytical mixing reconstruction across:
+
+$$\gamma=1.5\text{--}2.5$$
+
+and:
+
+$$\beta=0.05\text{--}0.15$$
+
+in S2 and S3.
+
+F-Y also retains positive cycle accessibility throughout the sampled neighborhood. Its S3 cycle scores never collapse to the prediction floor.
+
+The principal revision concerns H-H.
+
+At the canonical point, H-H is weak at degree mixing and comparatively strong on selected even cycles. Across nearby gamma values, however, its mixing score reaches:
+
+$$0.97$$
+
+in S2 and:
+
+$$0.82$$
+
+in S3, while its C6 score reaches:
+
+$$0.62$$
+
+and:
+
+$$0.70.$$
+
+H-H is therefore not a circuit architecture with a fixed structural role. Its accessible coordinate changes strongly with the entangling angle.
+
+The appropriate central claim is:
+
+> Across the sampled local angle transects, H-X and F-Y retain essentially perfect analytical joint-degree mixing recovery, and F-Y retains positive triangle, 5-cycle, and 6-cycle accessibility in both the bimodal and skewed strata. These results show that the principal H-X/F-Y degree-mixing conclusion is not an artifact of the exact schedule (gamma,beta)=(2.0,0.1). The H-H interpretation is not similarly robust: its mixing score rises from weak canonical values to as high as (0.97) in S2 and (0.82) in S3, while its 6-cycle score reaches (0.62) and (0.70). H-H should therefore be described as a canonical-schedule counterexample and an angle-sensitive structural circuit, not as an architecture that intrinsically lacks the degree-mixing channel. Most cycle rankings vary with gamma, whereas beta perturbations produce comparatively stable results. The completed comparison does not isolate mixer axis and does not cover F-X, D-X, C4, S1, or S4.
+
+
+
+
+
+
+### E30 - Analytical Joint-Degree Mixing Basis
+
+#### Experimental purpose
+
+Earlier experiments represented joint-degree mixing through a singular-value decomposition fitted to the complete 400-graph sample in each degree-sequence stratum.
+
+That construction correctly removed the linear redundancy among the raw edge-type counts, but it used all target graphs to determine:
+
+* the target-space mean;
+* the retained numerical rank;
+* the orientation of the target coordinates.
+
+This created a limited form of target-basis leakage in downstream cross-validation.
+
+E30 replaces the globally fitted SVD coordinates with an analytical basis derived only from the fixed degree-sequence constraints.
+
+The new basis:
+
+* does not inspect the 400-graph target distribution;
+* has a dimension determined algebraically;
+* reconstructs every observed joint-degree vector to numerical precision;
+* and spans the same variation as the earlier empirical SVD basis.
+
+E30 supplies the target coordinates used by the revised E29X and finite-shot experiments.
+
+---
+
+## Graph families
+
+The experiment uses the four fixed-degree-sequence E6 strata at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs |
+| --------------- | --------------------- | -----: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |
+
+Every graph passes:
+
+* its locked degree-sequence gate;
+* the triangle trace identity;
+* the 4-cycle trace identity.
+
+The trace identities are:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+All 1,600 graph records pass.
+
+---
+
+## Raw joint-degree representation
+
+Let:
+
+$$M_{ab}(G)=#{uv\in E(G):{\deg u,\deg v}={a,b}},$$
+
+for unordered degree pairs:
+
+$$a\le b.$$
+
+The complete joint-degree vector is:
+
+$$m(G)=\left(M_{ab}(G)\right)_{a\le b}.$$
+
+The raw dimensions are:
+
+| Stratum | Degree classes | Raw degree-pair coordinates |
+| ------- | -------------- | --------------------------: |
+| S1      | $${2,3,4}$$    |                           6 |
+| S2      | $${2,4}$$      |                           3 |
+| S3      | $${2,3,4,5}$$  |                          10 |
+| S4      | $${2,3,4,6}$$  |                          10 |
+
+For S4, the raw coordinate set explicitly includes:
+
+$$M_{66}.$$
+
+Because there is only one degree-6 vertex, this coordinate is identically zero.
+
+Earlier compact representations could omit this column. E30 retains it and enforces its value through an analytical constraint.
+
+---
+
+## Fixed-stub constraints
+
+Suppose degree class $$a$$ contains:
+
+$$n_a$$
+
+vertices.
+
+The total number of edge stubs incident to that class is:
+
+$$an_a.$$
+
+The joint-degree counts must therefore satisfy:
+
+$$2M_{aa}+\sum_{b\ne a}M_{ab}=an_a.$$
+
+These are affine constraints on the raw mixing vector.
+
+Writing the left-hand coefficients as rows of a matrix $$A$$ gives:
+
+$$Am(G)=b,$$
+
+where:
+
+$$b_a=an_a.$$
+
+Graphs sharing one degree sequence share the same:
+
+* matrix $$A$$;
+* right-hand side $$b$$;
+* affine feasible space.
+
+#### Singleton constraints
+
+When a degree class contains fewer than two vertices:
+
+$$n_a<2,$$
+
+an edge cannot connect two vertices within that class.
+
+The additional constraint is:
+
+$$M_{aa}=0.$$
+
+This occurs in S4 for the single degree-6 vertex:
+
+$$M_{66}=0.$$
+
+That extra independent constraint reduces the S4 mixing dimension from six to five.
+
+---
+
+## Analytical rank
+
+Differences between any two feasible mixing vectors satisfy:
+
+$$A\left[m(G)-m(H)\right]=0.$$
+
+All within-stratum variation therefore lies in:
+
+$$\text{null}(A).$$
+
+E30 constructs an orthonormal null-space basis:
+
+$$N\in\mathbb R^{q\times r},$$
+
+where:
+
+* $$q$$ is the number of raw degree-pair coordinates;
+* $$r=\dim\text{null}(A)$$.
+
+The analytical coordinates are:
+
+$$u(G)=m(G)N.$$
+
+The resulting dimensions are:
+
+| Stratum | Raw dimension | Stub constraints | Singleton constraints | Analytical rank |
+| ------- | ------------: | ---------------: | --------------------: | --------------: |
+| S1      |             6 |                3 |                     0 |               3 |
+| S2      |             3 |                2 |                     0 |               1 |
+| S3      |            10 |                4 |                     0 |               6 |
+| S4      |            10 |                4 |                     1 |               5 |
+
+All four computed ranks match the prespecified analytical ranks:
+
+$$3,\quad1,\quad6,\quad5.$$
+
+The result confirms that the earlier mixing targets were lower-dimensional structural states rather than collections of independent edge-count predictions.
+
+---
+
+## Basis construction
+
+The notebook computes:
+
+$$N=\text{null}(A)$$
+
+using SciPy’s numerical null-space routine.
+
+The columns are orthonormal.
+
+For each column, the sign is fixed so that its largest-magnitude entry is positive.
+
+This removes arbitrary sign reversals from the stored coordinates.
+
+The basis depends only on:
+
+* the set of degree classes;
+* their multiplicities;
+* the ordering of the degree-pair coordinates;
+* the numerical null-space implementation.
+
+It does not depend on the observed distribution of the 400 graphs.
+
+---
+
+## Exact reconstruction
+
+The feasible mixing vectors lie in an affine space rather than a linear space.
+
+Let:
+
+$$m_0$$
+
+be any feasible reference vector. E30 uses the sample mean:
+
+$$m_0=\frac{1}{400}\sum_Gm(G).$$
+
+Because every difference:
+
+$$m(G)-m_0$$
+
+lies in $$\text{null}(A)$$, reconstruction is:
+
+$$\widehat m(G)=m_0+\left[m(G)-m_0\right]NN^\top.$$
+
+The maximum reconstruction errors are:
+
+| Stratum | Coordinate shape | Maximum reconstruction error |
+| ------- | ---------------- | ---------------------------: |
+| S1      | $$(400,3)$$      |       $$8.88\times10^{-16}$$ |
+| S2      | $$(400,1)$$      |       $$8.88\times10^{-16}$$ |
+| S3      | $$(400,6)$$      |       $$2.22\times10^{-15}$$ |
+| S4      | $$(400,5)$$      |       $$1.11\times10^{-15}$$ |
+
+Every observed joint-degree vector is reconstructed to floating-point precision.
+
+This establishes that the analytical basis loses no variation present in the raw joint-degree counts.
+
+More generally, any vector satisfying the same affine constraint system can be reconstructed about a feasible reference using the same projection.
+
+---
+
+## Comparison with the empirical SVD basis
+
+The earlier target basis was constructed by centering the 400 raw mixing vectors and computing:
+
+$$m(G)-\overline m=U\Sigma V^\top.$$
+
+The retained empirical subspace was spanned by the leading right singular vectors in $$V$$.
+
+E30 compares the analytical and empirical bases using:
+
+* numerical rank;
+* principal angles;
+* orthogonal Procrustes disparity;
+* raw-vector reconstruction;
+* sampled pairwise-distance ordering.
+
+#### Subspace results
+
+| Stratum | Analytical rank | SVD rank | Maximum principal angle |   Procrustes disparity |
+| ------- | --------------: | -------: | ----------------------: | ---------------------: |
+| S1      |               3 |        3 |  $$9.37\times10^{-16}$$ | $$8.97\times10^{-16}$$ |
+| S2      |               1 |        1 |  $$6.68\times10^{-16}$$ | $$6.47\times10^{-16}$$ |
+| S3      |               6 |        6 |  $$7.26\times10^{-16}$$ | $$1.69\times10^{-15}$$ |
+| S4      |               5 |        5 |  $$1.22\times10^{-15}$$ | $$1.15\times10^{-15}$$ |
+
+The principal angles are numerically zero.
+
+Thus:
+
+$$\text{span}(N_{\text{analytical}})=\text{span}(N_{\text{SVD}})$$
+
+to floating-point precision in every stratum.
+
+The 400 sampled graphs span every algebraically available linear direction under the fixed-stub constraints.
+
+The earlier SVD did not discover a smaller empirical manifold inside the analytical feasible space.
+
+---
+
+## Reconstruction comparison
+
+| Stratum | Analytical reconstruction error | SVD reconstruction error |
+| ------- | ------------------------------: | -----------------------: |
+| S1      |           $$8.9\times10^{-16}$$ |    $$1.8\times10^{-15}$$ |
+| S2      |           $$8.9\times10^{-16}$$ |    $$2.4\times10^{-15}$$ |
+| S3      |           $$2.2\times10^{-15}$$ |    $$5.3\times10^{-15}$$ |
+| S4      |           $$1.1\times10^{-15}$$ |    $$2.7\times10^{-15}$$ |
+
+Both bases reconstruct the observed mixing vectors to numerical precision.
+
+The analytical basis has slightly smaller reported errors, but all values are far below a meaningful numerical threshold.
+
+The important result is equivalence of the represented subspaces, not the small difference among roundoff-scale errors.
+
+---
+
+## Pairwise-distance diagnostic
+
+The notebook reports Spearman correlations between pairwise Euclidean distances in the analytical and SVD coordinates:
+
+| Stratum | Reported distance Spearman |
+| ------- | -------------------------: |
+| S1      |                      0.939 |
+| S2      |                      0.937 |
+| S3      |                      0.995 |
+| S4      |                      0.991 |
+
+These values should not be interpreted as evidence that the two bases induce meaningfully different mixing geometries.
+
+Both bases are orthonormal and span the same subspace.
+
+For any two graphs:
+
+$$|[m(G)-m(H)]N_{\text{analytical}}|*2=|[m(G)-m(H)]N*{\text{SVD}}|_2$$
+
+up to floating-point error.
+
+The lower reported Spearman values arise because the integer-valued mixing space contains many tied pairwise distances. Tiny numerical perturbations can split those ties differently before rank correlation is computed.
+
+The decisive diagnostics are:
+
+* numerically zero principal angles;
+* near-zero Procrustes disparity;
+* exact reconstruction.
+
+The distance-Spearman statistic is unnecessary and potentially misleading in this setting.
+
+---
+
+## Removal of target-basis leakage
+
+The empirical SVD basis used all 400 target graphs to choose its orientation.
+
+The E30 basis is constructed before examining the observed graph distribution.
+
+It therefore removes sample dependence from:
+
+* target-space rank selection;
+* target coordinate orientation;
+* target centering used to define the basis.
+
+The sample mean is used only to demonstrate affine reconstruction. It is not used to define the stored null-space basis or the analytical coordinates:
+
+$$u(G)=m(G)N.$$
+
+The revised target basis can therefore be constructed from the degree sequence alone.
+
+---
+
+## Why the downstream experiments must still be rerun
+
+Subspace equivalence does not guarantee exact equality of all previously reported decoder scores.
+
+The analytical and SVD coordinates are related by an orthogonal transformation:
+
+$$u_{\text{analytical}}\approx u_{\text{SVD}}Q+c,$$
+
+for an orthogonal matrix $$Q$$ and constant offset $$c$$.
+
+A truly rotation-invariant multivariate decoder would produce identical results under this transformation.
+
+The previous mixing decoder generally:
+
+* fits each target coordinate separately;
+* selects a separate ridge penalty for each coordinate;
+* may skip coordinates based on their residual variance;
+* pools the resulting squared errors afterward.
+
+That procedure is not strictly invariant to target-space rotation.
+
+Consequently:
+
+* the analytical and SVD bases contain the same mixing information;
+* but the numerical cross-validated $$R^2$$ can change under the new coordinate orientation.
+
+The revised E29X and E28 experiments must therefore use the stored E30 coordinates directly rather than inheriting old SVD-basis scores.
+
+E30 validates the target space. It does not certify numerical equality of downstream probe results.
+
+---
+
+## Coordinate centering
+
+The stored coordinates are:
+
+$$u(G)=m(G)N,$$
+
+rather than:
+
+$$[m(G)-m_0]N.$$
+
+This introduces only a common coordinate offset within each stratum.
+
+The offset is harmless when the downstream regression includes an intercept, as the E6-style ridge models do.
+
+A decoder without an intercept would not be equivalent.
+
+All consumers must therefore either:
+
+* retain an intercept;
+* or center the E30 coordinates using training data.
+
+---
+
+## Artifact contents
+
+The notebook saves:
+
+```text id="i3gwko"
+e30_analytical_mixing_basis.pkl
+```
+
+For each stratum, the artifact contains:
+
+* ordered degree-pair coordinates;
+* present degree classes;
+* degree-class multiplicities;
+* analytical basis matrix;
+* analytical coordinates for all 400 graphs;
+* graph identifiers;
+* reconstruction error.
+
+It also stores the analytical-versus-SVD comparison results.
+
+The stored graph identifiers allow downstream consumers to align the target coordinates with the circuit-readout artifacts.
+
+---
+
+## Relationship to E25R
+
+E25R showed that QuIC nearly perfectly reconstructs the lower-dimensional joint-degree mixing state.
+
+E30 does not change the underlying graph property.
+
+It replaces the target coordinates used to represent that property.
+
+The E25R conclusion should therefore be restated as:
+
+> QuIC reconstructs the complete affine joint-degree mixing state after removal of the deterministic fixed-stub redundancy.
+
+The exact revised score must come from a consumer rerun using E30 rather than being copied from the global-SVD analysis.
+
+---
+
+## Relationship to E27 and E29B
+
+E27 and E29B residualized the empirical SVD mixing coordinates on cycle and spectral nuisance banks.
+
+Those results were potentially sensitive to the target rotation because:
+
+* nuisance models were fitted separately per mixing coordinate;
+* readout models were fitted separately per coordinate;
+* coordinate-specific regularization was selected.
+
+The revised conditional audits should use E30 coordinates.
+
+The analytical basis removes the global target-orientation fit while preserving the complete mixing subspace.
+
+---
+
+## Relationship to E28
+
+The original finite-shot pilot used the global SVD mixing target.
+
+Its runtime conclusions remain valid.
+
+Its mixing-recovery values should not become the final finite-shot result if the downstream analytical-basis rerun produces materially different decoder behavior.
+
+The distributed E28 workers should align their targets to:
+
+```text id="5maofh"
+e30_analytical_mixing_basis.pkl
+```
+
+before generating finite-shot recovery curves.
+
+---
+
+## What the experiment establishes
+
+The completed experiment establishes that:
+
+1. **The fixed-stub equations determine a sample-independent affine mixing space in every degree-sequence stratum.**
+
+2. **The analytical mixing ranks are (3), (1), (6), and (5).**
+
+3. **The S4 rank requires the additional singleton-class constraint (M_{66}=0).**
+
+4. **The analytical basis reconstructs every observed raw joint-degree vector to approximately (10^{-15}).**
+
+5. **The analytical and empirical SVD bases span the same subspace to floating-point precision.**
+
+6. **The 400-graph samples span all algebraically available mixing directions.**
+
+7. **The globally fitted SVD basis is unnecessary for removing fixed-stub redundancy.**
+
+8. **The analytical basis eliminates graph-sample dependence from target-space construction.**
+
+9. **The reported subunit distance correlations are tie-handling artifacts rather than genuine geometric disagreement.**
+
+10. **Downstream scores must still be rerun because the existing coordinatewise decoder is not strictly rotation invariant.**
+
+11. **The E30 artifact provides the common target basis for the revised E29X and E28 experiments.**
+
+E30 therefore resolves the principal target-basis leakage concern without changing the underlying joint-degree mixing state.
+
+---
+
+## Necessary qualifications
+
+The term “deterministic basis” requires qualification.
+
+SciPy’s numerical null-space routine returns one orthonormal basis for the null space, but a multidimensional null space has no unique orthonormal basis.
+
+Sign fixing removes column sign ambiguity but does not remove:
+
+* arbitrary rotations within a degenerate null space;
+* possible column reordering;
+* numerical variation across linear-algebra implementations or library versions.
+
+The construction is deterministic within the executed environment and independent of the graph sample.
+
+It is not a mathematically canonical coordinate basis across all software environments.
+
+The saved basis matrix and graph-order metadata therefore remain essential.
+
+A fully canonical construction could use:
+
+* an exact rational row-reduced system;
+* a fixed free-variable ordering;
+* and a deterministic orthogonalization rule.
+
+The notebook installs current versions of SciPy, scikit-learn, and NumPy at runtime but does not record their exact versions in the artifact.
+
+This matters because the null-space orientation can vary while the subspace remains unchanged.
+
+The hard-coded expected ranks are correct and are asserted, but the notebook does not store an explicit symbolic proof of the constraint ranks.
+
+The rank calculation follows directly from the displayed fixed-stub and singleton constraints.
+
+The reconstruction gate evaluates the 400 observed graph vectors.
+
+Its extension to every vector satisfying the same affine equations follows from the null-space construction, but the notebook does not enumerate all graph-realizable integer mixing states.
+
+The analytical feasible affine space can contain real or integer vectors that do not correspond to a simple graph. E30 models the linear constraint space, not the complete graphicality polytope.
+
+The artifact stores:
+
+* the basis;
+* coordinates;
+* degree pairs;
+* and class counts.
+
+It does not store:
+
+* the full constraint matrix;
+* the affine right-hand side;
+* the raw joint-degree matrices;
+* or the reconstruction reference.
+
+These quantities can be regenerated from the stored metadata, but persisting them would make the artifact more self-auditing.
+
+The notebook does not assert uniqueness of the saved graph identifiers.
+
+It relies on the previously gated E6 producer ordering.
+
+Finally, E30 is a target-representation correction.
+
+It provides no evidence by itself that:
+
+* QuIC predicts mixing;
+* R2 predicts mixing;
+* mixing survives cycle residualization;
+* or mixing is useful for another target.
+
+Those claims belong to the downstream analytical-basis consumers.
+
+---
+
+## Overall assessment
+
+E30 successfully replaces the globally fitted mixing SVD with a degree-sequence-derived target basis.
+
+The analytical ranks are:
+
+$$3,\quad1,\quad6,\quad5,$$
+
+and every observed joint-degree vector is reconstructed with maximum error below:
+
+$$2.22\times10^{-15}.$$
+
+The analytical and empirical target spaces coincide, with maximum principal angles below:
+
+$$1.22\times10^{-15}.$$
+
+The earlier SVD therefore represented the correct structural subspace, but fitting it to all 400 target graphs was unnecessary.
+
+The analytical construction removes that sample dependence.
+
+The main remaining qualification is coordinate nonuniqueness. The null space is unique, but its orthonormal basis is not. The stored SciPy basis is sample independent and fixed for the current experiment, but not fully canonical across software implementations.
+
+The appropriate central claim is:
+
+> Joint-degree mixing within each fixed degree sequence lies in an analytically determined affine space defined by the degree-class stub equations and singleton-class constraints. Its dimensions are (3), (1), (6), and (5) across the four E6 strata. A null-space basis derived solely from those constraints reconstructs every observed mixing vector to approximately (10^{-15}) and spans exactly the same subspace as the earlier graph-fitted SVD basis. E30 therefore removes target-sample dependence from the mixing representation while preserving the complete structural state. Because downstream probes fit and regularize target coordinates separately, the revised E29X and finite-shot experiments must still be rerun on the stored analytical coordinates rather than assuming numerical invariance under the basis rotation.
+
