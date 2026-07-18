@@ -16851,6 +16851,985 @@ The appropriate central claim is:
 
 > QuIC’s strong structural accessibility transfers beyond cubic graphs to the complete connected 4-regular (n=12) census. Triangle and 4-cycle counts remain essentially exact, while 5-cycle, 6-cycle, and diamond counts remain strongly decodable, although their relative ordering changes across regularities. The same canonical circuit collapses on the complete mixed-degree (n=8) census even under full-vector decoding. Regularity therefore appears to support the organized probability geometry, but it does not impose one universal cycle hierarchy. A QAOA-style baseline shows the same broad regularity dependence, while QuIC provides stronger target-specific accessibility within the regular regime.
 
+
+### E22 - Readout Geometry and Partial Spectral Complementarity Audit
+
+#### Experimental scope
+
+E22 studies two related properties of the QuIC representation across three complete graph censuses.
+
+1. **Similarity geometry**
+
+   Does distance between readout vectors track distance between graph structures?
+
+2. **Classical complementarity**
+
+   Does a circuit representation improve prediction after a nonlinear spectral model has already explained the target?
+
+The experiment uses:
+
+| Census | Graph family            | Graphs | Readout dimension |
+| ------ | ----------------------- | -----: | ----------------: |
+| (n=14) | Connected cubic         |    509 |            16,384 |
+| (n=12) | Connected 4-regular     |  1,544 |             4,096 |
+| (n=8)  | Connected heterogeneous | 11,117 |               256 |
+
+The shared producer successfully completed all three censuses.
+
+E22A completed its full three-census similarity analysis.
+
+E22B completed:
+
+* all five targets at (n=14);
+* all five targets at (n=12).
+
+It did not complete:
+
+* any reported (n=8) target;
+* its stated E11 validation cell;
+* artifact persistence;
+* or the final results cell.
+
+The available E22B record is therefore the supplied runtime log rather than a saved result artifact.
+
+---
+
+#### Shared circuit representations
+
+The producer computes two descending-sorted exact Born-probability vectors.
+
+##### QuIC
+
+The canonical normalized degree encoder is:
+
+$$R_X\left(2.875\frac{d_i}{\Delta}\right).$$
+
+It is followed by:
+
+* one edgewise $$R_{ZZ}(2.0)$$ layer;
+* one uniform $$R_X(0.1)$$ mixer;
+* one repetition.
+
+##### QAOA-style baseline
+
+The second circuit begins from:
+
+$$|+\rangle^{\otimes n},$$
+
+followed by the same:
+
+* edgewise $$R_{ZZ}(2.0)$$ layer;
+* uniform $$R_X(0.1)$$ mixer.
+
+Both circuits retain the complete sorted probability vector.
+
+The producer stores the readouts as float32 matrices after constructing them through Qiskit statevectors.
+
+---
+
+#### Targets
+
+The shared target set is:
+
+* triangle count $$C_3$$;
+* 4-cycle count $$C_4$$;
+* 5-cycle count $$C_5$$;
+* 6-cycle count $$C_6$$;
+* diamond count.
+
+For the cubic census, diamond count is the edge-hinge count:
+
+$$D=#{uv\in E:|N(u)\cap N(v)|=2}.$$
+
+For the noncubic censuses, the producer counts induced diamonds by requiring the two common neighbors of the spine edge to be nonadjacent.
+
+---
+
+#### Target certification
+
+The cubic census satisfies:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+$$\text{tr}(A^4)=8C_4+15n,$$
+
+$$\text{tr}(A^5)=10C_5+10\text{tr}(A^3),$$
+
+and:
+
+$$\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).$$
+
+The 4-regular census satisfies:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+$$\text{tr}(A^4)=8C_4+28n,$$
+
+and:
+
+$$\text{tr}(A^5)=10C_5+90C_3.$$
+
+The 4-regular $$C_6$$ target is counted directly and is not trace certified in this notebook.
+
+The producer’s heterogeneous certification string says that no trace certification is performed. The code nevertheless verifies:
+
+$$\text{tr}(A^3)=6C_3$$
+
+for every census, including (n=8). The printed description is therefore slightly stale.
+
+---
+
+#### Canonical QuIC correctness gate
+
+The producer verifies the cubic QuIC representation against the independent E2 record.
+
+| Target  | E22 producer | E2 record | Difference |
+| ------- | -----------: | --------: | ---------: |
+| $$C_3$$ |        1.000 |     1.000 |      0.000 |
+| $$C_4$$ |        0.998 |     0.998 |      0.000 |
+| $$C_5$$ |        0.926 |     0.928 |   (-0.002) |
+| $$C_6$$ |        0.489 |     0.485 |   (+0.004) |
+
+The gate passes.
+
+The shared readouts therefore use the corrected canonical normalized encoder rather than the invalid unnormalized circuit from the original E18–E20 runs.
+
+---
+
+## E22A - Similarity Geometry
+
+#### Primary structural distance
+
+E22A defines its primary graph distance as the Euclidean distance between complete sorted adjacency spectra:
+
+$$d_{\text{spec}}(G,H)=|\lambda(G)-\lambda(H)|_2.$$
+
+The readout distance used in the global analysis is:
+
+$$d_{\text{readout}}(G,H)=|\mathbf p(G)-\mathbf p(H)|_1.$$
+
+For each census, 6,000 graph pairs are sampled with replacement. Self-pairs are removed.
+
+The primary statistic is the Spearman correlation:
+
+$$\rho_{\text{spec}}=\rho_{\text{S}}\left(d_{\text{readout}},d_{\text{spec}}\right).$$
+
+This measures monotone agreement with **spectral geometry**. It is not a general graph-edit or combinatorial similarity metric.
+
+---
+
+#### Global spectral-distance fidelity
+
+| Census              | QuIC spectral $$\rho$$ | QAOA spectral $$\rho$$ |
+| ------------------- | ---------------------: | ---------------------: |
+| (n=14) cubic        |                  0.641 |                  0.560 |
+| (n=12) 4-regular    |                  0.768 |                  0.677 |
+| (n=8) heterogeneous |                  0.065 |                  0.207 |
+
+The regular censuses show moderate to strong global monotone alignment between readout and spectral distances.
+
+QuIC exceeds QAOA on both regular families:
+
+$$0.641>0.560,$$
+
+and:
+
+$$0.768>0.677.$$
+
+The heterogeneous census behaves differently.
+
+QuIC’s spectral-distance correlation falls to:
+
+$$0.065.$$
+
+QAOA remains weak but reaches:
+
+$$0.207.$$
+
+The principal E22A result is therefore a regularity-dependent spectral geometry:
+
+> QuIC globally tracks adjacency-spectrum distance on regular graph families but not on the complete heterogeneous census.
+
+This agrees with E21’s regularity-transfer result for supervised structural accessibility.
+
+It also shows that the regularity dependence is not exclusive to QuIC. QAOA’s spectral geometry weakens substantially at (n=8), although less completely.
+
+---
+
+#### Secondary target-distance correlations
+
+For each target $$t$$, E22A computes:
+
+$$d_t(G,H)=|t(G)-t(H)|,$$
+
+and reports:
+
+$$\rho_t=\rho_{\text{S}}\left(d_{\text{readout}},d_t\right).$$
+
+##### QuIC
+
+| Census              | $$C_3$$ | $$C_5$$ | Diamonds |
+| ------------------- | ------: | ------: | -------: |
+| (n=14) cubic        |   0.907 |   0.093 |    0.452 |
+| (n=12) 4-regular    |   0.903 |   0.429 |    0.578 |
+| (n=8) heterogeneous |   0.034 |   0.070 |    0.028 |
+
+##### QAOA
+
+| Census              | $$C_3$$ | $$C_5$$ | Diamonds |
+| ------------------- | ------: | ------: | -------: |
+| (n=14) cubic        |   0.463 |   0.206 |    0.783 |
+| (n=12) 4-regular    |   0.691 |   0.344 |    0.674 |
+| (n=8) heterogeneous |   0.075 |   0.055 |    0.016 |
+
+---
+
+#### QuIC target geometry
+
+QuIC’s regular-graph geometry is dominated by triangle differences:
+
+$$\rho_{C_3}=0.907\quad\text{at }n=14,$$
+
+and:
+
+$$\rho_{C_3}=0.903\quad\text{at }n=12.$$
+
+This reproduces the strong triangle ordering observed in E16 and E17.
+
+Five-cycle distance is much less aligned on the cubic census:
+
+$$\rho_{C_5}=0.093.$$
+
+It becomes more visible on the 4-regular census:
+
+$$\rho_{C_5}=0.429.$$
+
+Diamond-distance alignment is intermediate:
+
+$$0.452\quad\text{and}\quad0.578.$$
+
+On the heterogeneous census, all three target correlations are approximately zero.
+
+This is consistent with the weak mixed-degree decodability found in E18, E21, and E23.
+
+---
+
+#### QAOA target geometry
+
+QAOA has a different structural orientation.
+
+On the cubic census, its strongest reported target-distance alignment is diamonds:
+
+$$\rho_D=0.783.$$
+
+This exceeds its triangle correlation:
+
+$$\rho_{C_3}=0.463.$$
+
+The same ordering appears at (n=12):
+
+$$\rho_D=0.674,\qquad\rho_{C_3}=0.691,$$
+
+with the two values much closer.
+
+QAOA’s global geometry is therefore more diamond aligned than QuIC’s on the cubic family, even though the partial E22B residual analysis suggests that QuIC adds more predictive diamond information beyond the tested classical baseline.
+
+These results are not contradictory.
+
+Pairwise-distance correlation measures global geometric ordering. Residual prediction measures whether a fitted model extracts target variation missed by another fitted model.
+
+---
+
+#### What the valid E22A global analysis establishes
+
+The completed global-distance analysis establishes that:
+
+1. **QuIC readout distance moderately tracks spectral distance on cubic graphs.**
+
+2. **The alignment becomes stronger on the complete 4-regular census.**
+
+3. **QuIC’s spectral-distance geometry collapses on the heterogeneous census.**
+
+4. **QAOA shows the same broad regularity dependence, but retains a weak heterogeneous spectral correlation.**
+
+5. **QuIC’s regular-graph geometry is strongly aligned with triangle differences.**
+
+6. **QAOA’s cubic geometry is more strongly aligned with diamond differences.**
+
+7. **Neither circuit’s heterogeneous geometry is meaningfully aligned with the three tested target distances.**
+
+These are global monotone-geometry statements. They do not establish nearest-neighbor preservation.
+
+---
+
+## E22A Local-Fidelity Audit
+
+#### Intended local statistic
+
+E22A attempts to measure local geometry using the overlap between:
+
+* the ten nearest spectral neighbors;
+* the ten nearest readout neighbors.
+
+For each query graph:
+
+$$O_{10}(G)=\frac{|N_{10}^{\text{spec}}(G)\cap N_{10}^{\text{readout}}(G)|}{10}.$$
+
+The notebook reports:
+
+| Census              | QuIC reported overlap | QAOA reported overlap |
+| ------------------- | --------------------: | --------------------: |
+| (n=14) cubic        |                 0.272 |                 0.299 |
+| (n=12) 4-regular    |                 0.200 |                 0.215 |
+| (n=8) heterogeneous |                 0.112 |                 0.105 |
+
+These values are not valid because the self-match exclusion is implemented incorrectly.
+
+---
+
+#### Self-indexing bug
+
+The query graphs are selected through:
+
+```python
+query_indices = rng.choice(census_size, size=..., replace=False)
+```
+
+The distance matrix row at local position $$i$$ therefore corresponds to global graph index:
+
+$$\texttt{query_indices}[i].$$
+
+The nearest-neighbor function instead excludes:
+
+```python
+start + local_index
+```
+
+which is the query’s local row position, not its global graph index.
+
+The correct exclusion is:
+
+```python
+query_indices[start + local_index]
+```
+
+or an explicitly supplied global self-index array.
+
+As written, the true zero-distance self-match remains in almost every neighbor list.
+
+For the exact sampled queries:
+
+* 507 of 509 cubic queries retain their self-match;
+* all 1,000 4-regular queries retain their self-match;
+* all 1,000 heterogeneous queries retain their self-match.
+
+Because the self graph appears in both the spectral and readout neighbor lists, it contributes an automatic overlap of:
+
+$$\frac{1}{10}=0.1$$
+
+for almost every query.
+
+This is particularly consequential at (n=8), where the reported values are only:
+
+$$0.112\quad\text{and}\quad0.105.$$
+
+Almost the entire reported heterogeneous overlap can be explained by the erroneous shared self-match.
+
+The function also excludes an unrelated reference graph whose global index happens to equal the query row position. Removing the self-match afterward is therefore not equivalent to simply subtracting 0.1 from the reported means.
+
+---
+
+#### Local metric inconsistency
+
+The global analysis uses readout $$L_1$$ distance.
+
+The local function calls `scipy.spatial.distance.cdist` without specifying a metric, so it uses Euclidean distance:
+
+$$L_2.$$
+
+This is not necessarily wrong, but it means the global and local analyses do not measure the same readout geometry.
+
+The notebook describes the two as complementary global and local views without emphasizing the metric change.
+
+A corrected rerun should either:
+
+* use $$L_1$$ for both;
+* or explicitly present the local $$L_2$$ analysis as a different metric.
+
+---
+
+#### Status of the coarse-versus-local claim
+
+The notebook proposes the interpretation:
+
+> Moderate global Spearman correlation combined with low local overlap means the representation preserves coarse ordering while scrambling fine neighborhoods.
+
+That interpretation may ultimately be correct.
+
+The current local outputs cannot support it.
+
+The local-neighbor analysis must be rerun with correct self-index exclusion before any fine-neighborhood conclusion is included in the paper.
+
+---
+
+## E22B - Partial Complementarity Analysis
+
+#### Intended question
+
+E22B asks whether QuIC or QAOA adds predictive information after a nonlinear spectral model has already explained the target.
+
+The spectral feature bank contains:
+
+1. all adjacency eigenvalues except the largest;
+2. trace moments:
+
+$$\text{tr}(A^k),\qquad k=3,\ldots,8.$$
+
+For regular censuses, the largest eigenvalue is constant and can be omitted without information loss.
+
+The circuit residual stage uses the first:
+
+$$k=1000$$
+
+sorted probabilities.
+
+---
+
+#### Intended two-stage protocol
+
+Within each outer fold:
+
+1. fit a classical spectral model;
+2. obtain cross-fitted classical residuals on the outer-training set;
+3. train a ridge probe from the circuit readout to those residuals;
+4. predict the residual on the outer-test set;
+5. add the residual prediction to the classical prediction.
+
+For classical prediction $$\widehat y_{\text{classical}}$$ and circuit residual prediction $$\widehat r_{\text{circuit}}$$:
+
+$$\widehat y_{\text{combined}}=\widehat y_{\text{classical}}+\widehat r_{\text{circuit}}.$$
+
+The complementarity statistic is:
+
+$$\Delta R^2=R^2_{\text{combined}}-R^2_{\text{classical}}.$$
+
+A positive value means that the circuit residual stage improves the selected classical prediction under that evaluation procedure.
+
+---
+
+#### Classical models
+
+The notebook evaluates:
+
+* RBF kernel ridge;
+* ExtraTrees regression.
+
+The RBF hyperparameters are selected inside the training data over:
+
+$$\alpha\in{10^{-6},\ldots,10^2},$$
+
+and:
+
+$$\gamma\in{10^{-3},\ldots,10^1}.$$
+
+ExtraTrees uses:
+
+* 300 trees;
+* default tree depth;
+* default minimum leaf size.
+
+This is not the exact E11 nonlinear protocol.
+
+E11 used:
+
+* a narrower RBF alpha grid;
+* three-fold rather than five-fold RBF grid selection;
+* a tuned ExtraTrees grid over depth and minimum leaf size.
+
+E22B should therefore be described as an E11-inspired spectral-residual analysis, not an exact reuse of E11.
+
+---
+
+#### Completed partial results
+
+The supplied log contains complete result rows for:
+
+* five targets at (n=14);
+* five targets at (n=12).
+
+No completed (n=8) result is available.
+
+The main printed columns are:
+
+* an oracle-selected classical score;
+* QuIC’s reported delta over the selected model;
+* QAOA’s reported delta over the selected model;
+* QuIC’s separately computed delta over RBF.
+
+##### (n=14) cubic
+
+| Target   | Reported classical |          QuIC delta |          QAOA delta | QuIC-over-RBF delta |
+| -------- | -----------------: | ------------------: | ------------------: | ------------------: |
+| $$C_3$$  |              1.000 | approximately 0.000 | approximately 0.000 | approximately 0.000 |
+| $$C_4$$  |              1.000 |               0.000 | approximately 0.000 |               0.000 |
+| $$C_5$$  |              1.000 |               0.000 |               0.000 |               0.000 |
+| $$C_6$$  |              0.991 |               0.003 |               0.001 |               0.003 |
+| Diamonds |              0.874 |               0.073 |               0.041 |               0.072 |
+
+##### (n=12) 4-regular
+
+| Target   | Reported classical |          QuIC delta |          QAOA delta | QuIC-over-RBF delta |
+| -------- | -----------------: | ------------------: | ------------------: | ------------------: |
+| $$C_3$$  |              1.000 | approximately 0.000 | approximately 0.000 | approximately 0.000 |
+| $$C_4$$  |              1.000 |               0.000 |               0.000 |               0.000 |
+| $$C_5$$  |              1.000 |               0.000 |               0.000 |               0.000 |
+| $$C_6$$  |              0.971 |               0.019 |               0.007 |               0.019 |
+| Diamonds |              0.770 |               0.076 |               0.032 |               0.093 |
+
+---
+
+#### Exact spectral targets
+
+The classical score is exactly one at displayed precision for:
+
+$$C_3,\qquad C_4,\qquad C_5$$
+
+on both regular censuses.
+
+This is expected.
+
+The spectral feature bank explicitly contains the required trace moments.
+
+For cubic graphs:
+
+$$C_3=\frac{\text{tr}(A^3)}{6},$$
+
+$$C_4=\frac{\text{tr}(A^4)-15n}{8},$$
+
+and:
+
+$$C_5=\frac{\text{tr}(A^5)-10\text{tr}(A^3)}{10}.$$
+
+For 4-regular graphs:
+
+$$C_4=\frac{\text{tr}(A^4)-28n}{8},$$
+
+and:
+
+$$C_5=\frac{\text{tr}(A^5)-90C_3}{10}.$$
+
+There is no residual information for either circuit to add after these exact moments are included.
+
+The zero deltas are therefore a useful machinery control rather than evidence that the circuits lack those quantities.
+
+---
+
+#### Cubic $$C_6$$ and diamond split
+
+For cubic graphs:
+
+$$\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).$$
+
+The spectrum determines:
+
+$$C_6+D,$$
+
+but does not generally determine the split between the two quantities.
+
+The partial E22B results reflect this structure.
+
+The nonlinear classical baseline nearly solves $$C_6$$:
+
+$$R^2_{\text{classical}}=0.991.$$
+
+Only a small residual remains:
+
+$$\Delta R^2_{\text{QuIC}}=0.003.$$
+
+Diamond count leaves substantially more room:
+
+$$R^2_{\text{classical}}=0.874.$$
+
+The reported QuIC residual increases the mean score by:
+
+$$0.073.$$
+
+The corresponding QAOA increase is:
+
+$$0.041.$$
+
+Under the separately fixed RBF baseline, QuIC’s delta is:
+
+$$0.072.$$
+
+This is the cleanest completed E22B result.
+
+---
+
+#### Four-regular results
+
+The same broad pattern appears at (n=12).
+
+The nonlinear spectral models nearly solve $$C_6$$:
+
+$$R^2_{\text{classical}}=0.971.$$
+
+QuIC adds:
+
+$$0.019,$$
+
+while QAOA adds:
+
+$$0.007.$$
+
+Diamond count leaves more unexplained variation:
+
+$$R^2_{\text{classical}}=0.770.$$
+
+The reported deltas are:
+
+$$\Delta R^2_{\text{QuIC}}=0.076,$$
+
+and:
+
+$$\Delta R^2_{\text{QAOA}}=0.032.$$
+
+Against the fixed RBF baseline, QuIC adds:
+
+$$0.093.$$
+
+The repeated result across two regular families is descriptive evidence that diamond variation contains a circuit-accessible component not captured by the tested RBF spectral model.
+
+---
+
+#### QuIC versus QAOA
+
+For the two nonsaturated targets, QuIC has the larger reported residual gain on both censuses.
+
+| Census | Target   | QuIC delta | QAOA delta |
+| ------ | -------- | ---------: | ---------: |
+| (n=14) | $$C_6$$  |      0.003 |      0.001 |
+| (n=14) | Diamonds |      0.073 |      0.041 |
+| (n=12) | $$C_6$$  |      0.019 |      0.007 |
+| (n=12) | Diamonds |      0.076 |      0.032 |
+
+The diamond difference is consistent:
+
+$$0.073>0.041,$$
+
+and:
+
+$$0.076>0.032.$$
+
+This suggests that QuIC’s residual diamond coordinate is stronger than QAOA’s under the tested setup.
+
+The result remains descriptive because:
+
+* no fold-level standard deviations are printed;
+* no paired test is performed;
+* and the selected-baseline procedure uses outer-test outcomes.
+
+---
+
+## Critical E22B Protocol Audit
+
+#### Outer-test model-selection leakage
+
+The notebook documentation says that the stronger classical model is selected by training cross-validation.
+
+The code instead computes both models’ outer-test scores:
+
+```python
+rbf_test = r2_score(y_test, rbf.predict(X_test))
+trees_test = r2_score(y_test, trees.predict(X_test))
+classical_test = max(rbf_test, trees_test)
+strong_fitter = fit_rbf if rbf_test >= trees_test else fit_extra_trees
+```
+
+The held-out test targets are therefore used to decide:
+
+* which model becomes the classical baseline;
+* which model generates the training residuals;
+* which model supplies the test prediction used in the combined estimator.
+
+This violates the intended outer-fold separation.
+
+The reported `classical_r2`, `quic_delta`, and `qaoa_delta` columns are not clean held-out model-selection results.
+
+The classical score is an oracle maximum over two test-evaluated models.
+
+The residual model is also conditioned on which classical arm happened to score better on the test fold.
+
+These columns can be reported descriptively, but they should not be used as the paper’s definitive complementarity estimates.
+
+A corrected run should select the classical arm using only:
+
+* inner training-fold performance;
+* or a prespecified fixed baseline.
+
+---
+
+#### RBF-specific QuIC column is cleaner
+
+The `quic_rbf_delta` column does not use the oracle model choice.
+
+It always uses the RBF fitter.
+
+Its hyperparameters are selected from training data, and its training residuals are cross fitted.
+
+The completed RBF-specific QuIC deltas are therefore the most defensible E22B outputs:
+
+| Census           | $$C_6$$ | Diamonds |
+| ---------------- | ------: | -------: |
+| (n=14) cubic     |   0.003 |    0.072 |
+| (n=12) 4-regular |   0.019 |    0.093 |
+
+These results support a limited statement:
+
+> QuIC improves diamond prediction beyond the particular training-selected RBF spectral model on both completed regular censuses.
+
+The corresponding RBF-alone scores were not printed in the supplied log, so the final combined RBF scores cannot be reconstructed from the available record.
+
+---
+
+#### The stated E11 gate did not execute
+
+The notebook places its E11 validation in a later cell.
+
+Because the long main grid stopped before that cell, the gate did not run.
+
+The notebook therefore did not produce the claimed:
+
+```text
+E11 correctness gate PASSED
+```
+
+message.
+
+The observed cubic diamond value:
+
+$$\Delta R^2_{\text{QuIC over RBF}}=0.072$$
+
+can be compared with the E11 value:
+
+$$0.099.$$
+
+The difference is:
+
+$$0.027.$$
+
+That lies within the notebook’s loose tolerance of:
+
+$$0.05.$$
+
+However, the two notebooks do not use identical RBF grids or inner validation protocols.
+
+The result should not be described as an exact E11 reproduction.
+
+It is directionally consistent with E11.
+
+---
+
+#### Incomplete regularity comparison
+
+E22B was designed to compare:
+
+* cubic graphs;
+* 4-regular graphs;
+* heterogeneous graphs.
+
+The heterogeneous stage did not produce a completed target row.
+
+Consequently, E22B cannot answer its intended transfer question:
+
+> Does circuit complementarity beyond nonlinear spectral models survive outside regular graph families?
+
+E22A shows that the heterogeneous distance geometry is weak.
+
+E21 shows that heterogeneous supervised decodability is weak.
+
+Those results do not substitute for the missing E22B residual analysis.
+
+No (n=8) complementarity claim should be inferred.
+
+---
+
+#### No saved partial artifact
+
+The persistence cell occurs after the complete three-census loop.
+
+Because execution stopped during the loop, no completed E22B pickle was written.
+
+The supplied console log is the only record of the partial results.
+
+The per-fold values and fitted predictions are unavailable.
+
+This prevents:
+
+* fold-level uncertainty analysis;
+* paired error bootstrapping;
+* reconstruction of RBF-alone scores;
+* or recovery of partially completed unprinted (n=8) work.
+
+---
+
+#### What the completed E22 results establish
+
+The valid completed outputs establish that:
+
+1. **The shared producer uses canonical normalized QuIC readouts.**
+
+2. **QuIC’s global readout distance moderately tracks spectral distance on cubic and 4-regular censuses.**
+
+3. **That global spectral geometry nearly disappears on the complete heterogeneous census.**
+
+4. **QuIC’s regular-graph distance geometry is especially aligned with triangle differences.**
+
+5. **QAOA’s cubic distance geometry is strongly aligned with diamond differences.**
+
+6. **The E22A local-neighborhood values are invalid because self-matches were not correctly removed.**
+
+7. **The nonlinear spectral feature bank exactly saturates $$C_3$$, $$C_4$$, and $$C_5$$ on both regular censuses.**
+
+8. **Little residual room remains for $$C_6$$.**
+
+9. **Diamond count retains a repeatable QuIC-accessible RBF residual.**
+
+   The completed deltas are:
+
+   $$0.072\quad\text{at }n=14,$$
+
+   and:
+
+   $$0.093\quad\text{at }n=12.$$
+
+10. **The oracle-selected descriptive rows show larger QuIC than QAOA diamond gains on both regular censuses.**
+
+11. **E22B does not provide a heterogeneous complementarity result.**
+
+12. **E22B’s primary selected-baseline columns are affected by outer-test model-selection leakage.**
+
+E22 therefore supplies a valid global geometry result and partial regular-family complementarity evidence, but not a complete local-geometry or three-census complementarity audit.
+
+---
+
+#### Necessary qualifications
+
+The primary E22A metric is adjacency-spectrum distance.
+
+Calling it “structural distance” without qualification is too broad.
+
+Cospectral nonisomorphic graphs have zero spectral distance regardless of potentially substantial combinatorial differences.
+
+The analysis measures alignment with spectral geometry.
+
+The global Spearman results use one sample of approximately 6,000 pairs per census.
+
+No:
+
+* confidence interval;
+* repeated pair sample;
+* or permutation null
+
+is reported.
+
+Pairs are sampled with replacement, so some graph pairs may appear more than once.
+
+This is unlikely to change the large qualitative regular-versus-heterogeneous contrast, but the observations are not all independent.
+
+The target-distance correlations contain many tied distances, especially for integer motif counts.
+
+Spearman correlation handles ties, but its effective resolution differs among targets.
+
+The readout matrices are stored as float32.
+
+The large global correlations are unlikely to depend on this precision choice, but very small distance distinctions may be altered.
+
+The E22A local analysis uses Euclidean readout distance rather than the global $$L_1$$ metric and contains the more serious self-index bug.
+
+It should be discarded until rerun.
+
+The E22B spectral feature bank contains redundant information:
+
+* reduced eigenvalues;
+* trace moments computed from the same spectrum.
+
+This is intentional for nonlinear modeling but should not be described as combining independent classical information sources.
+
+For regular graphs, the trace features directly encode several targets. Their perfect results are algebraic rather than learned discoveries.
+
+The E22B oracle baseline is selected separately within every outer test fold.
+
+This makes its baseline scores optimistic and invalidates a strict held-out interpretation of the corresponding deltas.
+
+The separately fixed RBF QuIC deltas avoid that particular model-selection leak but still use an E22-specific RBF grid rather than the exact E11 model.
+
+No clean RBF-specific QAOA column is recorded.
+
+The QuIC-versus-QAOA residual comparison therefore relies on the leaky selected-baseline columns.
+
+No inference or uncertainty estimate accompanies the complementarity differences.
+
+The 4-regular diamond target is induced diamond count, while the cubic implementation uses the hinge identity. These coincide in the relevant cubic family but the computational definitions differ.
+
+The (n=8) target counts are direct counts, and its diamond statistic can have different distributional behavior from the regular censuses.
+
+All circuit results use ideal complete probability vectors.
+
+E22 does not test whether the reported global geometry or residual diamond coordinate survives finite-shot sampling.
+
+Finally, similarity correlation and supervised complementarity answer different questions.
+
+A target can have strong pairwise distance alignment but weak residual predictive gain, or the reverse.
+
+---
+
+#### Overall assessment
+
+E22A supplies a useful global geometry result.
+
+QuIC’s readout distance tracks adjacency-spectrum distance at:
+
+$$\rho=0.641$$
+
+on cubic graphs and:
+
+$$\rho=0.768$$
+
+on 4-regular graphs, but only:
+
+$$\rho=0.065$$
+
+on the heterogeneous census.
+
+Its distance geometry is strongly triangle aligned on both regular families.
+
+QAOA shows weaker regular spectral alignment but stronger cubic diamond-distance alignment.
+
+The intended local-neighborhood result is not usable. An indexing error retains the zero-distance query graph in nearly every neighbor set and automatically contributes approximately 0.1 overlap.
+
+E22B provides a partial but coherent regular-family pattern.
+
+The spectral feature bank algebraically solves $$C_3$$ through $$C_5$$, nearly solves $$C_6$$, and leaves diamond count as the principal unresolved target.
+
+Against a fixed RBF spectral model, QuIC adds:
+
+$$\Delta R^2=0.072$$
+
+for cubic diamonds and:
+
+$$\Delta R^2=0.093$$
+
+for 4-regular diamonds.
+
+Those are the strongest defensible E22B outputs.
+
+The broader selected-baseline columns are contaminated by outer-test model selection, and the notebook did not reach (n=8), its validation gate, or persistence.
+
+The appropriate central claim is:
+
+> QuIC’s full readout geometry globally tracks adjacency-spectrum distance on complete cubic and 4-regular censuses but not on the complete heterogeneous census, with particularly strong alignment to triangle differences on the regular families. The attempted local-neighborhood analysis is invalid because self-matches were not correctly excluded. In the partial complementarity run, spectral trace features exactly determine triangles through 5-cycles and nearly determine 6-cycles, while diamond count retains a repeatable QuIC-accessible residual beyond the tested RBF spectral model: (0.072) at (n=14) and (0.093) at (n=12). The run does not establish heterogeneous complementarity, and its oracle-selected classical comparison must be corrected before QuIC-versus-QAOA residual claims are treated as definitive.
+
 ### E23 - Invariantization by Sorting
 
 #### Experimental design
