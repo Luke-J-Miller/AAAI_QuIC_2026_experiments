@@ -14557,6 +14557,847 @@ The appropriate central claim for the current notebook is:
 
 > For the unnormalized E18 circuit family, the nominal one-repetition X-mixer schedule lies on a broad high-decodability region of the complete cubic (n=14) census: triangle and diamond prediction remains near exact and 5-cycle prediction stays within (0.002) of the best value observed along each one-dimensional angle transect. Alternative preparations, mixer axes, and additional depth preserve shallow structure but generally reduce 5-cycle accessibility, while a non-equivariant encoder performs poorly. On the heterogeneous (n=8) census, several maxima occur without entanglement or mixing because the unnormalized degree preparation already carries substantial graph information. The experiment must be repeated with the normalized encoder (R_X(\alpha d_i/\Delta)) before it can support a canonical QuIC angle-robustness claim.
 
+### E19 - One-Dimensional Angle Map
+
+#### Experimental design
+
+E19 maps the sensitivity of QuIC and four related circuit families to their three continuous angle parameters.
+
+The experiment uses two complete graph censuses:
+
+* **11,117 connected graphs at (n=8)**;
+* **509 connected cubic graphs at (n=14)**.
+
+The canonical angle schedule is:
+
+$$\alpha=2.875,\qquad\gamma=2.0,\qquad\beta=0.1.$$
+
+For the canonical degree encoder:
+
+$$R_X\left(\alpha\frac{d_i}{\Delta}\right),$$
+
+where (d_i) is the degree of vertex (i) and (\Delta) is the maximum degree of the graph.
+
+The entangler and mixer are:
+
+$$R_{ZZ}(\gamma),\qquad R_X(\beta),$$
+
+except in circuit families that replace the preparation or mixer.
+
+E19 varies one angle at a time while holding the other two at their canonical values.
+
+The sampled grids are:
+
+$$\alpha\in{0,0.449,0.898,1.346,1.795,2.244,2.693,2.875,\pi},$$
+
+$$\gamma\in{0,0.449,0.898,1.346,1.795,2.0,2.244,2.693,\pi},$$
+
+and:
+
+$$\beta\in{0,0.1,0.224,0.449,0.673,0.898,1.122,1.346,\pi/2}.$$
+
+Each axis therefore contains nine points, including the canonical center exactly.
+
+The experiment is a set of one-dimensional transects, not a joint search over the three-dimensional angle cube.
+
+#### Circuit families
+
+Five graph-dependent circuits are mapped.
+
+1. **C2 — canonical QuIC**
+
+   Normalized degree preparation, one entangler layer, and one X-mixer layer.
+
+2. **C3 — QAOA-style preparation**
+
+   Uniform (|+\rangle^{\otimes n}) preparation, one entangler layer, and one X-mixer layer.
+
+3. **C4 — two-repetition QuIC**
+
+   Normalized degree preparation followed by two tied entangler–X-mixer repetitions.
+
+4. **C5 — Y-mixer QuIC**
+
+   Normalized degree preparation, one entangler layer, and one Y-mixer layer.
+
+5. **C6 — non-equivariant index encoder**
+
+   Index-dependent preparation followed by one entangler and one X mixer.
+
+Two graph-blind controls are evaluated separately:
+
+* C0 preparation only;
+* C1 phase only.
+
+#### Targets and readout depths
+
+At (n=8), the targets are:
+
+* triangle count;
+* vertex connectivity.
+
+At (n=14), the targets are:
+
+* triangle count;
+* 5-cycle count;
+* diamond count.
+
+The complete 256-dimensional sorted probability vector is used at (n=8).
+
+At (n=14), the first:
+
+$$k=1000$$
+
+sorted probabilities are retained.
+
+The decoder uses:
+
+* five shuffled outer folds;
+* fixed seed zero;
+* `RidgeCV`;
+* inner five-fold cross-validation;
+* regularization grid:
+
+$$\alpha_{\text{ridge}}\in{10^{-14},10^{-13},\ldots,10^2}.$$
+
+The reported value at every angle is the mean outer-fold (R^2).
+
+#### Correction relative to the original E19 run
+
+The original notebook implemented the degree encoder as:
+
+$$R_X(\alpha d_i),$$
+
+rather than:
+
+$$R_X\left(\alpha\frac{d_i}{\Delta}\right).$$
+
+The corrected notebook applies maximum-degree normalization consistently in:
+
+* C2 canonical QuIC;
+* C4 two-repetition QuIC;
+* C5 Y-mixer QuIC.
+
+The following circuit families are unchanged by the correction:
+
+* C3 QAOA preparation, which has no degree encoder;
+* C6 index encoding;
+* C0 and C1 controls.
+
+On the cubic census:
+
+$$d_i=\Delta=3,$$
+
+so the corrected realized preparation angle is:
+
+$$\alpha.$$
+
+The original notebook instead applied:
+
+$$3\alpha.$$
+
+This changes both the canonical center and the interpretation of the alpha axis.
+
+For example, the original cubic C2 triangle and diamond maxima occurred at:
+
+$$\alpha=0.898.$$
+
+The corrected maxima occur at:
+
+$$\alpha=2.693.$$
+
+The relationship:
+
+$$3(0.898)\approx2.693$$
+
+is the direct signature of the missing normalization.
+
+#### Effect of the correction at the canonical center
+
+The canonical C2 values change as follows.
+
+##### Mixed-degree (n=8) census
+
+| Target       | Original unnormalized center | Corrected normalized center |   Change |
+| ------------ | ---------------------------: | --------------------------: | -------: |
+| (C_3)        |                        0.770 |                       0.007 | (-0.763) |
+| Connectivity |                        0.573 |                       0.123 | (-0.450) |
+
+The strong mixed-degree result in the original E19 run was therefore an artifact of the unnormalized degree rotations.
+
+##### Cubic (n=14) census
+
+| Target   | Original unnormalized center | Corrected normalized center |   Change |
+| -------- | ---------------------------: | --------------------------: | -------: |
+| (C_3)    |                        1.000 |                       1.000 |    0.000 |
+| (C_5)    |                        0.985 |                       0.928 | (-0.057) |
+| Diamonds |                        0.998 |                       0.993 | (-0.005) |
+
+Normalization has little effect on the saturated triangle and diamond results but materially reduces canonical 5-cycle accessibility.
+
+The corrected center reproduces the established E2 and corrected E18 record:
+
+$$R^2_{C_3}=1.000,\qquad R^2_{C_5}=0.928,\qquad R^2_D=0.993.$$
+
+#### Validation gates
+
+The corrected notebook reconstructs both complete censuses:
+
+$$11{,}117$$
+
+connected graphs at (n=8), and:
+
+$$509$$
+
+connected cubic graphs at (n=14).
+
+For the cubic census, it verifies:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+$$\text{tr}(A^4)=8C_4+15n,$$
+
+and:
+
+$$\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D).$$
+
+The diamond target is therefore independently certified.
+
+The notebook does not apply the corresponding fifth-trace identity to certify (C_5) directly. Its canonical-center agreement with E2 supplies an external consistency check for that target.
+
+The independent E2 gate passes exactly at displayed precision:
+
+| Target   | Corrected center | E2 record | Difference |
+| -------- | ---------------: | --------: | ---------: |
+| (C_3)    |            1.000 |     1.000 |      0.000 |
+| (C_5)    |            0.928 |     0.928 |      0.000 |
+| Diamonds |            0.993 |     0.993 |      0.000 |
+
+The notebook also contains a factory-equivalence gate against the corrected E18 artifact.
+
+That artifact was not mounted during the recorded run, so the automated E18 gate was skipped. The final notebook prose incorrectly instructs the reader to confirm that both gates passed.
+
+Only the E2 gate executed.
+
+The printed canonical-center values nevertheless match corrected E18 to displayed precision.
+
+#### Graph-blind controls
+
+C0 and C1 remain at the constant-predictor floor.
+
+| Census | Circuit             | Best score across tested configurations |
+| ------ | ------------------- | --------------------------------------: |
+| (n=8)  | C0 preparation only |                     approximately 0.000 |
+| (n=8)  | C1 phase only       |                     approximately 0.000 |
+| (n=14) | C0 preparation only |                                (-0.003) |
+| (n=14) | C1 phase only       |                                (-0.003) |
+
+C1 remains graph blind throughout its complete gamma transect.
+
+The graph-dependent (R_{ZZ}) phases do not alter computational-basis probabilities until a noncommuting operation converts phase information into amplitude information.
+
+This reproduces the mechanism established in E9 and E18.
+
+#### Canonical QuIC on cubic graphs
+
+The sampled C2 extrema are:
+
+| Axis  | Target   | Canonical center | Best sampled score | Best sampled angle |
+| ----- | -------- | ---------------: | -----------------: | -----------------: |
+| Alpha | (C_3)    |            1.000 |              1.000 |              2.693 |
+| Alpha | (C_5)    |            0.928 |              0.987 |              2.244 |
+| Alpha | Diamonds |            0.993 |              0.999 |              2.693 |
+| Gamma | (C_3)    |            1.000 |              1.000 |              1.346 |
+| Gamma | (C_5)    |            0.928 |              0.971 |              1.795 |
+| Gamma | Diamonds |            0.993 |              1.000 |              2.244 |
+| Beta  | (C_3)    |            1.000 |              1.000 |              0.224 |
+| Beta  | (C_5)    |            0.928 |              0.979 |              0.449 |
+| Beta  | Diamonds |            0.993 |              1.000 |              0.224 |
+
+The canonical schedule is already at or near the best sampled value for:
+
+* triangles;
+* diamonds.
+
+Five-cycle count has meaningful angle headroom.
+
+The largest sampled C5 improvement is:
+
+$$0.987-0.928=0.059,$$
+
+obtained by changing:
+
+$$\alpha:2.875\rightarrow2.244.$$
+
+Changing beta produces:
+
+$$0.928\rightarrow0.979,$$
+
+and changing gamma produces:
+
+$$0.928\rightarrow0.971.$$
+
+Thus, the canonical C5 score is not an architectural ceiling.
+
+#### Cubic triangle and diamond stability
+
+Triangle count is exactly decoded at the canonical center and at several reported one-axis extrema.
+
+Diamond count remains between approximately:
+
+$$0.993\quad\text{and}\quad1.000$$
+
+at the center and best sampled points.
+
+The map therefore shows that the central cubic C3 and diamond conclusions are not consequences of one uniquely tuned triple.
+
+The experiment does not establish a broad plateau because it prints only the extrema rather than the complete curve table, and the nine-point grids are coarse.
+
+The defensible statement is that the canonical center lies close to the best sampled one-axis values.
+
+#### Cubic 5-cycle sensitivity
+
+C5 is more angle sensitive than C3 or diamonds.
+
+Every one-dimensional C2 transect contains a sampled setting that materially improves upon the canonical score.
+
+This supports two conclusions.
+
+1. The weaker canonical C5 score is partly schedule dependent.
+
+2. The hierarchy:
+
+$$C_3>D>C_5$$
+
+at the canonical center should not be interpreted as a fixed ordering over all parameter settings.
+
+C5 remains highly accessible, but its linear alignment with the sorted representation changes more strongly with the angle schedule.
+
+#### Requirement for both entanglement and mixing on cubic graphs
+
+On the regular cubic census, the normalized degree encoder reduces to one uniform rotation.
+
+If:
+
+$$\gamma=0,$$
+
+the circuit contains no graph-dependent operation.
+
+If:
+
+$$\beta=0,$$
+
+the graph-dependent entanglers modify only phases, leaving the sorted Born probabilities graph independent.
+
+Thus, the cubic topology signal requires:
+
+* nonzero graph-dependent phase accumulation;
+* and a noncommuting mixer.
+
+The strong sampled values occur away from these graph-blind boundaries.
+
+This connects the global map to E9’s local beta-expansion analysis.
+
+#### Canonical QuIC on the mixed-degree census
+
+The corrected canonical center is weak:
+
+$$R^2_{C_3}=0.007,\qquad R^2_{\text{connectivity}}=0.123.$$
+
+The best sampled C2 values are:
+
+| Axis  | Target       | Canonical center | Best sampled score | Best sampled angle |
+| ----- | ------------ | ---------------: | -----------------: | -----------------: |
+| Alpha | (C_3)        |            0.007 |              0.243 |              (\pi) |
+| Alpha | Connectivity |            0.123 |              0.602 |              2.244 |
+| Gamma | (C_3)        |            0.007 |              0.404 |              0.000 |
+| Gamma | Connectivity |            0.123 |              0.438 |              (\pi) |
+| Beta  | (C_3)        |            0.007 |              0.410 |              0.000 |
+| Beta  | Connectivity |            0.123 |              0.517 |              0.000 |
+
+The maxima initially appear to show that angle changes substantially improve the heterogeneous result.
+
+Several of the largest scores, however, occur at settings that remove the topology-sensitive part of the circuit.
+
+#### Degree-only endpoints at (n=8)
+
+At:
+
+$$\beta=0,$$
+
+the entangler changes phases but no later noncommuting operation converts those phases into probabilities.
+
+The sorted probabilities depend on the normalized degree preparation but not on edge arrangement beyond the degree sequence.
+
+For C2, C4, and C5, the beta-zero representation therefore reduces to the same degree-sequence-derived probability multiset.
+
+All three circuits consequently report the same beta-zero maxima:
+
+$$R^2_{C_3}=0.410,\qquad R^2_{\text{connectivity}}=0.517.$$
+
+Similarly, for C2 at:
+
+$$\gamma=0,$$
+
+the representation is produced only by degree-dependent single-qubit rotations and the X mixer. It contains no edge-entangling topology.
+
+Its triangle score reaches:
+
+$$0.404.$$
+
+These values do not demonstrate improved topology encoding.
+
+They show that degree sequence alone is correlated with triangles and connectivity across the complete mixed-degree census.
+
+The correct interpretation is:
+
+> Moving away from the canonical center can expose stronger degree-sequence baselines, but E19 does not show that canonical QuIC can recover a regular-like topological hierarchy on the heterogeneous census.
+
+#### Connectivity at nonzero entanglement
+
+The best C2 connectivity score is:
+
+$$0.602$$
+
+at:
+
+$$\alpha=2.244,$$
+
+with canonical gamma and beta retained.
+
+This configuration includes both entanglement and mixing and therefore cannot be reduced to the beta-zero degree-only baseline.
+
+However, the experiment does not compare the score against a degree-sequence-only classical baseline or condition on degree sequence.
+
+The result shows angle sensitivity but does not isolate topology beyond degrees.
+
+#### QAOA-style preparation
+
+C3 has no encoder.
+
+Its alpha transect therefore evaluates the same circuit nine times.
+
+The reported alpha “peak” at zero is an arbitrary first occurrence of a complete tie and has no scientific interpretation.
+
+The meaningful QAOA axes are gamma and beta.
+
+##### Mixed-degree (n=8)
+
+| Axis  | Target       | Corrected E18 center | Best sampled score | Best sampled angle |
+| ----- | ------------ | -------------------: | -----------------: | -----------------: |
+| Gamma | (C_3)        |                0.114 |              0.981 |              0.449 |
+| Gamma | Connectivity |                0.061 |              0.778 |              0.449 |
+| Beta  | (C_3)        |                0.114 |              0.450 |            (\pi/2) |
+| Beta  | Connectivity |                0.061 |              0.290 |            (\pi/2) |
+
+A single gamma setting:
+
+$$\gamma=0.449$$
+
+raises both targets dramatically.
+
+Because the QAOA preparation contains no degree encoder, this result cannot be explained by direct degree-sequence amplitudes in the same manner as C2’s beta-zero endpoint.
+
+The weak QAOA row in E18 is therefore highly schedule specific.
+
+##### Cubic (n=14)
+
+| Axis  | Target   | Corrected E18 center | Best sampled score | Best sampled angle |
+| ----- | -------- | -------------------: | -----------------: | -----------------: |
+| Gamma | (C_3)    |                0.544 |              0.986 |              2.693 |
+| Gamma | (C_5)    |                0.348 |              0.512 |              2.693 |
+| Gamma | Diamonds |                0.717 |              0.940 |              1.346 |
+| Beta  | (C_3)    |                0.544 |              0.717 |              0.449 |
+| Beta  | (C_5)    |                0.348 |              0.607 |              0.898 |
+| Beta  | Diamonds |                0.717 |              0.717 |              0.100 |
+
+Angle variation narrows the gap between QAOA preparation and canonical QuIC, especially for triangles and diamonds.
+
+Even at its best sampled one-axis values, QAOA remains weaker for C5 and diamonds than the normalized QuIC variants.
+
+The target extrema also occur at different settings, so the table does not describe one jointly optimal QAOA circuit.
+
+#### Two-repetition QuIC
+
+##### Cubic (n=14)
+
+| Axis  | Target   | Corrected E18 center | Best sampled score | Best sampled angle |
+| ----- | -------- | -------------------: | -----------------: | -----------------: |
+| Alpha | (C_3)    |                1.000 |              1.000 |              2.875 |
+| Alpha | (C_5)    |                0.960 |              0.960 |              2.875 |
+| Alpha | Diamonds |                0.998 |              1.000 |              (\pi) |
+| Gamma | (C_3)    |                1.000 |              1.000 |              2.244 |
+| Gamma | (C_5)    |                0.960 |              0.963 |              1.795 |
+| Gamma | Diamonds |                0.998 |              1.000 |              0.898 |
+| Beta  | (C_3)    |                1.000 |              1.000 |              0.100 |
+| Beta  | (C_5)    |                0.960 |              0.977 |              0.449 |
+| Beta  | Diamonds |                0.998 |              0.999 |              0.449 |
+
+The corrected E18 center is already close to the best sampled points.
+
+The largest improvement is:
+
+$$0.960\rightarrow0.977$$
+
+for C5 under beta variation.
+
+The two-repetition circuit is therefore less sensitive than canonical C2 on the mapped C5 transects, although the experiment does not provide a formal sensitivity statistic.
+
+##### Mixed-degree (n=8)
+
+The best sampled results are:
+
+| Axis  |          (C_3) |   Connectivity |
+| ----- | -------------: | -------------: |
+| Alpha | 0.313 at 0.000 | 0.567 at 2.244 |
+| Gamma | 0.305 at 0.000 | 0.467 at 0.000 |
+| Beta  | 0.410 at 0.000 | 0.517 at 0.000 |
+
+The alpha-zero C4 circuit is not graph blind.
+
+After the first mixer creates a superposition, the second entangler can convert graph topology into a later probability effect.
+
+Nevertheless, the strongest beta-zero values are again the shared degree-only baseline.
+
+No regular-like mixed-degree hierarchy is recovered.
+
+#### Y-mixer QuIC
+
+##### Cubic (n=14)
+
+| Axis  | Target   | Corrected E18 center | Best sampled score | Best sampled angle |
+| ----- | -------- | -------------------: | -----------------: | -----------------: |
+| Alpha | (C_3)    |                1.000 |              1.000 |              2.875 |
+| Alpha | (C_5)    |                0.951 |              0.951 |              2.875 |
+| Alpha | Diamonds |                0.998 |              0.999 |              1.795 |
+| Gamma | (C_3)    |                1.000 |              1.000 |              0.449 |
+| Gamma | (C_5)    |                0.951 |              0.961 |              1.346 |
+| Gamma | Diamonds |                0.998 |              1.000 |              0.449 |
+| Beta  | (C_3)    |                1.000 |              1.000 |              0.224 |
+| Beta  | (C_5)    |                0.951 |              0.988 |              0.898 |
+| Beta  | Diamonds |                0.998 |              1.000 |              0.449 |
+
+The Y mixer produces the strongest sampled C5 value among the mapped equivariant circuits:
+
+$$R^2_{C_5}=0.988.$$
+
+This slightly exceeds the best sampled C2 value:
+
+$$0.987.$$
+
+It occurs at:
+
+$$\beta=0.898,$$
+
+not at the canonical Y-mixer center.
+
+The corrected E18 conclusion that mixer axis redistributes deeper structural accessibility is therefore strengthened.
+
+##### Mixed-degree (n=8)
+
+The best values are:
+
+| Axis  |          (C_3) |   Connectivity |
+| ----- | -------------: | -------------: |
+| Alpha | 0.375 at 0.898 | 0.598 at 2.244 |
+| Gamma | 0.274 at 0.449 | 0.428 at 0.000 |
+| Beta  | 0.410 at 0.000 | 0.517 at 0.000 |
+
+As with C2 and C4, the beta-zero maximum is the normalized degree-only representation rather than a topology-sensitive Y-mixer circuit.
+
+#### Non-equivariant index encoder
+
+C6 is unchanged from the original E19 run.
+
+##### Mixed-degree (n=8)
+
+Its strongest sampled values are:
+
+$$R^2_{C_3}=0.781,\qquad R^2_{\text{connectivity}}=0.564,$$
+
+both at:
+
+$$\gamma=0.449.$$
+
+##### Cubic (n=14)
+
+Its strongest sampled values across the separate transects are:
+
+$$R^2_{C_3}=0.916,$$
+
+$$R^2_{C_5}=0.158,$$
+
+and:
+
+$$R^2_D=0.214.$$
+
+The C3 result shows that a label-dependent coordinate system can be highly predictive under one fixed canonical census labeling.
+
+It does not define a graph invariant.
+
+E18 showed that C6 changes substantially under vertex relabeling. Its angle-map scores therefore cannot be treated as valid unlabeled-graph representation performance.
+
+The circuit remains useful only as a negative equivariance control.
+
+#### Best sampled one-axis values by circuit
+
+The following table takes the maximum over all three separate transects.
+
+The entries in one row generally occur at different angle settings and do not describe one jointly realizable circuit.
+
+##### Cubic (n=14)
+
+| Circuit             | Best sampled (C_3) | Best sampled (C_5) | Best sampled diamonds |
+| ------------------- | -----------------: | -----------------: | --------------------: |
+| C2 canonical QuIC   |              1.000 |              0.987 |                 1.000 |
+| C3 QAOA preparation |              0.986 |              0.607 |                 0.940 |
+| C4 two repetitions  |              1.000 |              0.977 |                 1.000 |
+| C5 Y mixer          |              1.000 |              0.988 |                 1.000 |
+| C6 non-equivariant  |              0.916 |              0.158 |                 0.214 |
+
+The three equivariant QuIC variants are essentially tied on triangles and diamonds at their best sampled points.
+
+C2 and C5 are also effectively tied on C5:
+
+$$0.987\quad\text{versus}\quad0.988.$$
+
+Circuit architecture comparisons based only on the canonical E18 column are therefore schedule dependent.
+
+The QAOA-style circuit remains weaker overall, but angle adjustment substantially reduces its apparent deficit.
+
+#### Relationship to E18
+
+E18 compares circuit families at one fixed angle schedule.
+
+E19 shows that several E18 rankings are not invariant to the angle choice.
+
+The most important examples are:
+
+* QAOA C3 at (n=14): (0.544\rightarrow0.986);
+* QAOA diamonds at (n=14): (0.717\rightarrow0.940);
+* QAOA C3 at (n=8): (0.114\rightarrow0.981);
+* Y-mixer C5 at (n=14): (0.951\rightarrow0.988);
+* canonical C2 C5 at (n=14): (0.928\rightarrow0.987).
+
+E18 remains the controlled canonical-schedule comparison.
+
+E19 shows that its absolute and relative scores should not be interpreted as architecture ceilings.
+
+#### Relationship to E9
+
+E9 studies the local emergence of graph information as beta moves away from zero.
+
+On a regular graph family, beta zero removes the only mechanism that converts graph-dependent phases into probabilities.
+
+E19 extends that local mechanism across a coarse global beta transect.
+
+The cubic results are consistent with:
+
+$$\beta=0\Longrightarrow\text{graph-blind sorted probabilities}.$$
+
+The mixed-degree result is different.
+
+At beta zero, the normalized degree encoder already creates graph-dependent amplitudes through the degree sequence. The representation is not topology sensitive, but it is not graph blind.
+
+E19 therefore clarifies that the beta-zero collapse is exact on regular families and becomes a degree-sequence baseline on heterogeneous families.
+
+#### Relationship to E21 and E23
+
+E21 showed that canonical sorted QuIC is strong on regular cubic and 4-regular censuses but weak on the complete mixed-degree census.
+
+E23 showed that sorting removes useful heterogeneous degree-role information while strongly aligning regular-graph structure.
+
+E19 does not overturn those conclusions.
+
+Although selected n8 angles produce higher scores, many of the strongest values arise when entanglement or mixing is removed and the readout depends primarily on degree sequence.
+
+The angle map therefore does not demonstrate that parameter tuning restores the regular-graph topology geometry on heterogeneous graphs.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The corrected E19 map uses the canonical maximum-degree-normalized encoder.**
+
+2. **The canonical cubic center reproduces the independent E2 record.**
+
+3. **Preparation-only and phase-only controls remain at the prediction floor throughout their tested configurations.**
+
+4. **Cubic triangle and diamond accessibility are not tied to one exact angle triple.**
+
+   The canonical center is already near the best sampled one-axis values.
+
+5. **Cubic 5-cycle accessibility is more angle sensitive.**
+
+   Canonical C2 improves from (0.928) to as high as (0.987).
+
+6. **The Y-mixer circuit reaches the strongest sampled C5 score.**
+
+   Its maximum is (0.988).
+
+7. **The two-repetition circuit is already close to its sampled maxima at the corrected E18 center.**
+
+8. **The weak canonical QAOA results are strongly angle dependent.**
+
+   QAOA can reach (0.986) on cubic triangles and (0.981) on mixed-degree triangles.
+
+9. **Fixed-angle architecture rankings are not architecture ceilings.**
+
+10. **Several mixed-degree maxima are degree-sequence-only endpoints.**
+
+    They do not establish improved topological encoding.
+
+11. **The non-equivariant circuit can achieve strong scores under a fixed labeling but remains invalid as an unlabeled-graph representation.**
+
+12. **The original unnormalized E19 results should be replaced completely.**
+
+E19 therefore supports angle sensitivity and schedule-dependent structural accessibility, not angle optimization or a universal robustness claim.
+
+#### Necessary qualifications
+
+The experiment varies only one angle at a time.
+
+It does not search the complete:
+
+$$\alpha\times\gamma\times\beta$$
+
+parameter space.
+
+The best joint schedule may differ substantially from every reported transect maximum.
+
+Conversely, target-specific maxima from different axes cannot be combined into one circuit.
+
+The grids contain only nine points per axis.
+
+The experiment cannot determine:
+
+* exact optima;
+* peak widths;
+* derivatives;
+* or broad robustness plateaus.
+
+Several maxima occur at grid boundaries, including:
+
+* C2 n8 triangle at (alpha=\pi);
+* QAOA n8 beta maxima at (beta=\pi/2).
+
+These should be interpreted as lower bounds on the best value within a larger parameter domain, not as established global maxima.
+
+The scanned ranges do not cover complete gate periodicities.
+
+The notebook evaluates:
+
+$$5\times3\times9=135$$
+
+mapped circuit configurations per census.
+
+The reported maxima are selected using the same outer folds used to score them.
+
+They are therefore exploratory test-set maxima.
+
+No independent graph split or nested angle-selection loop evaluates the generalization of a selected angle.
+
+The numerical maxima are expected to be optimistically biased.
+
+No correction is applied for the large number of:
+
+* circuits;
+* axes;
+* angles;
+* and targets.
+
+No fold-level standard deviations, confidence intervals, or paired comparisons are printed.
+
+Differences of a few thousandths should be treated as ties.
+
+The QAOA alpha transect is redundant because the QAOA circuit has no encoder and ignores alpha entirely.
+
+Its reported alpha maxima are arbitrary tie-breaking artifacts.
+
+The final notebook prose says that both canonical-center gates passed, but the E18 artifact was absent and the factory-equivalence assertion was skipped.
+
+Only the independent E2 gate executed.
+
+The n14 C5 target is not independently certified through the fifth adjacency trace in this notebook.
+
+The decoder uses a 1,000-dimensional feature matrix for only 509 cubic graphs.
+
+Repeated ill-conditioned-matrix warnings occur throughout the run.
+
+The ridge grid extends to:
+
+$$10^{-14},$$
+
+and the features are not standardized.
+
+E10 showed that some QuIC probe results are sensitive to weak regularization and low-singular-value directions.
+
+The largest qualitative effects are unlikely to be explained by numerical instability alone, but fine architecture and angle differences require caution.
+
+The experiment maps only:
+
+* C3 and connectivity at (n=8);
+* C3, C5, and diamonds at (n=14).
+
+It does not map:
+
+* C4;
+* C6;
+* girth;
+* spectral gap;
+* or metric targets.
+
+The angle conclusions should not be generalized to the entire structural hierarchy.
+
+The graph families and target sets differ between the two orders.
+
+Differences between (n=8) and (n=14) cannot be attributed to graph order alone.
+
+On the mixed-degree census, the degree encoder allows graph-dependent probabilities even without an entangling contribution.
+
+Angle-map improvements must therefore be separated from genuine topology-sensitive improvements.
+
+No classical degree-sequence baseline is included.
+
+All results use exact statevector probabilities.
+
+Finite-shot recovery may change both the preferred angles and the relative circuit rankings.
+
+Finally, the experiment does not evaluate computational cost, trainable optimization, barren plateaus, or hardware robustness.
+
+The words “peak” and “best” refer only to the sampled one-dimensional grid.
+
+#### Overall assessment
+
+The corrected E19 run supplies the angle analysis that the original unnormalized notebook could not support.
+
+For cubic graphs, canonical QuIC remains extremely strong around the fixed schedule.
+
+Triangles and diamonds are already saturated, while C5 has meaningful one-axis headroom:
+
+$$0.928\rightarrow0.987.$$
+
+The alternative circuits are also more competitive after angle variation than their fixed E18 rows suggest.
+
+QAOA reaches:
+
+$$R^2_{C_3}=0.986,\qquad R^2_D=0.940,$$
+
+and the Y-mixer circuit reaches:
+
+$$R^2_{C_5}=0.988.$$
+
+Thus, the paper should not present the canonical E18 rankings as fundamental architecture rankings.
+
+The mixed-degree results require a different interpretation.
+
+Canonical C2 remains weak at the corrected center, and several large apparent gains occur at beta or gamma zero. Those endpoints remove topology-sensitive interference and expose degree-sequence correlations instead. Angle changes can improve target prediction, but E19 does not show that they restore the regular-graph structural geometry.
+
+The appropriate central claim is:
+
+> Under the corrected maximum-degree-normalized encoder, QuIC’s cubic triangle and diamond accessibility remains saturated across multiple sampled one-axis settings, while 5-cycle accessibility is more schedule dependent and improves from (0.928) to approximately (0.987). Angle variation also substantially strengthens alternative circuits, including QAOA-style preparation and the Y-mixer family, showing that fixed-angle circuit rankings are not architecture ceilings. On the complete mixed-degree census, however, several of the strongest scores occur at degree-sequence-only endpoints where entanglement is not converted into probability structure. E19 therefore establishes schedule-dependent structural accessibility and near-center cubic stability, but not global angle robustness, joint optimization, or recovery of heterogeneous topology encoding.
+
+
 ### E20 - Exact Partition Audit
 
 #### Experimental design
