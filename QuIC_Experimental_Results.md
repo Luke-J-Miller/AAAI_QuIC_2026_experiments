@@ -21499,3 +21499,634 @@ The strongest interpretation is therefore selective:
 > Preserving degree-occupancy sectors before sorting can recover structural coordinates that are erased by the global probability quotient, particularly in the bimodal degree family and for skewed-stratum triangles. The effect is not universal: sector sorting can also degrade strong targets and does not restore the deeper cycle hierarchy in the most irregular strata. Global sorting is therefore one source of off-regular information loss, but it is not the general architectural bottleneck.
 
 By the notebook’s own decision rule, the normalized degree-encoded arm should be run before E26 is treated as complete.
+
+
+
+### E26R - Protocol-Matched Confirmation of Degree-Sector Readouts
+
+#### Experimental purpose
+
+E26R reruns four decisive E26 representation comparisons under the exact ridge-probe protocol used in E6.
+
+The original E26 comparison was internally controlled, but its decoder differed from E6 in several ways:
+
+* feature standardization;
+* a truncated ridge grid;
+* shuffled inner folds;
+* and a different evaluation implementation.
+
+Those changes materially altered the R0 globally sorted baseline relative to the established E6 results.
+
+E26R therefore evaluates four selected stratum-target cells using:
+
+* raw representation coordinates with no standardization;
+* explicit five-fold outer fitting;
+* inner five-fold `RidgeCV`;
+* the complete E6 ridge grid;
+* mean outer-fold test $$R^2$$ as the primary score;
+* and the complete 16,384-dimensional probability representations.
+
+The four selected cells are:
+
+| Stratum         | Target  | Intended role                    |
+| --------------- | ------- | -------------------------------- |
+| S2 bimodal      | $$C_4$$ | Positive sector contrast         |
+| S2 bimodal      | $$C_5$$ | Positive sector contrast         |
+| S3 skewed       | $$C_3$$ | Positive sector contrast         |
+| S1 near regular | $$C_3$$ | Intended negative counterexample |
+
+The last cell does not remain a negative counterexample under the matched protocol.
+
+#### Graph families
+
+The experiment reuses three of the four fixed-degree-sequence E6 strata:
+
+| Stratum         | Locked degree sequence | Graphs |
+| --------------- | ---------------------- | -----: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$   |    400 |
+| S2 bimodal      | $$(4^7,2^7)$$          |    400 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$  |    400 |
+
+The S4 hub stratum is not evaluated in E26R.
+
+Every comparison occurs within one fixed degree sequence. Variation in the readouts and targets therefore reflects topology within the degree class rather than differences in the degree multiset.
+
+#### Circuit and probability representations
+
+E26R regenerates the unsorted ideal probabilities from the E6 flat-encoder circuit:
+
+$$R_X(2.875)^{\otimes14},$$
+
+followed by:
+
+* one edgewise $$R_{ZZ}(2.0)$$ layer;
+* one uniform $$R_X(0.1)$$ mixer;
+* one repetition.
+
+The complete probability vector has dimension:
+
+$$2^{14}=16{,}384.$$
+
+The circuit does not directly encode vertex degree.
+
+#### Degree-occupancy sectors
+
+Let the graph’s distinct degree classes be:
+
+$$d_1<d_2<\cdots<d_m.$$
+
+For each basis state $$z\in{0,1}^{14}$$, define its degree-occupancy signature:
+
+$$\kappa_G(z)=\left(\sum_{i:\deg(i)=d_1}z_i,\ldots,\sum_{i:\deg(i)=d_m}z_i\right).$$
+
+The signature records how many excited qubits belong to each degree class.
+
+E26R compares four representations.
+
+##### R0 - Global probability sorting
+
+$$R_0(G)=\text{sort}_{\downarrow}{p_G(z):z\in{0,1}^{14}}.$$
+
+R0 retains the complete probability multiset but removes all bitstring and degree-sector identities.
+
+##### R2 - Degree-sector masses
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+R2 retains only the total probability mass assigned to each degree-occupancy sector.
+
+Its dimensions are:
+
+| Stratum         | R2 dimension |
+| --------------- | -----------: |
+| S1 near regular |           99 |
+| S2 bimodal      |           64 |
+| S3 skewed       |          315 |
+
+##### R3 - Within-sector probability sorting
+
+$$R_3(G)=\mathop{\Vert}*{\kappa}\text{sort}*{\downarrow}{p_G(z):\kappa_G(z)=\kappa}.$$
+
+R3 retains the complete probability multiset and the degree-occupancy sector of each probability, while discarding exact bitstring identity within each sector.
+
+Its dimension is:
+
+$$16{,}384.$$
+
+##### R3-random - Random sector reassignment
+
+The complete probability vector is randomly permuted before values are assigned to the sector blocks and sorted within those blocks.
+
+This destroys the genuine relationship between probabilities and degree sectors while retaining:
+
+* the complete probability multiset;
+* the number of sector blocks;
+* sector-block sizes;
+* and total representation dimension.
+
+#### Exact E6 decoder protocol
+
+For each outer fold, E26R fits:
+
+$$\widehat f=\text{RidgeCV}\left(\alpha\in{10^{-14},10^{-13},\ldots,10^2},\text{cv}=5\right)$$
+
+using the raw representation coordinates.
+
+The primary reported score is:
+
+$$\overline{R^2}=\frac{1}{5}\sum_{j=1}^{5}R_j^2.$$
+
+The outer folds use:
+
+* five shuffled partitions;
+* seed zero.
+
+No feature standardization is applied.
+
+This matches the actual E6 decoder protocol.
+
+#### Representation validation
+
+For every graph used in E26R, the notebook regenerates the unsorted circuit probabilities and verifies:
+
+$$\max_i|R_0(G)*i-\mathbf p*{\text{E6}}(G)_i|<10^{-9}.$$
+
+The gate is applied to all:
+
+$$3\times400=1{,}200$$
+
+graphs in the three evaluated strata.
+
+Every regenerated globally sorted vector therefore agrees with the E6 producer artifact.
+
+E26R does not rerun the full E26 sector-cardinality and relabeling-invariance suite. Those properties are inherited from E26 rather than independently reestablished here.
+
+#### Reproduction of the E6 R0 baseline
+
+The R0 values exactly reproduce the established E6 results for the four selected cells:
+
+| Stratum         | Target  |  E26R R0 | Recorded E6 |
+| --------------- | ------- | -------: | ----------: |
+| S2 bimodal      | $$C_4$$ |    0.295 |       0.295 |
+| S2 bimodal      | $$C_5$$ |    0.284 |       0.284 |
+| S3 skewed       | $$C_3$$ | (-0.047) |    (-0.047) |
+| S1 near regular | $$C_3$$ |    0.449 |       0.449 |
+
+This confirms that E26R’s globally sorted arm is directly comparable with the E6 off-regularity record.
+
+The reproduction is verified by comparison with the recorded E6 values, although the notebook does not encode those values as a hard assertion.
+
+#### Complete protocol-matched results
+
+| Stratum         | Target  |   R0 global sort | R2 sector mass | R3 sector sort |        R3-random |
+| --------------- | ------- | ---------------: | -------------: | -------------: | ---------------: |
+| S2 bimodal      | $$C_4$$ |    0.295 ± 0.137 |  0.783 ± 0.053 |  0.345 ± 0.151 | (-0.066) ± 0.057 |
+| S2 bimodal      | $$C_5$$ |    0.284 ± 0.135 |  0.463 ± 0.064 |  0.306 ± 0.102 | (-0.014) ± 0.014 |
+| S3 skewed       | $$C_3$$ | (-0.047) ± 0.042 |  0.807 ± 0.025 |  0.632 ± 0.206 | (-0.027) ± 0.016 |
+| S1 near regular | $$C_3$$ |    0.449 ± 0.714 |  0.987 ± 0.004 |  0.962 ± 0.066 | (-0.016) ± 0.020 |
+
+The central result is not simply that R3 improves upon R0.
+
+In every selected cell:
+
+$$R_2>R_3.$$
+
+The sector-mass representation is therefore the strongest tested readout across all four confirmations.
+
+#### S2 bimodal 4-cycle prediction
+
+The globally sorted baseline reaches:
+
+$$R^2_{R0}=0.295.$$
+
+Degree-sector sorting raises the score only modestly:
+
+$$R^2_{R3}=0.345.$$
+
+The sector-mass representation produces a much larger result:
+
+$$R^2_{R2}=0.783.$$
+
+The mean-fold improvements are:
+
+$$R^2_{R3}-R^2_{R0}=0.050,$$
+
+and:
+
+$$R^2_{R2}-R^2_{R0}=0.488.$$
+
+The paired bootstrap, computed from the assembled out-of-fold predictions, gives:
+
+| Contrast           | Bootstrap mean |   95% interval |
+| ------------------ | -------------: | -------------: |
+| R3 minus R0        |       (+0.049) | [0.011, 0.086] |
+| R2 minus R0        |       (+0.452) | [0.363, 0.549] |
+| R3 minus R3-random |       (+0.421) | [0.302, 0.523] |
+
+Both genuine sector readouts improve upon global sorting.
+
+The substantially larger R2 result shows that aggregate probability allocation among degree sectors carries most of the restored C4 signal.
+
+Within-sector probability shape adds little beyond those masses and may dilute their linear accessibility.
+
+#### S2 bimodal 5-cycle prediction
+
+The globally sorted baseline is:
+
+$$R^2_{R0}=0.284.$$
+
+R3 reaches:
+
+$$R^2_{R3}=0.306,$$
+
+while R2 reaches:
+
+$$R^2_{R2}=0.463.$$
+
+The mean-fold differences are:
+
+$$R^2_{R3}-R^2_{R0}=0.022,$$
+
+and:
+
+$$R^2_{R2}-R^2_{R0}=0.179.$$
+
+The paired bootstrap results are:
+
+| Contrast           | Bootstrap mean |    95% interval |
+| ------------------ | -------------: | --------------: |
+| R3 minus R0        |       (+0.022) | [-0.038, 0.083] |
+| R2 minus R0        |       (+0.164) |  [0.086, 0.247] |
+| R3 minus R3-random |       (+0.328) |  [0.217, 0.425] |
+
+The R3-minus-R0 interval includes zero.
+
+E26R therefore does not confirm that preserving within-sector rank shape improves S2 C5 over global sorting.
+
+Sector masses do improve the target:
+
+$$0.284\rightarrow0.463,$$
+
+with a positive paired interval.
+
+The original E26 interpretation—that within-sector shape was particularly important for S2 C5—is not supported under the E6 probe.
+
+#### S3 skewed triangle prediction
+
+The globally sorted representation is below the prediction floor:
+
+$$R^2_{R0}=-0.047.$$
+
+Both sector readouts recover substantial triangle information:
+
+$$R^2_{R2}=0.807,$$
+
+and:
+
+$$R^2_{R3}=0.632.$$
+
+The corresponding mean-fold changes are:
+
+$$R^2_{R2}-R^2_{R0}=0.854,$$
+
+and:
+
+$$R^2_{R3}-R^2_{R0}=0.679.$$
+
+The paired bootstrap gives:
+
+| Contrast           | Bootstrap mean |   95% interval |
+| ------------------ | -------------: | -------------: |
+| R3 minus R0        |       (+0.682) | [0.508, 0.803] |
+| R2 minus R0        |       (+0.841) | [0.793, 0.889] |
+| R3 minus R3-random |       (+0.665) | [0.492, 0.790] |
+
+This is the strongest evidence that global sorting removes useful degree-conditioned structure.
+
+However, the stronger R2 result again indicates that sector probability mass, not within-sector rank shape, is the principal recovered coordinate.
+
+#### S1 near-regular triangle prediction
+
+S1 was selected as the negative counterexample because the original E26 probe produced:
+
+$$R^2_{R0}=0.911,$$
+
+and:
+
+$$R^2_{R3}=0.115.$$
+
+Under the E6 protocol, that result reverses.
+
+The matched scores are:
+
+$$R^2_{R0}=0.449,$$
+
+$$R^2_{R2}=0.987,$$
+
+and:
+
+$$R^2_{R3}=0.962.$$
+
+The paired bootstrap results are:
+
+| Contrast           | Bootstrap mean |   95% interval |
+| ------------------ | -------------: | -------------: |
+| R3 minus R0        |       (+0.421) | [0.132, 0.840] |
+| R2 minus R0        |       (+0.435) | [0.127, 0.886] |
+| R3 minus R3-random |       (+0.988) | [0.932, 1.027] |
+
+The intended negative control is therefore a strong positive result.
+
+Both degree-sector readouts nearly solve triangle count, while global sorting is only moderately predictive and highly unstable across folds:
+
+$$0.449\pm0.714.$$
+
+This is the most consequential correction to the original E26 interpretation.
+
+The notebook’s final prose still anticipates “a near-zero negative counterexample.” That expectation is stale and contradicted by the completed output.
+
+#### Comparison with the original E26 results
+
+| Stratum | Target  | Representation | Original E26 |     E26R |
+| ------- | ------- | -------------- | -----------: | -------: |
+| S2      | $$C_4$$ | R0             |        0.735 |    0.295 |
+| S2      | $$C_4$$ | R2             |        0.934 |    0.783 |
+| S2      | $$C_4$$ | R3             |        0.918 |    0.345 |
+| S2      | $$C_5$$ | R0             |        0.748 |    0.284 |
+| S2      | $$C_5$$ | R2             |        0.484 |    0.463 |
+| S2      | $$C_5$$ | R3             |        0.837 |    0.306 |
+| S3      | $$C_3$$ | R0             |        0.056 | (-0.047) |
+| S3      | $$C_3$$ | R2             |        0.065 |    0.807 |
+| S3      | $$C_3$$ | R3             |        0.431 |    0.632 |
+| S1      | $$C_3$$ | R0             |        0.911 |    0.449 |
+| S1      | $$C_3$$ | R2             |        0.986 |    0.987 |
+| S1      | $$C_3$$ | R3             |        0.115 |    0.962 |
+
+The protocol correction affects the representations differently.
+
+Most notably:
+
+* S1 R3 rises from (0.115) to (0.962);
+* S3 R2 rises from (0.065) to (0.807);
+* S2 R3 C5 falls from (0.837) to (0.306).
+
+The original E26 representation rankings were therefore strongly probe dependent.
+
+The robust pattern in E26R is not that R3 restores all four selected targets. It is that R2 sector mass is consistently strong.
+
+#### Sector mass versus within-sector shape
+
+Across all four cells:
+
+| Stratum and target | R2 sector mass | R3 sector sort | R2 minus R3 |
+| ------------------ | -------------: | -------------: | ----------: |
+| S2 $$C_4$$         |          0.783 |          0.345 |    (+0.438) |
+| S2 $$C_5$$         |          0.463 |          0.306 |    (+0.157) |
+| S3 $$C_3$$         |          0.807 |          0.632 |    (+0.175) |
+| S1 $$C_3$$         |          0.987 |          0.962 |    (+0.025) |
+
+Sector mass equals or exceeds sector sorting everywhere.
+
+The result suggests that the structural signal is concentrated in:
+
+$$\left{\sum_{z:\kappa_G(z)=\kappa}p_G(z)\right}_{\kappa},$$
+
+rather than in the detailed distribution of probability ranks within each sector.
+
+R3 retains all information present in R2 in an unrestricted information-theoretic sense, because each sector mass can be recovered by summing its R3 block.
+
+Nevertheless, a single linear ridge probe does not automatically perform those block sums efficiently in a 16,384-dimensional feature space.
+
+R2 explicitly performs that aggregation before regression and produces a much more accessible coordinate system.
+
+The R2 advantage can therefore reflect both:
+
+* genuine concentration of the signal in sector masses;
+* and improved inductive bias from an explicit low-dimensional aggregation.
+
+#### Does E26R establish a sorting bottleneck?
+
+E26R supplies evidence that global sorting removes useful degree-sector association in the four selected cells.
+
+R3 improves upon R0 with an interval excluding zero for:
+
+* S2 C4;
+* S3 C3;
+* S1 C3.
+
+It does not do so for S2 C5.
+
+R2 improves upon R0 with a positive interval in all four cells.
+
+The strongest supported statement is therefore:
+
+> Global sorting discards degree-sector membership that is useful for selected cycle targets, while coarse sector masses provide the most consistently accessible replacement coordinates.
+
+This is stronger than the original E26 conclusion for S1 and S3.
+
+It is weaker than a universal bottleneck claim because:
+
+* only four of the original sixteen cells are rerun;
+* one R3 contrast is unresolved;
+* the S4 stratum is absent;
+* and R2/R3 use graph-derived degree information not present in R0.
+
+E26R does not establish that global sorting is the sole cause of QuIC’s off-regularity behavior.
+
+#### Relationship to E25R
+
+E25R showed that the globally sorted E6 representation nearly perfectly recovers joint-degree edge-mixing counts.
+
+E26R shows that degree-sector probability masses also strongly recover selected cycle totals.
+
+These are related but distinct degree-conditioned structures.
+
+E25R concerns the graph statistic:
+
+$$M_{ab}=#{\text{edges connecting degree classes }a\text{ and }b}.$$
+
+E26R concerns the circuit readout:
+
+$$h_\kappa=\sum_{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+The combined evidence suggests that the off-regular representation contains a strong degree-role organization at multiple levels:
+
+* edge mixing is present in the globally sorted probability geometry;
+* degree-sector mass retains additional cycle information that global sorting partially obscures.
+
+The result supports a degree-conditioned explanation of off-regular structure, but it does not show that the sector masses are equivalent to edge-mixing counts.
+
+#### Random-sector control
+
+R3 substantially outperforms R3-random in all four cells.
+
+The paired intervals are entirely positive.
+
+This confirms that arbitrary graph-specific probability reassignment to the sector blocks destroys useful alignment.
+
+The control remains imperfect.
+
+Each graph receives a different random assignment based on:
+
+$$20250717+\text{graph index}.$$
+
+The resulting representation is:
+
+* dependent on dataset enumeration;
+* not a stable graph function;
+* and not aligned consistently across graphs.
+
+Its negative scores are therefore best interpreted as a destructive sanity check.
+
+They do not quantify how much of R3’s performance is specifically attributable to semantically meaningful degree sectors.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The globally sorted R0 arm reproduces the exact E6 values for all four selected cells.**
+
+2. **The E26 representation comparison is highly sensitive to the decoder protocol.**
+
+3. **The intended S1 negative counterexample reverses under the E6 probe.**
+
+   R3 reaches (0.962) and R2 reaches (0.987), compared with (0.449) for R0.
+
+4. **Sector masses improve upon global sorting in all four selected cells.**
+
+5. **Sector sorting improves upon global sorting in three of the four selected cells.**
+
+6. **The S2 C5 sector-sorting gain is not bounded away from zero.**
+
+7. **Sector mass is stronger than sector sorting in every selected cell.**
+
+8. **The principal restored signal appears to lie in aggregate degree-sector probability allocation.**
+
+9. **Global sorting removes useful degree-sector association for selected targets.**
+
+10. **The four-cell result does not establish a universal sorting bottleneck.**
+
+11. **The random-sector control confirms that arbitrary graph-specific block assignment destroys decodability, but it is not a clean matched null.**
+
+12. **The original E26 S1 counterexample and within-sector-shape interpretation should be replaced.**
+
+E26R therefore strengthens the degree-sector readout hypothesis while shifting its mechanism from within-sector rank shape to sector mass.
+
+#### Necessary qualifications
+
+E26R evaluates only four cells selected after inspection of the original E26 results.
+
+The cells are not an unbiased sample of:
+
+$$4\text{ strata}\times4\text{ targets}=16$$
+
+possible comparisons.
+
+The bootstrap intervals should therefore not be interpreted as confirmatory familywise inference over the complete E26 grid.
+
+A full protocol-matched rerun of all sixteen cells is required for a general statement about how often R2 or R3 improves upon global sorting.
+
+The S1 cell was selected as a negative counterexample but reversed under the matched protocol. This reduces concern that only positive results were retained, but it does not remove the post-selection issue.
+
+The primary table reports mean outer-fold $$R^2$$.
+
+The paired bootstrap instead resamples the assembled out-of-fold errors and computes pooled $$R^2$$ differences.
+
+These are different estimands.
+
+Consequently, the bootstrap mean does not exactly equal the difference between the two displayed mean-fold scores.
+
+The bootstrap resamples fixed out-of-fold predictions.
+
+It does not refit:
+
+* the ridge model;
+* the inner regularization selection;
+* or the outer folds.
+
+Its intervals describe graph-level variation conditional on the completed cross-validation procedure.
+
+R2 and R3 are not capacity matched.
+
+R2 has between 64 and 315 coordinates, while R3 has 16,384 coordinates.
+
+The same fixed ridge grid may regularize those spaces differently.
+
+The stronger R2 results may partly reflect a better inductive bias and lower-dimensional feature space rather than strictly greater information content.
+
+R3 contains enough information to reconstruct R2 through block summation, but that operation is not directly imposed on the linear decoder.
+
+R2 and R3 also incorporate the graph’s degree partition into the readout.
+
+They are hybrid graph-and-circuit constructions, not transformations of the probability multiset alone.
+
+Their improvement over R0 does not prove that the quantum circuit independently learned degree classes.
+
+The notebook suppresses linear-algebra warnings.
+
+R0 and R3 use 16,384 features for only 400 graphs, with ridge penalties extending to:
+
+$$10^{-14}.$$
+
+E10 showed that such high-dimensional QuIC probes can depend on low-variance directions and weak regularization.
+
+The R0 reproduction gate strongly supports implementation consistency, but an independent dual or singular-value solver check would strengthen the large R3 results.
+
+E26R verifies R0 against the producer vector for every evaluated graph.
+
+It does not rerun:
+
+* all sector-cardinality assertions;
+* probability conservation by sector;
+* or permutation-invariance tests.
+
+Those checks are inherited from E26.
+
+The random-sector control remains dependent on graph enumeration index.
+
+Stable cryptographic seeds correct the bootstrap reproducibility issue but do not correct the construction of R3-random itself.
+
+No correction is applied for the multiple selected representation-target contrasts.
+
+The experiment uses:
+
+* exact statevector probabilities;
+* one flat-encoder circuit;
+* one graph order;
+* and three sampled degree-sequence strata.
+
+The S4 hub family is absent.
+
+No finite-shot experiment evaluates whether the sector-mass coordinates can be recovered operationally.
+
+The normalized degree-encoded arm also remains untested.
+
+Finally, E26R does not compare the sector representations with simple classical baselines derived directly from:
+
+* degree mixing;
+* cycle counts;
+* the adjacency spectrum;
+* or folklore 2-WL.
+
+The experiment establishes structural accessibility, not quantum advantage.
+
+#### Overall assessment
+
+E26R provides the required protocol correction and changes the mechanism suggested by E26.
+
+The globally sorted arm reproduces the E6 baselines exactly.
+
+Under that matched decoder:
+
+* S2 C4 improves from (0.295) to (0.783) using sector mass;
+* S2 C5 improves from (0.284) to (0.463);
+* S3 C3 improves from (-0.047) to (0.807);
+* S1 C3 improves from (0.449) to (0.987).
+
+Degree-sector sorting also improves three cells, but it is consistently weaker than the low-dimensional mass representation and provides no confirmed advantage for S2 C5.
+
+The intended S1 negative counterexample disappears. Rather than showing that sector preservation damages near-regular triangles, the matched result shows that degree-sector masses and ranks almost completely recover them.
+
+The appropriate central claim is:
+
+> Under the exact E6 raw-coordinate nested-ridge protocol, degree-occupancy sector readouts recover substantial structural information that is obscured by global probability sorting. Sector masses improve all four selected targets, raising S2 4-cycle prediction from (0.295) to (0.783), S3 triangle prediction from (-0.047) to (0.807), and near-regular triangle prediction from (0.449) to (0.987). Within-sector sorting also improves three cells but is uniformly weaker than sector mass and does not significantly improve S2 5-cycles. E26R therefore identifies aggregate degree-sector probability allocation—not within-sector rank shape—as the most consistent restored coordinate, while leaving a full sixteen-cell confirmation necessary before global sorting is declared the general off-regularity bottleneck.
