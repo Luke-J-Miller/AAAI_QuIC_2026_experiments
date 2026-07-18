@@ -8618,6 +8618,303 @@ The appropriate central claim is:
 
 > Across the exhaustive connected cubic censuses at (n=14) and (n=16), QuIC improves diamond-count prediction beyond linear ridge, polynomial ridge, RBF kernel, and ExtraTrees models trained on adjacency eigenvalues and trace moments. The gain remains positive in all 24 tested diamond configurations and replicates at approximately (+0.06) to (+0.14) over the strongest complete-feature nonlinear baselines. The effect is target specific: C6 residual gains are negligible, girth gains largely disappear under nonlinear spectral models, and triangle gains vanish when its exact trace coordinate is supplied. E11 therefore establishes predictive complementarity to strong nonlinear spectral baselines, while the later exact-cospectral witnesses are required for the stronger beyond-spectrum claim.
 
+### E12 - Minimal Automorphism-Ordering Audit
+
+#### Execution status
+
+E12 did not complete.
+
+The notebook was terminated when it reached the environment’s:
+
+$$12\text{-hour compute limit}.$$
+
+This limit exists to prevent a single experiment from consuming compute indefinitely. The notebook did not stop because of a methodological assertion, numerical exception, or detected error.
+
+Before the timeout, it completed:
+
+* census and target validation;
+* construction of the 14 automorphism-varying cospectral pairs;
+* the complete exact permutation null for the primary QuIC model;
+* the observed QuIC regularization profile.
+
+It did not complete:
+
+* the folklore 2-WL comparison;
+* the spectrum-tied control;
+* the final comparison tables;
+* or result persistence.
+
+E12 must therefore be treated as a timed-out partial experiment rather than a completed baseline comparison.
+
+#### Experimental purpose
+
+E12 tests whether QuIC orders exact adjacency-cospectral graphs by automorphism-group size.
+
+The experiment uses the complete connected cubic census at:
+
+* **(n=16)**;
+* **4,060 graphs**;
+* **41 exact adjacency-cospectral groups**;
+* **83 members of those groups**.
+
+Among the 41 cospectral groups, exactly:
+
+$$14$$
+
+vary in:
+
+$$\log_2|\text{Aut}(G)|.$$
+
+Every varying group contains exactly two graphs. The experiment therefore contains 14 independent held-out group comparisons.
+
+#### Representation and ranking protocol
+
+The representation is the first:
+
+$$k=100$$
+
+coordinates of the descending-sorted exact QuIC probability vector.
+
+For each cospectral pair $$(G_i,G_j)$$, the ranker receives the antisymmetric difference:
+
+$$\mathbf x_{ij}=\mathbf p_{1:100}(G_i)-\mathbf p_{1:100}(G_j),$$
+
+with label:
+
+$$y_{ij}=\text{sign}\left(\log_2|\text{Aut}(G_i)|-\log_2|\text{Aut}(G_j)|\right).$$
+
+The model is:
+
+* intercept-free logistic regression;
+* train-only root-mean-square scaling;
+* leave-one-cospectral-group-out evaluation;
+* fixed primary regularization $$C=1$$.
+
+The primary statistic is the number of correctly ordered held-out groups:
+
+$$T_{\text{sign}}.$$
+
+Because every group contains only two members, the proposed Kendall statistic contains no additional information:
+
+$$T_\tau=2T_{\text{sign}}-14.$$
+
+#### Exact permutation null
+
+The null independently permutes the two target assignments within each cospectral group.
+
+With 14 two-member groups, the complete null contains:
+
+$$2^{14}=16{,}384$$
+
+label configurations.
+
+The logistic ranker is refitted for every configuration at the fixed primary value:
+
+$$C=1.$$
+
+This exact null was computationally expensive but completed before the notebook reached the 12-hour limit.
+
+#### Completed QuIC result
+
+At the prespecified setting:
+
+$$C=1,$$
+
+QuIC correctly orders:
+
+$$11/14$$
+
+cospectral groups.
+
+The corresponding statistics are:
+
+$$T_{\text{sign}}=11,$$
+
+and:
+
+$$T_\tau=8.$$
+
+The exact one-sided permutation value is:
+
+$$p=0.0581.$$
+
+The null distribution has:
+
+$$\text{mean}(T_{\text{sign}})=7,$$
+
+and a reported 95th percentile of:
+
+$$11.$$
+
+The observed value therefore lies at the edge of the upper null tail but does not reject the null at:
+
+$$p<0.05.$$
+
+The defensible completed result is:
+
+> QuIC shows suggestive automorphism-ordering ability within exact cospectral pairs, correctly ranking 11 of 14 groups, but the prespecified exact permutation test narrowly misses conventional significance.
+
+#### Regularization profile
+
+Before the timeout, the notebook also evaluated the observed ranking count over:
+
+$$C\in{10^{-3},10^{-2},10^{-1},1,10,10^2,10^3}.$$
+
+|       $$C$$ | Correct groups |
+| ----------: | -------------: |
+| $$10^{-3}$$ |           9/14 |
+| $$10^{-2}$$ |           9/14 |
+| $$10^{-1}$$ |          11/14 |
+|       $$1$$ |          11/14 |
+|      $$10$$ |          14/14 |
+|    $$10^2$$ |          13/14 |
+|    $$10^3$$ |          11/14 |
+
+The strongest observed value is:
+
+$$14/14$$
+
+at:
+
+$$C=10.$$
+
+This is an exploratory profile maximum, not the primary inferential result.
+
+The exact null was evaluated only for the prespecified:
+
+$$C=1$$
+
+model.
+
+The notebook did not complete a max-over-regularization permutation null before timing out.
+
+The 14/14 value therefore cannot be assigned the fixed-$$C$$ permutation value or presented as confirmed evidence.
+
+It establishes only that the observed ordering is sensitive to logistic regularization.
+
+#### Model dependence
+
+The notebook documentation reports that ridge-based alternatives produce only:
+
+* 7/14 under a member-level construction;
+* 9/14 under an antisymmetric pairwise construction.
+
+The automorphism result is therefore not a representation-only property.
+
+It depends materially on:
+
+* the logistic ranking objective;
+* the antisymmetric pair construction;
+* and the regularization value.
+
+This does not invalidate the fixed logistic result, but it limits any claim that automorphism order is generally linearly accessible from the top-100 QuIC representation.
+
+#### Timed-out comparison arms
+
+The notebook was intended to compare QuIC with:
+
+1. cumulative folklore 2-WL;
+2. the tied adjacency spectrum.
+
+Those comparison arms did not finish before the 12-hour compute limit terminated the experiment.
+
+This is a computational timeout, not evidence that either comparison failed statistically.
+
+No result is available for whether the observed QuIC ordering is:
+
+* shared by folklore 2-WL;
+* stronger or weaker than folklore 2-WL;
+* or distinguishable from a correctly implemented tied-spectrum control.
+
+The spectrum is numerically equal within each cospectral group up to eigensolver deviations of approximately:
+
+$$5.77\times10^{-15}.$$
+
+Those differences reflect eigensolver noise.
+
+A completed spectrum control should set the within-group spectral differences exactly to zero before scaling. Otherwise, root-mean-square normalization can amplify numerical noise into arbitrary apparent features.
+
+Because the timeout occurred before the persistence cell, no complete E12 result artifact was written.
+
+The runtime log and completed notebook outputs are the only record of the partial experiment.
+
+#### What the partial experiment establishes
+
+The work completed before the timeout establishes that:
+
+1. **The census and target counts reproduce the earlier cospectral audit.**
+
+   There are 41 exact cospectral groups, of which 14 two-member groups vary in automorphism order.
+
+2. **QuIC correctly orders 11 of 14 groups at the prespecified logistic setting.**
+
+3. **The exact permutation value is (0.0581).**
+
+   This is suggestive but does not meet a conventional (0.05) threshold.
+
+4. **An exploratory regularization setting reaches 14/14.**
+
+   No selection-adjusted null was completed for that maximum.
+
+5. **The result is model and regularization dependent.**
+
+6. **The planned classical comparison and tied control were not completed because the notebook reached the 12-hour compute limit.**
+
+E12 does not provide a confirmed automorphism-ordering claim or a completed classical comparison.
+
+#### Necessary qualifications
+
+The experiment contains only:
+
+$$14$$
+
+independent cospectral groups.
+
+Its inferential resolution and power are therefore limited.
+
+The same 14 groups are used to inspect the regularization profile. The profile cannot be interpreted as independent validation.
+
+The exact permutation test is valid for the fixed implemented statistic, but the graphs belong to one finite census rather than a sampled graph population.
+
+The exploratory 14/14 result is selected after examining seven regularization settings.
+
+A valid inferential result for that profile would require recomputing the complete null distribution of:
+
+$$\max_C T_{\text{sign}}(C).$$
+
+That computation was not completed before the timeout.
+
+The folklore 2-WL and spectral arms have no usable output. Their absence must not be described as a negative result.
+
+The representation uses exact ideal probabilities. Finite-shot automorphism ordering is not evaluated.
+
+Finally, the proposed $$T_\tau$$ statistic is redundant because every group contains exactly one unequal pair.
+
+#### Overall assessment
+
+E12 is a timed-out partial experiment with one completed inferential result.
+
+The notebook was automatically terminated after reaching the environment’s 12-hour compute-protection limit. It did not complete the folklore 2-WL arm, spectrum control, final comparison, or persistence.
+
+The completed QuIC model ranks:
+
+$$11/14$$
+
+exact cospectral pairs correctly at the prespecified setting, with:
+
+$$p=0.0581.$$
+
+This is suggestive but inconclusive.
+
+The exploratory regularization profile reaches:
+
+$$14/14$$
+
+at $$C=10$$, but no max-over-$$C$$ null was completed, and ridge alternatives perform much closer to chance.
+
+The appropriate minimal record is:
+
+> E12 was terminated at the environment’s 12-hour compute limit before its folklore 2-WL and tied-spectrum controls completed. Before termination, the prespecified QuIC ranker correctly ordered 11 of 14 exact adjacency-cospectral pairs by automorphism-group order. The complete fixed-model permutation null gave (p=0.0581), narrowly missing conventional significance. An exploratory regularization profile reached 14/14, but no selection-adjusted null was completed. E12 is therefore retained as a timed-out, suggestive, and inconclusive result rather than a completed automorphism-ordering comparison.
 
 ### E13 - Truncation Decomposition and Completed Cospectral Tracer
 
