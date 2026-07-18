@@ -19839,6 +19839,812 @@ The experiment therefore supports a specific structural interpretation rather th
 
 
 
+### E25R - E6-Protocol Confirmation of Degree-Typed Decodability
+
+#### Experimental purpose
+
+E25R reruns the essential E25 targets using the ridge-probe protocol established in E6.
+
+The original E25 analysis differed from E6 in four consequential ways:
+
+| Component         | Original E25                   | E6 protocol                           |
+| ----------------- | ------------------------------ | ------------------------------------- |
+| QuIC coordinates  | Standardized within fold       | Raw                                   |
+| Ridge selection   | Generalized cross-validation   | Inner five-fold cross-validation      |
+| Outer evaluation  | One pooled out-of-fold $$R^2$$ | Mean of five test-fold $$R^2$$ values |
+| Fitting procedure | `cross_val_predict`            | Explicit outer-fold loop              |
+
+E10 showed that high-dimensional QuIC probes can depend materially on:
+
+* coordinate scaling;
+* very small ridge penalties;
+* inner-fold construction;
+* and the definition of the reported $$R^2$$.
+
+E25R therefore asks which E25 findings remain when the typed targets are evaluated through the same probe used for the E6 results they are intended to explain.
+
+The rerun includes:
+
+1. ordinary cycle totals $$C_3,C_4,C_5$$;
+2. joint-degree edge counts $$M_{ab}$$;
+3. degree-typed triangle counts $$T_{abc}$$.
+
+It intentionally does not rerun:
+
+* degree-typed induced 4-cycles;
+* the typed-component cancellation experiment;
+* the principal-component alignment analysis.
+
+Those E25 components remain exploratory under their original standardized pooled probe.
+
+#### Relationship to the exact E6 implementation
+
+The actual E6 consumer confirms the following settings:
+
+$$\alpha_{\text{ridge}}\in{10^{-14},10^{-13},\ldots,10^2},$$
+
+with:
+
+* five shuffled outer folds;
+* outer seed zero;
+* inner `RidgeCV(cv=5)`;
+* raw QuIC coordinates;
+* mean outer-fold test $$R^2$$;
+* standard deviation across the five test folds.
+
+E25R uses those same settings.
+
+The notebook header states that the alpha grid and fold arrangement still require confirmation. That warning is stale: direct inspection of the E6 consumer confirms that E25R uses the correct values.
+
+Two differences remain.
+
+First, E6 uses the complete:
+
+$$16{,}384$$
+
+dimensional QuIC vector, whereas E25R retains:
+
+$$k=1000$$
+
+coordinates.
+
+Second, E6 explicitly guards against a target becoming constant within an individual training or test fold. E25R checks only whether the complete target vector is nonconstant.
+
+No E25R row returns a `NaN`, so the omitted exact-constant-fold guard does not appear to change the completed results. It remains a code-level difference, particularly relevant to sparse typed-triangle targets.
+
+E25R should therefore be described as:
+
+> the E6 ridge-probe protocol applied to the E25 top-1,000 representations,
+
+rather than a completely identical reproduction of every E6 analysis detail.
+
+#### Exact reproduction of the E6 total-target rows
+
+Despite using only the first 1,000 probabilities, E25R reproduces the complete-vector E6 results for $$C_3,C_4,C_5$$ to three decimal places in all four strata.
+
+| Stratum         | Target  | E25R top-1,000 | E6 full vector |
+| --------------- | ------- | -------------: | -------------: |
+| S1 near regular | $$C_3$$ |          0.449 |          0.449 |
+| S1 near regular | $$C_4$$ |          0.095 |          0.095 |
+| S1 near regular | $$C_5$$ |       (-0.017) |       (-0.017) |
+| S2 bimodal      | $$C_3$$ |          0.991 |          0.991 |
+| S2 bimodal      | $$C_4$$ |          0.295 |          0.295 |
+| S2 bimodal      | $$C_5$$ |          0.284 |          0.284 |
+| S3 skewed       | $$C_3$$ |       (-0.047) |       (-0.047) |
+| S3 skewed       | $$C_4$$ |       (-0.018) |       (-0.018) |
+| S3 skewed       | $$C_5$$ |       (-0.019) |       (-0.019) |
+| S4 hub          | $$C_3$$ |          0.378 |          0.378 |
+| S4 hub          | $$C_4$$ |       (-0.034) |       (-0.034) |
+| S4 hub          | $$C_5$$ |       (-0.050) |       (-0.050) |
+
+The fold standard deviations also reproduce to displayed precision except for a rounding difference of approximately 0.001 on S4 triangle count.
+
+This provides a strong empirical gate that:
+
+* the graph ordering is consistent;
+* the outer splits match;
+* the alpha grid matches;
+* the top-1,000 head is sufficient to reproduce the three relevant E6 total rows.
+
+It does not prove that every typed target would be unchanged under the full vector.
+
+#### Graph strata
+
+The experiment uses the four fixed-degree-sequence strata from E6.
+
+| Stratum         | Locked degree sequence | Graphs |
+| --------------- | ---------------------- | -----: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$   |    400 |
+| S2 bimodal      | $$(4^7,2^7)$$          |    400 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$  |    400 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$  |    400 |
+
+Every comparison occurs within one stratum.
+
+Consequently, the following quantities are fixed:
+
+* number of vertices;
+* number of edges;
+* degree multiset;
+* number of vertices in each degree class.
+
+The experiment measures topology within a fixed degree sequence rather than learning differences among degree sequences.
+
+#### Circuit representation
+
+E25R reuses the E6 exact probability vectors.
+
+The E6 producer uses the flat encoder:
+
+$$R_X(2.875)^{\otimes14},$$
+
+followed by:
+
+* one graph-edge $$R_{ZZ}(2.0)$$ layer;
+* one uniform $$R_X(0.1)$$ mixer;
+* one repetition.
+
+Vertex degree is not supplied to the circuit.
+
+The analyzed feature vector is:
+
+$$\phi(G)=\mathbf p_{1:1000}(G),$$
+
+where $$\mathbf p(G)$$ is the descending-sorted exact Born-probability vector.
+
+The result therefore concerns topology-induced degree-role information rather than direct degree-feature encoding.
+
+#### Target definitions
+
+##### Joint-degree edge counts
+
+For degree classes $$a\le b$$:
+
+$$M_{ab}=#{uv\in E:{\deg u,\deg v}={a,b}}.$$
+
+These counts describe how the fixed degree classes connect.
+
+##### Degree-typed triangles
+
+For degree classes $$a\le b\le c$$:
+
+$$T_{abc}=#{\text{triangles whose degree multiset is }(a,b,c)}.$$
+
+The typed counts reconcile exactly to the total triangle count:
+
+$$C_3=\sum_{a\le b\le c}T_{abc}.$$
+
+The numbers of varying typed targets are:
+
+| Stratum         | Edge types $$M_{ab}$$ | Triangle types $$T_{abc}$$ |
+| --------------- | --------------------: | -------------------------: |
+| S1 near regular |                     6 |                          7 |
+| S2 bimodal      |                     3 |                          3 |
+| S3 skewed       |                    10 |                         17 |
+| S4 hub          |                     9 |                         14 |
+
+No observed typed column is constant across its complete stratum.
+
+#### Validation gates
+
+For all 1,600 graph records, E25R verifies:
+
+* the locked degree sequence;
+* vector dimension $$2^{14}$$;
+* descending sortedness;
+* probability normalization;
+* the triangle trace identity;
+* the 4-cycle trace identity.
+
+The identities are:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+Typed triangles are reconciled to $$C_3$$ for every graph during matrix construction.
+
+The edge-count and triangle-count functions are additionally spot checked on 15 graphs per stratum.
+
+The gate is not fully identical to the original E6 gate. E25R does not independently assert:
+
+* that the producer metadata specifies flat encoding;
+* uniqueness of all graph6 strings;
+* or agreement with an independently rebuilt circuit vector.
+
+The original E6 consumer performed those checks on the same producer artifact. E25R inherits that validated source rather than reproducing its entire integrity suite.
+
+#### Probe calibration
+
+The E6-style raw-coordinate probe obtains:
+
+$$R^2=-0.024$$
+
+on an independent Gaussian target and:
+
+$$R^2=1.000$$
+
+on a target constructed as a linear combination of QuIC coordinates.
+
+The original E25 pooled probe obtains:
+
+$$R^2=-0.150$$
+
+and:
+
+$$R^2=0.988$$
+
+on the same two calibration targets.
+
+Both probes pass the notebook’s broad calibration criteria.
+
+The constructed signal is only a software sanity check. It does not validate generalization on graph invariants, because the target is explicitly generated from the input features.
+
+#### Cycle-total results under the E6 probe
+
+| Stratum         |  $$C_3$$ |  $$C_4$$ |  $$C_5$$ |     Mean |
+| --------------- | -------: | -------: | -------: | -------: |
+| S1 near regular |    0.449 |    0.095 | (-0.017) |    0.176 |
+| S2 bimodal      |    0.991 |    0.295 |    0.284 |    0.524 |
+| S3 skewed       | (-0.047) | (-0.018) | (-0.019) | (-0.028) |
+| S4 hub          |    0.378 | (-0.034) | (-0.050) |    0.098 |
+
+The cycle geometry remains highly stratum dependent.
+
+##### S1 near regular
+
+Triangle count is moderately accessible:
+
+$$R^2_{C_3}=0.449.$$
+
+Four- and 5-cycle counts are weak:
+
+$$R^2_{C_4}=0.095,\qquad R^2_{C_5}=-0.017.$$
+
+Triangle prediction is also unstable across folds:
+
+$$0.449\pm0.714.$$
+
+The large fold standard deviation indicates that its apparent moderate mean does not transfer uniformly across all graph partitions.
+
+##### S2 bimodal
+
+Triangle count is almost exact:
+
+$$R^2_{C_3}=0.991.$$
+
+Unlike the original E25 pooled results, both deeper cycle totals are positively decoded:
+
+$$R^2_{C_4}=0.295,\qquad R^2_{C_5}=0.284.$$
+
+These are moderate rather than strong scores, but they overturn the pooled-probe result that placed both targets below zero.
+
+##### S3 skewed
+
+All three total cycle targets remain at the prediction floor.
+
+##### S4 hub
+
+Triangle count retains a moderate signal:
+
+$$R^2_{C_3}=0.378.$$
+
+Four- and 5-cycle counts remain below zero.
+
+#### Effect of the probe correction on cycle totals
+
+| Stratum | Target  | E6-probe result | Original pooled result |   Change |
+| ------- | ------- | --------------: | ---------------------: | -------: |
+| S1      | $$C_3$$ |           0.449 |                  0.707 | (-0.258) |
+| S1      | $$C_4$$ |           0.095 |                  0.370 | (-0.275) |
+| S1      | $$C_5$$ |        (-0.017) |               (-0.115) | (+0.098) |
+| S2      | $$C_3$$ |           0.991 |                  0.957 | (+0.034) |
+| S2      | $$C_4$$ |           0.295 |               (-0.603) | (+0.898) |
+| S2      | $$C_5$$ |           0.284 |               (-0.409) | (+0.693) |
+| S3      | $$C_3$$ |        (-0.047) |                  0.148 | (-0.195) |
+| S3      | $$C_4$$ |        (-0.018) |               (-0.008) | (-0.010) |
+| S3      | $$C_5$$ |        (-0.019) |               (-0.141) | (+0.122) |
+| S4      | $$C_3$$ |           0.378 |                  0.622 | (-0.244) |
+| S4      | $$C_4$$ |        (-0.034) |                  0.125 | (-0.159) |
+| S4      | $$C_5$$ |        (-0.050) |                  0.005 | (-0.055) |
+
+The changes are not uniform.
+
+The most consequential difference is S2:
+
+$$C_4:-0.603\rightarrow0.295,$$
+
+and:
+
+$$C_5:-0.409\rightarrow0.284.$$
+
+The original E25 statement that cycle totals are weak in every nonregular stratum therefore requires revision.
+
+The supported result is:
+
+> Cycle totals remain weak in the near-regular, skewed, and hub strata, while the bimodal stratum retains nearly exact triangle information and moderate 4- and 5-cycle accessibility.
+
+#### Joint-degree edge decodability
+
+The joint-degree edge counts remain the strongest result.
+
+| Stratum         | Number of types | Mean $$R^2$$ | Minimum | Maximum | Mean cycle-total $$R^2$$ |
+| --------------- | --------------: | -----------: | ------: | ------: | -----------------------: |
+| S1 near regular |               6 |        1.000 |   1.000 |   1.000 |                    0.176 |
+| S2 bimodal      |               3 |        1.000 |   1.000 |   1.000 |                    0.524 |
+| S3 skewed       |              10 |        0.962 |   0.887 |   1.000 |                 (-0.028) |
+| S4 hub          |               9 |        0.990 |   0.966 |   0.999 |                    0.098 |
+
+The result is stronger under the E6 protocol than under the original pooled probe.
+
+##### S1 near regular
+
+Every degree-pair target is decoded with:
+
+$$R^2=1.000,$$
+
+and zero fold variation at the printed precision.
+
+##### S2 bimodal
+
+All three counts are also exactly decoded:
+
+$$R^2_{22}=R^2_{24}=R^2_{44}=1.000.$$
+
+Because the degree sequence is fixed, these three counts represent only one independent degree-mixing coordinate.
+
+##### S3 skewed
+
+All ten edge types remain strongly accessible.
+
+The weakest values are:
+
+$$R^2_{25}=0.887,$$
+
+$$R^2_{55}=0.892,$$
+
+and:
+
+$$R^2_{22}=0.904.$$
+
+The other seven targets lie between:
+
+$$0.974\text{ and }1.000.$$
+
+##### S4 hub
+
+All nine edge types score between:
+
+$$0.966\text{ and }0.999.$$
+
+Edges incident to the degree-six hub remain strongly decoded:
+
+$$R^2_{26}=0.984,$$
+
+$$R^2_{36}=0.991,$$
+
+$$R^2_{46}=0.966.$$
+
+#### Structural interpretation of the edge results
+
+The degree sequence is fixed within each stratum.
+
+Thus, QuIC is not merely recovering:
+
+* the number of degree-two vertices;
+* the number of degree-four vertices;
+* or the degree histogram.
+
+It is recovering how those degree classes are connected.
+
+For every degree class $$a$$:
+
+$$2M_{aa}+\sum_{b\ne a}M_{ab}=an_a,$$
+
+where $$n_a$$ is fixed within the stratum.
+
+The edge-type columns are consequently redundant.
+
+Their maximum independent dimensions are:
+
+| Stratum | Reported edge types | Maximum free dimensions |
+| ------- | ------------------: | ----------------------: |
+| S1      |                   6 |                       3 |
+| S2      |                   3 |                       1 |
+| S3      |                  10 |                       6 |
+| S4      |                   9 |                       5 |
+
+The result should not be described as 28 independent exact predictions.
+
+It establishes nearly exact reconstruction of the lower-dimensional joint-degree mixing state.
+
+The principal E25 conclusion therefore survives and becomes stronger:
+
+$$\boxed{\text{the off-regular QuIC geometry is strongly organized by degree mixing}}$$
+
+#### Degree-typed triangle results
+
+The family summaries are:
+
+| Stratum         | Number of types | Mean typed $$R^2$$ | Median typed $$R^2$$ | Direct $$C_3$$ |
+| --------------- | --------------: | -----------------: | -------------------: | -------------: |
+| S1 near regular |               7 |           (-1.470) |                0.244 |          0.449 |
+| S2 bimodal      |               3 |              0.979 |                0.993 |          0.991 |
+| S3 skewed       |              17 |              0.063 |                0.093 |       (-0.047) |
+| S4 hub          |              14 |              0.189 |                0.065 |          0.378 |
+
+The arithmetic mean is not reliable in S1.
+
+One sparse target produces:
+
+$$R^2_{234}=-13.190\pm27.545.$$
+
+That single row drives the seven-type mean from a broadly mixed result to:
+
+$$-1.470.$$
+
+The median:
+
+$$0.244$$
+
+is more representative of the typical S1 typed target, although neither statistic accounts for differences in target variance or prevalence.
+
+#### S1 typed triangles
+
+Three high-degree triangle types are strongly decoded:
+
+$$R^2_{333}=0.940,$$
+
+$$R^2_{334}=0.895,$$
+
+$$R^2_{344}=0.877.$$
+
+The remaining degree-two-containing types range from weak to catastrophically unstable.
+
+The direct total triangle score is:
+
+$$0.449.$$
+
+The E6-probe result therefore reveals a strong subset of triangle structure but does not support a meaningful all-type average.
+
+#### S2 typed triangles
+
+All three types are highly accessible:
+
+$$R^2_{224}=0.945,$$
+
+$$R^2_{244}=0.993,$$
+
+$$R^2_{444}=1.000.$$
+
+Their mean is:
+
+$$0.979,$$
+
+compared with:
+
+$$R^2_{C_3}=0.991$$
+
+for total triangles.
+
+Degree typing does not outperform the total, but it shows that each component of the bimodal triangle count is separately recoverable.
+
+#### S3 typed triangles
+
+The total triangle score is below zero:
+
+$$R^2_{C_3}=-0.047.$$
+
+Several typed components nevertheless retain positive accessibility.
+
+The strongest include:
+
+$$R^2_{335}=0.443,$$
+
+$$R^2_{345}=0.379,$$
+
+$$R^2_{355}=0.366,$$
+
+$$R^2_{455}=0.336.$$
+
+Many other types remain at or below the prediction floor.
+
+One target is highly unstable:
+
+$$R^2_{333}=-0.950\pm2.130.$$
+
+S3 therefore provides the clearest evidence that selected typed components may be accessible even when their total is not.
+
+This is not evidence that the whole typed-triangle family is strongly decoded.
+
+#### S4 typed triangles
+
+The strongest types are concentrated around higher-degree vertices and the hub:
+
+$$R^2_{446}=0.708,$$
+
+$$R^2_{336}=0.630,$$
+
+$$R^2_{346}=0.536,$$
+
+$$R^2_{344}=0.524.$$
+
+The direct total triangle score is:
+
+$$0.378.$$
+
+Several low-degree types remain weak or negative.
+
+The family mean is lower than the total:
+
+$$0.189<0.378.$$
+
+#### Effect of protocol choice on typed triangles
+
+The original pooled-probe family means were:
+
+| Stratum         | Original pooled mean | E6-probe mean |
+| --------------- | -------------------: | ------------: |
+| S1 near regular |                0.486 |      (-1.470) |
+| S2 bimodal      |                0.845 |         0.979 |
+| S3 skewed       |                0.187 |         0.063 |
+| S4 hub          |                0.322 |         0.189 |
+
+The changes are large and target dependent.
+
+The S1 reversal is dominated by one sparse, unstable target rather than by uniform degradation across all seven types.
+
+The appropriate lesson is not that one probe is universally more pessimistic. It is that averaging raw $$R^2$$ values across heterogeneous typed-count targets is highly unstable.
+
+A paper-facing typed-triangle analysis should report:
+
+* individual target results;
+* target support and variance;
+* fold variability;
+* or a variance-weighted multivariate measure.
+
+It should not use the unqualified arithmetic mean as its principal statistic.
+
+#### Does degree typing improve triangle prediction?
+
+The answer remains no as a general claim.
+
+| Stratum | Direct $$C_3$$ | Mean typed triangles | Median typed triangles |
+| ------- | -------------: | -------------------: | ---------------------: |
+| S1      |          0.449 |             (-1.470) |                  0.244 |
+| S2      |          0.991 |                0.979 |                  0.993 |
+| S3      |       (-0.047) |                0.063 |                  0.093 |
+| S4      |          0.378 |                0.189 |                  0.065 |
+
+Only S3 has typed-family central tendencies above the direct total.
+
+Even there, the absolute values remain modest.
+
+E25R supports a component-level statement:
+
+> Selected degree-typed triangles, particularly configurations involving higher-degree vertices, remain linearly accessible when the corresponding total triangle count is weak.
+
+It does not support a universal hidden typed-triangle hierarchy.
+
+#### What survives from E25
+
+##### Strongly confirmed
+
+The joint-degree edge result survives completely.
+
+Under the E6 protocol:
+
+$$\text{mean }R^2(M_{ab})\in[0.962,1.000].$$
+
+This is the strongest and cleanest E25 result.
+
+##### Confirmed with revision
+
+Ordinary cycle totals remain much weaker than degree mixing, but S2 must be treated separately.
+
+Its mean total-cycle score is:
+
+$$0.524,$$
+
+rather than the near-zero value produced by the original pooled probe.
+
+##### Partially supported
+
+Selected typed triangles remain accessible, particularly:
+
+* all three S2 types;
+* high-degree S1 types;
+* several S3 and S4 high-degree configurations.
+
+##### Not confirmed as a family-level claim
+
+Mean typed-triangle performance is probe sensitive and can be dominated by sparse pathological targets.
+
+##### Not rerun
+
+E25R does not validate under the E6 protocol:
+
+* degree-typed induced 4-cycle results;
+* the S2 cancellation result;
+* principal-component alignment with degree mixing.
+
+Those results remain part of the original E25 exploratory analysis and should not be presented as protocol-matched confirmations.
+
+#### Relationship to E6
+
+E6 found that ordinary QuIC target accessibility weakens after leaving regular graph families.
+
+E25R shows that this does not reflect a complete loss of structural information.
+
+The same representation that performs poorly on many ordinary cycle totals reconstructs degree mixing almost exactly.
+
+The contrast is especially strong in S3:
+
+$$\text{mean }R^2(M_{ab})=0.962,$$
+
+while:
+
+$$\text{mean }R^2(C_3,C_4,C_5)=-0.028.$$
+
+In S4:
+
+$$\text{mean }R^2(M_{ab})=0.990,$$
+
+while:
+
+$$\text{mean }R^2(C_3,C_4,C_5)=0.098.$$
+
+The regularity interpretation is therefore strengthened.
+
+On a regular graph family, joint-degree mixing is constant because every edge has the same endpoint-degree type.
+
+Once degree mixing is removed as a source of variation, cycle structure becomes the dominant accessible geometry.
+
+On nonregular fixed-degree-sequence strata, variation in how degree classes connect becomes a leading structural coordinate.
+
+#### What the experiment establishes
+
+The completed results establish that:
+
+1. **The E6 raw-coordinate nested-ridge protocol has been applied to the essential E25 targets.**
+
+2. **The top-1,000 total-cycle rows reproduce the full-vector E6 rows to three decimal places.**
+
+3. **Joint-degree edge counts remain nearly perfectly decodable in every stratum.**
+
+4. **The edge result is stronger under the E6 probe than under the original E25 probe.**
+
+5. **The edge result cannot be explained by degree-sequence variation or explicit degree encoding.**
+
+6. **Ordinary cycle accessibility remains stratum dependent.**
+
+7. **S2 retains substantially more cycle information than the original pooled analysis indicated.**
+
+8. **Selected typed triangles remain accessible even when the corresponding total is weak.**
+
+9. **Typed-triangle family means are unstable and should not be headline statistics.**
+
+10. **The broad claim that degree-typed triangles outperform total triangles is not supported.**
+
+11. **The induced-cycle, cancellation, and PCA portions of E25 remain unconfirmed under the E6 probe.**
+
+E25R therefore confirms the degree-mixing explanation while narrowing the typed-motif interpretation.
+
+#### Necessary qualifications
+
+E25R uses only the first 1,000 probabilities, while the E6 QuIC column uses the complete 16,384-dimensional vector.
+
+The exact reproduction of $$C_3,C_4,C_5$$ strongly reduces concern for those totals. It does not establish that the full-vector and top-1,000 typed-target results are identical.
+
+The E25R implementation omits E6’s fold-level exact-constant-target guard.
+
+No completed target returns `NaN`, but rare typed targets can have extremely small variance in individual folds and produce very large negative $$R^2$$ values.
+
+The S1 $$T_{234}$$ result is the clearest example:
+
+$$-13.190\pm27.545.$$
+
+This is a property of the unstable normalized-error statistic on a sparse target, not evidence of a meaningful strong inverse relationship.
+
+The notebook does not print:
+
+* the frequency of each typed motif;
+* target variances;
+* the number of nonzero graphs;
+* or fold-specific target ranges.
+
+Those quantities are necessary to interpret the pathological typed rows responsibly.
+
+The edge-count targets are linearly dependent under the fixed degree-sequence constraints.
+
+Averaging their $$R^2$$ values overcounts a lower-dimensional joint-degree mixing space.
+
+A stronger block-level audit would:
+
+* choose an independent basis of the joint-degree matrix;
+* predict all independent coordinates jointly;
+* or reconstruct the complete constrained matrix and report multivariate error.
+
+The perfect S1 and S2 edge results use 1,000 QuIC features for 400 graphs with ridge penalties extending to:
+
+$$10^{-14}.$$
+
+The design is high dimensional and potentially ill conditioned.
+
+E6 emitted repeated linear-algebra warnings under the same protocol. E25R suppresses those warnings.
+
+The exact cross-fold results are compelling, but an independent dual or singular-value solver check would further strengthen the perfect-decoding claim.
+
+No shuffled-target audit is performed separately for each typed target.
+
+The generic Gaussian null passes, but rare count distributions can behave differently from a continuous synthetic null.
+
+The typed-target comparisons include many implicit tests without multiple-comparison correction.
+
+No confidence intervals or formal paired tests compare:
+
+* degree-mixing targets;
+* typed triangles;
+* and total cycles.
+
+The mean across targets gives equal weight to motifs with very different prevalence and variance.
+
+No spectral, folklore 2-WL, or elementary classical baseline is included.
+
+Joint-degree edge counts are simple classical graph statistics. E25R establishes accessibility from QuIC, not uniqueness, computational advantage, or non-spectrality.
+
+The representation uses exact ideal probabilities.
+
+The finite-shot recovery of degree-mixing information is unknown.
+
+The four strata contain sampled sets of 400 graphs rather than exhaustive fixed-degree-sequence censuses.
+
+Finally, E25R does not rerun the full E25 study. It is a targeted confirmation of the central degree-mixing result and selected triangle diagnostics.
+
+#### Overall assessment
+
+E25R validates the most important E25 conclusion under the paper’s established E6 probe.
+
+Joint-degree edge mixing is reconstructed almost perfectly:
+
+$$R^2=1.000$$
+
+throughout S1 and S2,
+
+$$\text{mean }R^2=0.962$$
+
+in S3, and:
+
+$$\text{mean }R^2=0.990$$
+
+in S4.
+
+This remains true despite:
+
+* fixed degree sequences;
+* a flat circuit encoder;
+* and weak ordinary cycle decoding in most strata.
+
+The result strongly supports the interpretation that QuIC’s off-regular geometry is organized around how degree classes connect.
+
+The cycle-total correction is important.
+
+S1, S3, and S4 remain weak, but S2 now has:
+
+$$R^2_{C_3}=0.991,\qquad R^2_{C_4}=0.295,\qquad R^2_{C_5}=0.284.$$
+
+The bimodal stratum therefore carries both near-perfect degree-mixing information and moderate cycle information.
+
+The typed-triangle results are more limited.
+
+S2’s three typed triangles are almost exactly decoded, and selected high-degree types remain accessible in the other strata. However, family averages are probe sensitive and can be destroyed by one sparse target with enormous fold instability.
+
+The appropriate central claim is:
+
+> Under the exact E6 raw-coordinate nested-ridge probe, the flat-encoder sorted QuIC representation nearly perfectly recovers joint-degree edge mixing within all four fixed-degree-sequence strata. Mean edge-type scores range from (0.962) to (1.000), while ordinary cycle totals remain much weaker outside the bimodal family. Selected degree-typed triangles are also accessible, particularly configurations involving higher-degree vertices, but their family-level averages are unstable and do not generally exceed total triangle prediction. E25R therefore confirms that QuIC’s off-regular geometry is dominated by degree mixing, while narrowing the broader typed-cycle interpretation.
+
 
 ### E26 - Degree-Sector Sorting Ablation
 
