@@ -24156,6 +24156,160 @@ The appropriate central claim is:
 
 > Under leakage-controlled cross-fitted linear residualization, QuIC’s joint-degree mixing coordinate remains strongly decodable after removing ordinary cycle counts, with residual scores from (0.583) to (0.983), and after removing linearly accessible adjacency-spectrum information, with scores from (0.667) to (0.964). The reverse analysis shows that S2 retains distinct cycle and mixing channels, S1 and S4 retain triangle information beyond mixing, and S3 exhibits only the mixing channel under the tested probe. E27 therefore establishes a robust degree-mixing coordinate that is not merely a linear cycle or raw-eigenvalue proxy, but it does not prove statistical independence or unrestricted non-spectrality.
 
+
+### E28-P0 - Finite-Shot Runtime Pilot
+
+#### Experimental purpose
+
+E28 was designed to test whether degree-conditioned aggregation reduces QuIC’s finite-shot requirements.
+
+It compares three empirical readouts constructed from independently multinomial-sampled circuit outcomes:
+
+* **R0:** globally sorted frequencies;
+* **R2:** degree-sector probability masses;
+* **R3:** probabilities sorted within degree sectors.
+
+The planned shot ladder was:
+
+$$S\in{2^{10},2^{12},2^{14},2^{16},2^{18},2^{20}},$$
+
+with:
+
+$$12$$
+
+sampling replicates per budget.
+
+The targets were:
+
+* joint-degree mixing in all four E6 strata;
+* S1 triangle count;
+* S2 4-, 5-, and 6-cycle counts;
+* S3 triangle count.
+
+#### Validation and exact ceilings
+
+The setup phase completed successfully.
+
+The notebook verified:
+
+* all four fixed degree sequences;
+* the E6 graph records and cycle identities;
+* reconstruction of the unsorted circuit probabilities;
+* agreement between the re-sorted reconstructed probabilities and the stored E6 vectors;
+* correct degree-sector dimensions;
+* numerical permutation invariance of R2 and R3;
+* the frozen E6 decoder calibration.
+
+The exact-probability ceilings were:
+
+| Stratum         | Readout | Mixing | Selected cycle targets                |
+| --------------- | ------- | -----: | ------------------------------------- |
+| S1 near regular | R0      |  1.000 | $$C_3=0.449$$                         |
+|                 | R2      |  1.000 | $$C_3=0.987$$                         |
+|                 | R3      |  1.000 | $$C_3=0.961$$                         |
+| S2 bimodal      | R0      |  1.000 | $$C_4=0.295,\ C_5=0.284,\ C_6=0.296$$ |
+|                 | R2      |  1.000 | $$C_4=0.783,\ C_5=0.463,\ C_6=0.539$$ |
+|                 | R3      |  1.000 | $$C_4=0.345,\ C_5=0.306,\ C_6=0.340$$ |
+| S3 skewed       | R0      |  0.972 | $$C_3=-0.047$$                        |
+|                 | R2      |  1.000 | $$C_3=0.807$$                         |
+|                 | R3      |  1.000 | $$C_3=0.631$$                         |
+| S4 hub          | R0      |  0.991 | —                                     |
+|                 | R2      |  1.000 | —                                     |
+|                 | R3      |  0.998 | —                                     |
+
+These ceilings reproduce the protocol-matched E26R pattern: R2 is the strongest cycle readout in every selected cell.
+
+#### Runtime failure
+
+The finite-shot sweep did not complete.
+
+The log confirms that all 12 replicates finished for:
+
+$$2^{10}$$
+
+and:
+
+$$2^{12}$$
+
+shots.
+
+The notebook then entered the:
+
+$$2^{14}$$
+
+budget and was terminated when the execution environment reached its 12-hour compute-protection limit.
+
+The approximate runtime was:
+
+* setup and exact ceilings: 22 minutes;
+* complete $$2^{10}$$ budget: approximately four hours;
+* complete $$2^{12}$$ budget: approximately four additional hours;
+* four planned budgets still remaining.
+
+The dominant expense was not multinomial sampling. It was the repeated nested ridge evaluation across:
+
+$$6\text{ budgets}\times12\text{ replicates}\times27\text{ decoder calls},$$
+
+with hundreds of outer and inner ridge fits per replicate.
+
+The monolithic design would have required approximately 24 hours rather than fitting within one protected session.
+
+#### Lost partial results
+
+Although the log confirms that the first two budgets completed, the notebook timed out before reaching the cells that:
+
+* collapsed replicate values into means and standard deviations;
+* computed recovery thresholds;
+* printed the finite-shot curves;
+* or saved the result artifact.
+
+The completed low-shot values existed only in the terminated process memory.
+
+Consequently, no numerical finite-shot recovery result can be reported from this run.
+
+In particular, E28-P0 does **not** establish:
+
+* that R2 recovers degree mixing at low shot counts;
+* that R2 is more sample efficient than R0;
+* how R3 compares with R2 under sampling;
+* or any shots-to-recovery threshold.
+
+#### Minimal result
+
+E28-P0 establishes only that:
+
+1. the finite-shot implementation and representation gates pass;
+2. the exact ceilings reproduce the prior degree-sector result;
+3. each complete budget requires approximately four hours under the full nested E6 probe;
+4. the original six-budget, three-readout notebook cannot finish within the 12-hour compute limit;
+5. the finite-shot experiment must be distributed and checkpointed.
+
+#### Revised execution plan
+
+The current run is retained as **E28-P0 — Finite-Shot Runtime Pilot**.
+
+The replacement design will divide the work into:
+
+* a bounded low-shot R0/R2/R3 comparison;
+* a full R2 recovery sweep;
+* a matched R0 recovery sweep;
+* and a lightweight synthesis notebook.
+
+Each worker will save after every replicate and use keyed seeds so that R0 and R2 are evaluated on identical empirical samples.
+
+A full high-shot R3 sweep is no longer planned unless the low-shot audit shows that R3 materially exceeds R2. The existing exact ceilings consistently favor R2, making the full R3 curve a poor use of the protected compute budget.
+
+#### Overall assessment
+
+E28-P0 is a computational failure, not a negative scientific result.
+
+The notebook passed its setup and exact-representation checks, but the finite-shot sweep was too expensive for the execution environment. It completed the first two shot budgets and then timed out during the third before any sampled results were summarized or persisted.
+
+The appropriate record is:
+
+> E28-P0 validated the finite-shot implementation and reproduced the protocol-matched exact ceilings, but the monolithic sweep exceeded the environment’s 12-hour compute-protection limit. Complete 12-replicate runs finished at (2^{10}) and (2^{12}) shots, but the process was terminated during the (2^{14}) budget before curve statistics or artifacts were saved. No finite-shot recovery claim is therefore made from this run. The experiment will be replaced by checkpointed R2 and R0 worker sweeps, with R3 restricted to a low-shot screening comparison.
+
+
 ### E29A - Circuit-by-Readout Structural Screen
 
 #### Experimental purpose
