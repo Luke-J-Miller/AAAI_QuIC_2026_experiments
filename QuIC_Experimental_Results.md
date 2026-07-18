@@ -15,9 +15,7 @@ The experiment analyzes the complete connected cubic-graph censuses at two graph
 
 Each graph is represented by its full sorted QuIC probability vector:
 
-$$
-\mathbf p(G)\in\mathbb R^{2^n},
-$$
+$\mathbf p(G)\in\mathbb R^{2^n},$
 
 with dimensions
 
