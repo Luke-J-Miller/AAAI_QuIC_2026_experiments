@@ -24306,6 +24306,905 @@ The notebook passed its setup and exact-representation checks, but the finite-sh
 The appropriate record is:
 
 > E28-P0 validated the finite-shot implementation and reproduced the protocol-matched exact ceilings, but the monolithic sweep exceeded the environment’s 12-hour compute-protection limit. Complete 12-replicate runs finished at (2^{10}) and (2^{12}) shots, but the process was terminated during the (2^{14}) budget before curve statistics or artifacts were saved. No finite-shot recovery claim is therefore made from this run. The experiment will be replaced by checkpointed R2 and R0 worker sweeps, with R3 restricted to a low-shot screening comparison.
+### E28 - Finite-Shot Recovery of Global and Degree-Sector Readouts
+
+#### Experimental purpose
+
+E28 tests whether the structural information available in exact QuIC probability vectors remains accessible under finite measurement budgets.
+
+Earlier exact-state experiments showed that degree-sector aggregation, R2, exposes substantially more cycle information than global probability sorting, R0. E28 asks whether that representational advantage survives multinomial measurement noise at experimentally meaningful shot counts.
+
+The experiment evaluates three readouts.
+
+* **R0:** probabilities globally sorted in descending order;
+* **R2:** probability mass aggregated by degree-class excitation occupancy;
+* **R3:** probabilities sorted within degree sectors.
+
+The principal questions are:
+
+1. How many shots are required to recover joint-degree mixing?
+2. Is R2 more sample efficient than R0?
+3. Can the large exact-state R2 cycle ceilings be reached under finite sampling?
+4. Does the finer R3 representation provide a low-shot advantage over R2?
+
+The completed experiment is distributed across:
+
+* E28P, the common reference producer;
+* E28A, the paired low-shot R0/R2/R3 audit;
+* E28B, the full R2 recovery sweep;
+* E28C, the matched full R0 recovery sweep;
+* E28D, the artifact synthesis;
+* and the final full-analysis consumer.
+
+---
+
+## Execution status
+
+All distributed workers completed successfully.
+
+The synthesis verifies:
+
+* common graph-order hashes;
+* common target hashes;
+* common R0-head indices;
+* common degree-sector ordering;
+* exact agreement between E28P and E28D ceilings;
+* exact agreement between E28A and the low-shot portions of E28B and E28C.
+
+The maximum discrepancy between duplicated low-shot results is:
+
+$$0.00.$$
+
+The final dataset contains:
+
+* four graph strata;
+* two complete readout curves;
+* six shot budgets;
+* 12 independent sampling replicates;
+* one low-shot R3 comparison;
+* 27 stratum–readout–target cells.
+
+The full shot ladder is:
+
+$$S\in{2^{10},2^{12},2^{14},2^{16},2^{18},2^{20}}.$$
+
+---
+
+# E28P - Finite-Shot Reference Producer
+
+## Graph families
+
+The experiment uses the four fixed-degree-sequence E6 strata at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs |
+| --------------- | --------------------- | -----: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |
+
+Every graph passes:
+
+* its locked degree-sequence gate;
+* probability-vector normalization;
+* descending-order validation of the stored exact vector;
+* the triangle trace identity;
+* the 4-cycle trace identity.
+
+The identities are:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+All 1,600 graphs pass.
+
+## Circuit
+
+The finite-shot experiment uses the canonical flat QuIC circuit:
+
+$$R_X(2.875)^{\otimes14}
+\rightarrow
+\prod_{(i,j)\in E}R_{ZZ}^{(i,j)}(2.0)
+\rightarrow
+R_X(0.1)^{\otimes14}.$$
+
+The circuit has one graph-phase and mixer layer.
+
+The producer regenerates the unsorted exact statevector probabilities and verifies that global sorting reproduces the stored E6 exact vector to:
+
+$$10^{-12}.$$
+
+## Readouts
+
+### R0 - Global rank sorting
+
+$$R_0(G)=\text{sort}_{\downarrow}{p_G(z)}.$$
+
+The finite-shot decoder retains the first:
+
+$$1{,}000$$
+
+coordinates.
+
+### R2 - Degree-sector mass
+
+For degree classes:
+
+$$d_1<\cdots<d_m,$$
+
+define:
+
+$$\kappa_G(z)=\left(
+\sum_{i:\deg(i)=d_1}z_i,\ldots,
+\sum_{i:\deg(i)=d_m}z_i
+\right).$$
+
+Then:
+
+$$R_2(G)*\kappa=
+\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+The R2 dimensions are:
+
+| Stratum | R2 dimension |
+| ------- | -----------: |
+| S1      |           99 |
+| S2      |           64 |
+| S3      |          315 |
+| S4      |          216 |
+
+### R3 - Sorting within degree sectors
+
+R3 retains the sector partition but preserves additional within-sector rank information.
+
+The coordinates are ordered by:
+
+1. canonical degree-sector identifier;
+2. descending probability within each sector.
+
+R3 is evaluated only at:
+
+$$2^{10}$$
+
+and:
+
+$$2^{12}$$
+
+shots.
+
+---
+
+## Finite-shot sampling protocol
+
+For each graph and shot budget, an empirical probability vector is sampled as:
+
+$$\widehat p_G\sim\frac{1}{S}\text{Multinomial}(S,p_G).$$
+
+The experiment uses:
+
+$$12$$
+
+sampling replicates per budget.
+
+A keyed random seed is determined from:
+
+* base seed;
+* shot-budget exponent;
+* replicate index;
+* stratum index.
+
+Consequently, R0, R2, and R3 use the same multinomial sample for a given:
+
+$$(S,\text{replicate},\text{stratum}).$$
+
+This preserves paired readout comparisons across the distributed workers.
+
+## Decoder
+
+Every sampled representation uses the E6 ridge probe:
+
+* five shuffled outer folds;
+* outer seed zero;
+* inner five-fold ridge selection;
+* regularization grid:
+
+$$\alpha\in{10^{-14},10^{-13},\ldots,10^2};$$
+
+* raw readout coordinates;
+* mean outer-test-fold $$R^2$$.
+
+The targets are:
+
+* joint-degree mixing in all four strata;
+* S1 C3;
+* S2 C4, C5, and C6;
+* S3 C3.
+
+---
+
+# Target-Basis Qualification
+
+E28P does **not** use the E30 analytical mixing basis.
+
+It reconstructs the legacy mixing target using the globally fitted SVD basis inherited from E25R and E26R.
+
+The finite-shot results therefore concern recovery of the empirical SVD mixing coordinates.
+
+E30 later showed that this SVD basis spans the correct analytical mixing space, but its coordinate orientation is fitted using all 400 graphs.
+
+Because the multivariate ridge decoder is not strictly rotation invariant, the numerical mixing-recovery thresholds should not automatically be treated as exact E30 analytical-basis thresholds.
+
+The finite-shot sampling conclusions remain internally valid:
+
+* R0 and R2 use the same target basis;
+* every shot budget and replicate uses identical targets;
+* all cross-readout comparisons are controlled.
+
+The final paper should either:
+
+* describe E28 explicitly as recovery of the legacy mixing coordinates;
+* or rerun the target decoder using E30 coordinates before calling the result analytical-basis recovery.
+
+---
+
+# Exact-State Ceilings
+
+The exact-state ceilings determine the maximum structural accessibility available before sampling noise.
+
+| Stratum | Target |     R0 |    R2 |    R3 |         R2 minus R0 |
+| ------- | ------ | -----: | ----: | ----: | ------------------: |
+| S1      | Mixing |  1.000 | 1.000 | 1.000 |               0.000 |
+| S1      | C3     |  0.449 | 0.987 | 0.961 |              +0.538 |
+| S2      | Mixing |  1.000 | 1.000 | 1.000 | approximately 0.000 |
+| S2      | C4     |  0.295 | 0.783 | 0.345 |              +0.488 |
+| S2      | C5     |  0.284 | 0.463 | 0.306 |              +0.179 |
+| S2      | C6     |  0.296 | 0.539 | 0.340 |              +0.243 |
+| S3      | Mixing |  0.972 | 1.000 | 1.000 |              +0.028 |
+| S3      | C3     | -0.047 | 0.807 | 0.631 |              +0.854 |
+| S4      | Mixing |  0.991 | 1.000 | 0.998 |              +0.009 |
+
+The mean R2-over-R0 exact-state ceiling advantage on the five cycle targets is:
+
+$$+0.460.$$
+
+The range is:
+
+$$+0.179\text{ to }+0.854.$$
+
+The structural advantage of degree-sector aggregation is therefore large in the ideal distribution.
+
+The finite-shot question is whether that advantage can be estimated from samples.
+
+---
+
+# Joint-Degree Mixing Recovery
+
+## Recovery at (2^{20}) shots
+
+| Stratum | Readout | Exact ceiling | Mean at $$2^{20}$$ | Fraction recovered |
+| ------- | ------- | ------------: | -----------------: | -----------------: |
+| S1      | R0      |         1.000 |              0.945 |               0.94 |
+| S1      | R2      |         1.000 |              0.984 |               0.98 |
+| S2      | R0      |         1.000 |              0.995 |               0.99 |
+| S2      | R2      |         1.000 |              0.986 |               0.99 |
+| S3      | R0      |         0.972 |              0.753 |               0.77 |
+| S3      | R2      |         1.000 |              0.986 |               0.99 |
+| S4      | R0      |         0.991 |              0.855 |               0.86 |
+| S4      | R2      |         1.000 |              0.983 |               0.98 |
+
+R2 reaches at least 90% of its exact mixing ceiling in every stratum by:
+
+$$2^{20}$$
+
+shots.
+
+R0 reaches 90% in:
+
+* S1;
+* S2.
+
+It does not reach 90% in:
+
+* S3;
+* S4.
+
+The separation is largest in the irregular strata.
+
+At (2^{20}):
+
+$$\Delta R^2_{\text{R2-R0}}=+0.233$$
+
+for S3 and:
+
+$$+0.128$$
+
+for S4.
+
+---
+
+## Shots required for mixing recovery
+
+The interpolated shot counts are:
+
+### S1 near regular
+
+| Fraction of ceiling |               R0 |           R2 | R0/R2 efficiency |
+| ------------------: | ---------------: | -----------: | ---------------: |
+|                 25% |     $$2^{15.0}$$ | $$2^{12.5}$$ |                — |
+|                 50% |     $$2^{16.5}$$ | $$2^{14.1}$$ |             5.3× |
+|                 75% |     $$2^{17.7}$$ | $$2^{15.7}$$ |                — |
+|                 90% |     $$2^{19.3}$$ | $$2^{17.4}$$ |             3.8× |
+|                 95% | above $$2^{20}$$ | $$2^{18.4}$$ |                — |
+
+### S2 bimodal
+
+| Fraction of ceiling |           R0 |               R2 |
+| ------------------: | -----------: | ---------------: |
+|                 25% | $$2^{14.3}$$ |     $$2^{12.4}$$ |
+|                 50% | $$2^{15.1}$$ |     $$2^{13.9}$$ |
+|                 75% | $$2^{15.9}$$ |     $$2^{15.5}$$ |
+|                 90% | $$2^{17.2}$$ |     $$2^{17.2}$$ |
+|                 95% | $$2^{17.8}$$ |     $$2^{18.1}$$ |
+|                 99% | $$2^{19.6}$$ | above $$2^{20}$$ |
+
+R2 has a large low- and mid-shot advantage, but the two readouts converge near the ceiling.
+
+### S3 skewed
+
+| Fraction of ceiling |               R0 |           R2 | R0/R2 efficiency |
+| ------------------: | ---------------: | -----------: | ---------------: |
+|                 25% |     $$2^{15.1}$$ | $$2^{12.0}$$ |                — |
+|                 50% |     $$2^{17.1}$$ | $$2^{13.6}$$ |            11.5× |
+|                 75% |     $$2^{19.7}$$ | $$2^{15.4}$$ |                — |
+|                 90% | above $$2^{20}$$ | $$2^{17.2}$$ |                — |
+|                 95% | above $$2^{20}$$ | $$2^{18.1}$$ |                — |
+
+This is the strongest readout-efficiency result.
+
+R2 reaches 90% of its ceiling about:
+
+$$2^{2.5}\approx5.7$$
+
+times earlier than the largest tested R0 budget, and reaches 50% with approximately:
+
+$$11.5\times$$
+
+fewer shots.
+
+### S4 hub
+
+| Fraction of ceiling |               R0 |           R2 | R0/R2 efficiency |
+| ------------------: | ---------------: | -----------: | ---------------: |
+|                 25% |     $$2^{15.5}$$ | $$2^{12.4}$$ |                — |
+|                 50% |     $$2^{17.0}$$ | $$2^{14.0}$$ |             8.1× |
+|                 75% |     $$2^{18.9}$$ | $$2^{15.7}$$ |                — |
+|                 90% | above $$2^{20}$$ | $$2^{17.5}$$ |                — |
+|                 95% | above $$2^{20}$$ | $$2^{18.5}$$ |                — |
+
+The R2 advantage again increases with degree-sequence irregularity.
+
+---
+
+## Recovery-curve area
+
+The normalized area under the fraction-of-ceiling curve summarizes accessibility across the complete log-shot ladder.
+
+| Stratum   | R0 AUC | R2 AUC |
+| --------- | -----: | -----: |
+| S1 mixing |  0.353 |  0.581 |
+| S2 mixing |  0.487 |  0.594 |
+| S3 mixing |  0.299 |  0.621 |
+| S4 mixing |  0.294 |  0.585 |
+
+R2 has the larger area in every stratum.
+
+The largest AUC gains occur in S3 and S4.
+
+The result supports:
+
+> Degree-sector aggregation does not merely improve the asymptotic mixing score; it shifts useful structural recovery several shot-budget rungs earlier, especially in heterogeneous degree sequences.
+
+---
+
+# Cycle Recovery
+
+The cycle results differ sharply from mixing.
+
+Although R2 has much higher exact-state cycle ceilings, neither readout recovers those ceilings efficiently under the tested shot ladder.
+
+## S1 triangle count
+
+| Readout | Exact ceiling | Mean at $$2^{20}$$ | Fraction recovered |   Final-step change |
+| ------- | ------------: | -----------------: | -----------------: | ------------------: |
+| R0      |         0.449 |             -0.020 |              -0.04 | approximately 0.000 |
+| R2      |         0.987 |              0.028 |               0.03 |              +0.043 |
+
+R0 is effectively saturated at the prediction floor.
+
+R2 remains slightly positive and still increasing, but it recovers only approximately:
+
+$$3%$$
+
+of its exact ceiling by one million shots.
+
+Neither reaches 25% of its ceiling.
+
+## S2 cycle counts
+
+### C4
+
+| Readout | Exact ceiling | Mean at $$2^{20}$$ | Fraction recovered |
+| ------- | ------------: | -----------------: | -----------------: |
+| R0      |         0.295 |              0.091 |               0.31 |
+| R2      |         0.783 |              0.077 |               0.10 |
+
+R0 reaches approximately 25% of its own much lower ceiling near:
+
+$$2^{18.7}.$$
+
+R2 does not reach 25% of its ceiling.
+
+R2’s exact representation is substantially stronger, but that additional information is less accessible under finite sampling.
+
+### C5
+
+| Readout | Exact ceiling | Mean at $$2^{20}$$ | Fraction recovered |
+| ------- | ------------: | -----------------: | -----------------: |
+| R0      |         0.284 |              0.088 |               0.31 |
+| R2      |         0.463 |              0.102 |               0.22 |
+
+R2 has the larger absolute score at the largest budget:
+
+$$0.102\text{ versus }0.088.$$
+
+Neither readout reaches half of its exact ceiling.
+
+The final R2 increment from (2^{18}) to (2^{20}) is only:
+
+$$+0.001,$$
+
+indicating a low plateau under the current representation and decoder.
+
+### C6
+
+| Readout | Exact ceiling | Mean at $$2^{20}$$ | Fraction recovered |
+| ------- | ------------: | -----------------: | -----------------: |
+| R0      |         0.296 |              0.042 |               0.14 |
+| R2      |         0.539 |              0.045 |               0.08 |
+
+The two readouts have nearly identical absolute performance despite R2’s much larger exact ceiling.
+
+The R2 curve is flat at the final step.
+
+## S3 triangle count
+
+| Readout | Exact ceiling | Mean at $$2^{20}$$ | Fraction recovered |        |
+| ------- | ------------: | -----------------: | -----------------: | ------ |
+| R0      |        -0.047 |             -0.023 |      not decodable | —      |
+| R2      |         0.807 |              0.019 |               0.02 | +0.004 |
+
+This is the largest exact-state readout contrast:
+
+$$\Delta R^2_{\text{ceiling}}=+0.854.$$
+
+R0 cannot decode the target even with exact probabilities.
+
+R2 can decode it strongly in the ideal representation.
+
+Under finite sampling, however, the R2 score remains approximately zero through:
+
+$$2^{20}$$
+
+shots.
+
+The structural information is present but operationally inaccessible at the tested budgets.
+
+---
+
+# Exact Accessibility Versus Sampling Accessibility
+
+E28 distinguishes two separate properties.
+
+## Representation ceiling
+
+R2 greatly raises the ideal cycle ceiling.
+
+Across the five cycle targets:
+
+$$\overline{\Delta R^2_{\text{ceiling}}}=+0.460.$$
+
+## Finite-shot accessibility
+
+At:
+
+$$2^{20}$$
+
+shots, the R2 cycle scores remain:
+
+$$0.019\text{--}0.102.$$
+
+No cycle target reaches:
+
+$$25%$$
+
+of the R2 ceiling.
+
+The result is therefore:
+
+> Degree-sector aggregation reveals cycle structure in the exact Born distribution, but the higher-order coordinates responsible for that advantage are substantially more sample demanding than the dominant joint-degree mixing coordinate.
+
+The exact-state advantage should not be described as immediately measurement efficient.
+
+---
+
+# R0 Versus R2 at the Largest Budget
+
+| Stratum and target | R2 minus R0 at $$2^{20}$$ |
+| ------------------ | ------------------------: |
+| S1 mixing          |                    +0.040 |
+| S1 C3              |                    +0.048 |
+| S2 mixing          |                    -0.009 |
+| S2 C4              |                    -0.014 |
+| S2 C5              |                    +0.014 |
+| S2 C6              |                    +0.003 |
+| S3 mixing          |                    +0.233 |
+| S3 C3              |                    +0.042 |
+| S4 mixing          |                    +0.128 |
+
+The finite-shot readout advantage is clear for irregular-family mixing.
+
+It is small and inconsistent for cycles.
+
+The larger exact R2 cycle ceilings do not translate into proportionally larger finite-shot scores.
+
+---
+
+# R3 Low-Shot Audit
+
+R3 is evaluated only at:
+
+$$2^{10}$$
+
+and:
+
+$$2^{12}$$
+
+shots.
+
+## Mixing
+
+At (2^{12}):
+
+| Stratum |     R0 |    R2 |    R3 |
+| ------- | -----: | ----: | ----: |
+| S1      | -0.009 | 0.174 | 0.153 |
+| S2      |  0.029 | 0.183 | 0.265 |
+| S3      |  0.017 | 0.249 | 0.274 |
+| S4      | -0.010 | 0.192 | 0.178 |
+
+R3 slightly exceeds R2 in S2 and S3, but trails it in S1 and S4.
+
+The differences are modest and inconsistent.
+
+## Cycles
+
+Every R3 cycle score is at or below the prediction floor at both low-shot budgets.
+
+Examples at (2^{12}):
+
+* S1 C3: -0.010;
+* S2 C4: -0.062;
+* S2 C5: -0.012;
+* S2 C6: -0.008;
+* S3 C3: -0.031.
+
+R3 does not provide a low-shot cycle advantage.
+
+The low-shot audit therefore does not justify a full high-shot R3 sweep.
+
+The additional within-sector rank coordinates increase sampling dimensionality without making the selected cycle targets accessible at (2^{10}) or (2^{12}) shots.
+
+---
+
+# Replicate Variance
+
+For mixing, replicate dispersion declines sharply with shot count under R2.
+
+| Stratum | R2 SD at $$2^{10}$$ | R2 SD at $$2^{20}$$ |
+| ------- | ------------------: | ------------------: |
+| S1      |              0.0333 |              0.0008 |
+| S2      |              0.0269 |              0.0009 |
+| S3      |              0.0253 |              0.0005 |
+| S4      |              0.0200 |              0.0006 |
+
+The finite-shot mixing estimate becomes highly stable by (2^{20}).
+
+The corresponding R0 standard deviations at (2^{20}) are larger in the difficult irregular strata:
+
+* S3: 0.0069;
+* S4: 0.0068.
+
+For the weak cycle models, replicate standard deviation does not necessarily decline monotonically.
+
+For example:
+
+* S1 R2 C3 SD rises from 0.0131 to 0.0309;
+* S2 R2 C4 SD remains approximately 0.02;
+* S2 R2 C6 SD rises to 0.0206.
+
+This occurs because increasing shots exposes small graph-dependent representation differences while the decoder remains near the prediction floor.
+
+A falling sampling variance is not sufficient for target recovery.
+
+---
+
+# Saturation Classification
+
+At (2^{20}), the curves are classified as follows.
+
+## Recovered
+
+At least 90% of exact ceiling:
+
+* S1 R0 mixing;
+* S1 R2 mixing;
+* S2 R0 mixing;
+* S2 R2 mixing;
+* S3 R2 mixing;
+* S4 R2 mixing.
+
+## Still climbing
+
+Below 90% with a final-step gain of at least 0.02:
+
+* S1 R2 C3;
+* S2 R0 C4;
+* S2 R0 C6;
+* S3 R0 mixing;
+* S4 R0 mixing.
+
+## Saturated low
+
+Below 90% with less than 0.02 improvement over the final ladder step:
+
+* S1 R0 C3;
+* S2 R0 C5;
+* S2 R2 C4;
+* S2 R2 C5;
+* S2 R2 C6;
+* S3 R2 C3.
+
+The “saturated-low” label is descriptive.
+
+It does not establish an asymptotic plateau. It means only that the final observed increment is small over the tested jump from:
+
+$$2^{18}$$
+
+to:
+
+$$2^{20}.$$
+
+---
+
+# Relationship to E26R
+
+E26R showed that, using exact probabilities:
+
+$$R2>R3>R0$$
+
+or:
+
+$$R2>R0$$
+
+on the selected cycle cells.
+
+E28 reproduces those exact ceilings but shows that the hierarchy changes under finite sampling.
+
+At low shots:
+
+* all cycle readouts are near the prediction floor;
+* R3 does not outperform R2 consistently;
+* R0 can recover a larger fraction of its smaller C4 and C5 ceiling.
+
+Thus, exact-state representational strength and finite-shot sample efficiency are different properties.
+
+---
+
+# Relationship to E29A-R
+
+E29A-R showed that R2 nearly perfectly reconstructs joint-degree mixing under several circuit families.
+
+E28 provides the operational result for the canonical F-X circuit.
+
+The mixing channel remains accessible under finite sampling, and R2 reaches 90% of its exact ceiling around:
+
+$$2^{17.2}\text{--}2^{17.5}$$
+
+shots in all four strata.
+
+This is a strong but not low-shot result.
+
+The commonly used budgets:
+
+$$2^{10}\text{ and }2^{12}$$
+
+recover only a small fraction of the mixing ceiling.
+
+---
+
+# What the Experiment Establishes
+
+The completed experiment establishes that:
+
+1. **The distributed E28 artifacts are internally compatible and merge exactly.**
+
+2. **The E28A low-shot R0 and R2 results exactly reproduce the corresponding E28B and E28C values.**
+
+3. **R2 has substantially higher exact-state cycle ceilings than R0.**
+
+4. **The mean R2-over-R0 exact cycle-ceiling gain is (+0.460).**
+
+5. **R2 recovers at least 90% of its exact mixing ceiling in all four strata by (2^{20}) shots.**
+
+6. **R0 fails to reach 90% mixing recovery in S3 and S4.**
+
+7. **R2 reaches 50% mixing recovery approximately 5.3×, 11.5×, and 8.1× more efficiently than R0 in S1, S3, and S4.**
+
+8. **R2 has a larger mixing-recovery AUC in every stratum.**
+
+9. **The readout-efficiency advantage is strongest in the skewed and hub degree sequences.**
+
+10. **No selected cycle target reaches 25% of its R2 exact ceiling by (2^{20}) shots.**
+
+11. **S3 C3 is strongly decodable under exact R2 but remains near zero under one million shots.**
+
+12. **The large exact-state cycle advantage is therefore not operationally accessible at the tested budgets.**
+
+13. **R3 provides no consistent low-shot advantage over R2.**
+
+14. **A full high-shot R3 sweep is not justified by the low-shot results.**
+
+15. **Finite-shot mixing estimates become highly stable across replicates at large budgets.**
+
+16. **The completed mixing targets use the legacy global SVD basis rather than E30’s analytical basis.**
+
+E28 establishes a strong sample-efficiency result for degree mixing and a negative operational result for deeper cycle recovery.
+
+---
+
+# Necessary Qualifications
+
+The finite-shot experiment uses exact multinomial sampling from an ideal statevector distribution.
+
+It does not include:
+
+* device noise;
+* readout error;
+* gate error;
+* transpilation;
+* circuit drift;
+* or error mitigation.
+
+The reported shot requirements are therefore optimistic lower bounds for hardware execution.
+
+The experiment samples every graph independently at the full shot budget.
+
+For 400 graphs, 12 replicates, and (2^{20}) shots, the aggregate number of simulated measurements is extremely large.
+
+The result concerns statistical identifiability from repeated measurements, not an economically practical hardware protocol.
+
+The targets are decoded over graph populations.
+
+The shot counts are per graph, not total experiment-wide shots.
+
+The recovery fractions divide finite-shot $$R^2$$ by exact-state $$R^2$$.
+
+This is meaningful for positive ceilings, but it is not a general information-theoretic efficiency measure.
+
+The interpolation between shot rungs assumes locally smooth recovery in:
+
+$$\log_2(S).$$
+
+The reported sub-rung thresholds are descriptive estimates rather than directly observed budgets.
+
+The saturation rule uses an absolute final-step threshold of:
+
+$$0.02.$$
+
+It is heuristic and target-scale dependent.
+
+The bootstrap confidence intervals resample the 12 replicate scores.
+
+They condition on:
+
+* the fixed graph sample;
+* the fixed outer folds;
+* the fixed targets;
+* and the completed decoder.
+
+They do not include uncertainty from resampling graphs or changing cross-validation partitions.
+
+The R0 and R2 feature spaces differ substantially in dimension and aggregation.
+
+The experiment does not isolate whether R2’s sample-efficiency advantage comes from:
+
+* degree-sector semantics;
+* dimensionality reduction;
+* reduced variance;
+* favorable conditioning;
+* or all of these jointly.
+
+R2 and R3 use graph-supplied degree classes.
+
+They are hybrid graph-conditioned readouts.
+
+The mixing target is the globally fitted SVD basis, not the E30 analytical basis.
+
+The E28 producer comments that the exact E6 decoder parameters were still “pending confirm,” although the implemented grid and fold protocol reproduce the E25R/E26R setup.
+
+The experiment evaluates one:
+
+* graph order;
+* circuit schedule;
+* layer count;
+* and family of fixed-degree-sequence graphs.
+
+No universal finite-shot scaling law is established.
+
+---
+
+# Overall Assessment
+
+E28 provides a clear operational distinction between dominant and deeper structural coordinates.
+
+The degree-mixing coordinate is sample accessible.
+
+Under R2, all four strata reach approximately:
+
+$$98%\text{--}99%$$
+
+of the exact mixing ceiling by:
+
+$$2^{20}$$
+
+shots.
+
+R2 also shifts recovery much earlier than global sorting in the irregular graph families.
+
+At 50% recovery, the estimated shot-efficiency gains are:
+
+$$11.5\times$$
+
+in S3 and:
+
+$$8.1\times$$
+
+in S4.
+
+The cycle result is substantially less favorable.
+
+R2 raises the exact cycle ceiling by an average of:
+
+$$0.460,$$
+
+including a:
+
+$$0.854$$
+
+gain for S3 triangles.
+
+Yet at one million shots, no selected cycle target reaches even 25% of the R2 ceiling.
+
+The exact-state representation contains the information, but the relevant probability differences are too weak or too distributed for the current empirical readout and ridge probe to recover efficiently.
+
+The appropriate central claim is:
+
+> Degree-sector aggregation substantially improves the finite-shot accessibility of QuIC’s dominant joint-degree mixing coordinate. Across four fixed-degree-sequence graph families, R2 reaches at least 90% of its exact mixing ceiling by approximately (2^{17.2})–(2^{17.5}) shots and provides 5×–12× lower 50%-recovery costs than global sorting in the most affected strata. The deeper-cycle result is qualitatively different. Although R2 raises the exact cycle-prediction ceiling by an average of (0.460), none of the selected cycle targets reaches 25% of that ceiling by (2^{20}) shots. Degree-sector sorting therefore exposes genuine higher-order structure in the ideal distribution without making it immediately sample efficient. The low-shot R3 audit provides no consistent advantage over R2. These conclusions apply to ideal multinomial sampling of the canonical F-X circuit and use the legacy global-SVD mixing coordinates rather than the E30 analytical basis.
 
 
 ### E29A - Circuit-by-Readout Structural Screen
