@@ -32918,6 +32918,1432 @@ The appropriate central claim is:
 > Across the sampled local angle transects, H-X and F-Y retain essentially perfect analytical joint-degree mixing recovery, and F-Y retains positive triangle, 5-cycle, and 6-cycle accessibility in both the bimodal and skewed strata. These results show that the principal H-X/F-Y degree-mixing conclusion is not an artifact of the exact schedule (gamma,beta)=(2.0,0.1). The H-H interpretation is not similarly robust: its mixing score rises from weak canonical values to as high as (0.97) in S2 and (0.82) in S3, while its 6-cycle score reaches (0.62) and (0.70). H-H should therefore be described as a canonical-schedule counterexample and an angle-sensitive structural circuit, not as an architecture that intrinsically lacks the degree-mixing channel. Most cycle rankings vary with gamma, whereas beta perturbations produce comparatively stable results. The completed comparison does not isolate mixer axis and does not cover F-X, D-X, C4, S1, or S4.
 
 
+### E29C-Rv2 - Explicit-SVD Classical-Location Replication
+
+#### Experimental purpose
+
+E29C-Rv2 revisits the classical-location experiment using:
+
+* the validated E29P-R circuit artifacts;
+* the E30 analytical joint-degree mixing coordinates;
+* an explicit singular-value-decomposition ridge solver;
+* fold-level numerical instrumentation;
+* primary and conservative regularization grids.
+
+The experiment replaces the defective custom generalized cross-validation procedure used in the first E29C-R notebook.
+
+It asks whether the original E29C raw-concatenation statistic is reproducible under a solver that does not fall back to unstable singular-system solutions:
+
+$$\Delta R^2_{\text{raw}}=R^2(M+\lambda+R2)-R^2(M+\lambda).$$
+
+The experiment also repeats the reverse-location audit:
+
+> How accurately can analytical joint-degree mixing and the raw adjacency spectrum reconstruct the complete R2 sector vector?
+
+E29C-Rv2 remains a raw feature-concatenation experiment.
+
+A positive increment can still arise because R2 provides:
+
+* a favorable transformed coordinate system;
+* duplicated structural directions;
+* changed feature scaling;
+* or changed ridge regularization geometry.
+
+The exact linear-span question is addressed separately by E29C-OV2.
+
+---
+
+## Execution status
+
+E29C-Rv2 completed successfully.
+
+The notebook:
+
+* loaded all five E29P-R circuit families;
+* loaded the E30 analytical target coordinates;
+* aligned graph order across E6, E29P-R, and E30;
+* reasserted all triangle and 4-cycle trace identities;
+* evaluated five feature banks for every circuit, stratum, and cycle;
+* ran both regularization grids;
+* recorded fold-level penalties, ranks, condition numbers, and scores;
+* reran the reverse R2 reconstruction;
+* saved:
+
+```text
+e29c_r_stable_classical.pkl
+```
+
+No code cell terminated with an exception.
+
+Unlike the original E29C, the completed output contains no singular-matrix fallback warnings.
+
+The notebook nevertheless labels 35 of 80 primary-grid cells unstable under its diagnostic rule.
+
+---
+
+# Graph Families
+
+The experiment uses the four fixed-degree-sequence E6 strata at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs | Analytical mixing rank |
+| --------------- | --------------------- | -----: | ---------------------: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |                      3 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |                      1 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |                      6 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |                      5 |
+
+Every graph passes:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+All 1,600 graph records pass.
+
+---
+
+# Circuit Bank
+
+| Circuit | Preparation                                | Graph phase     | Final transformation |
+| ------- | ------------------------------------------ | --------------- | -------------------- |
+| F-X     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| D-X     | Normalized degree $$R_X(2.875d_i/\Delta)$$ | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| H-X     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$R_X(0.1)$$         |
+| F-Y     | Flat $$R_X(2.875)$$                        | $$R_{ZZ}(2.0)$$ | $$R_Y(0.1)$$         |
+| H-H     | $$H^{\otimes14}$$                          | $$R_{ZZ}(2.0)$$ | $$H^{\otimes14}$$    |
+
+The readout is the degree-sector marginal:
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+Its dimensions are:
+
+| Stratum | R2 dimension |
+| ------- | -----------: |
+| S1      |           99 |
+| S2      |           64 |
+| S3      |          315 |
+| S4      |          216 |
+
+R2 is a hybrid graph-conditioned readout because the graph’s degree partition is supplied during aggregation.
+
+---
+
+# Classical Feature Bank
+
+The analytical joint-degree coordinates are:
+
+$$u(G)=m(G)N_s,$$
+
+where $$m(G)$$ is the raw joint-degree count vector and $$N_s$$ is the E30 null-space basis.
+
+The spectral bank contains all 14 sorted adjacency eigenvalues:
+
+$$\lambda(G)=(\lambda_1,\ldots,\lambda_{14}).$$
+
+The primary classical bank is:
+
+$$X_C(G)=[u(G),\lambda(G)].$$
+
+Its dimensions are:
+
+| Stratum | Classical dimension |
+| ------- | ------------------: |
+| S1      |                  17 |
+| S2      |                  15 |
+| S3      |                  20 |
+| S4      |                  19 |
+
+The augmented feature bank is:
+
+$$X_{C+R2}(G)=[u(G),\lambda(G),R_2(G)].$$
+
+Its dimensions range from:
+
+$$79$$
+
+to:
+
+$$335.$$
+
+---
+
+# Explicit-SVD Ridge Decoder
+
+For standardized design:
+
+$$X=USV^\top,$$
+
+the ridge coefficients are computed through:
+
+$$\widehat\beta_\alpha=V\text{diag}\left(\frac{s_i}{s_i^2+\alpha}\right)U^\top(y-\overline y).$$
+
+This removes the singular dual-system fallback used by scikit-learn in the original E29C run.
+
+The outer evaluation uses:
+
+* five shuffled outer folds;
+* outer seed zero;
+* train-only feature standardization;
+* mean outer-test-fold $$R^2$$.
+
+Two regularization grids are evaluated.
+
+##### Primary grid
+
+$$\alpha\in{10^{-14},10^{-13},\ldots,10^2}.$$
+
+##### Stability grid
+
+$$\alpha\in{10^{-8},10^{-7},\ldots,10^2}.$$
+
+A fold is labeled unstable when:
+
+* its effective-subspace condition number exceeds $$10^{10}$$;
+* the selected penalty equals the minimum of the active grid;
+* or held-out fold performance falls below $$R^2=-1$$.
+
+The cell is labeled unstable when either the classical or augmented model has an unstable fold.
+
+#### Calibration
+
+The synthetic decoder calibration produces:
+
+$$R^2_{\text{null}}=-0.005,$$
+
+and:
+
+$$R^2_{\text{linear}}=1.000.$$
+
+The basic solver and scoring implementation pass.
+
+---
+
+# Inner-Fold Protocol Audit
+
+The notebook describes the decoder as protocol matched to the original:
+
+```text
+RidgeCV(cv=5)
+```
+
+and states that only the numerical solver changed.
+
+That is not literally correct.
+
+For regression, an integer `cv=5` in scikit-learn uses an unshuffled five-fold partition.
+
+E29C-Rv2 explicitly defines:
+
+```python
+KFold(n_splits=5, shuffle=True, random_state=0)
+```
+
+for inner penalty selection.
+
+The revised experiment therefore changes:
+
+* the solver;
+* and the inner validation partitions.
+
+The outer folds remain unchanged.
+
+The new results are a more stable re-evaluation of the same model family, but numerical differences from E29C cannot be attributed exclusively to the SVD solver.
+
+The inner feature scaling otherwise matches the original pipeline structure: the scaler is fitted on the complete outer-training fold before internal ridge validation.
+
+---
+
+# Complete Incremental Results
+
+Each entry reports:
+
+```text
+primary-grid increment / stability-grid increment
+```
+
+A dagger indicates that the primary-grid cell was labeled unstable.
+
+| Cell  |            F-X |            D-X |            H-X |            F-Y |            H-H |
+| ----- | -------------: | -------------: | -------------: | -------------: | -------------: |
+| S1 C3 | +0.007/+0.007† | -0.000/-0.000† | -0.002/-0.002† | +0.007/+0.008† | -0.002/-0.002† |
+| S1 C4 | -0.002/-0.002† | -0.001/-0.001† | -0.003/-0.003† | +0.000/+0.000† | +0.001/+0.001† |
+| S1 C5 | +0.217/+0.217† | +0.155/+0.155† | +0.170/+0.170† | +0.200/+0.200† | +0.035/+0.035† |
+| S1 C6 |  -0.017/-0.016 |  +0.050/+0.050 |  +0.004/+0.004 |  -0.008/-0.008 |  +0.118/+0.118 |
+| S2 C3 |  +0.013/+0.013 |  +0.007/+0.007 |  +0.006/+0.006 |  +0.013/+0.013 |  -0.000/-0.000 |
+| S2 C4 | +0.010/+0.010† | +0.006/+0.006† | +0.014/+0.014† | +0.010/+0.010† | -0.001/-0.001† |
+| S2 C5 |  +0.303/+0.306 | +0.280/+0.272† |  +0.305/+0.305 |  +0.303/+0.303 |  +0.061/+0.061 |
+| S2 C6 | +0.153/+0.153† |  +0.133/+0.133 |  +0.091/+0.091 | +0.112/+0.112† |  +0.105/+0.105 |
+| S3 C3 |  -0.001/-0.001 |  -0.005/-0.005 |  -0.004/-0.004 | +0.003/+0.003† |  -0.010/-0.010 |
+| S3 C4 | -0.009/-0.009† | -0.021/-0.021† | -0.013/-0.013† | -0.011/-0.011† | -0.027/-0.027† |
+| S3 C5 |  +0.193/+0.193 |  -0.035/-0.035 |  -0.004/-0.004 |  +0.184/+0.185 |  -0.039/-0.039 |
+| S3 C6 |  -0.036/-0.036 |  -0.037/-0.037 |  -0.038/-0.038 |  -0.044/-0.044 |  +0.034/+0.034 |
+| S4 C3 | +0.001/-0.003† | -0.003/-0.003† | -0.002/-0.002† | -0.005/-0.005† | -0.005/-0.005† |
+| S4 C4 |  -0.008/-0.008 |  -0.009/-0.009 |  -0.007/-0.007 |  -0.011/-0.011 |  -0.018/-0.018 |
+| S4 C5 |  +0.096/+0.101 |  +0.017/+0.017 |  +0.030/+0.030 | -0.147/-0.147† |  +0.018/+0.018 |
+| S4 C6 |  -0.048/-0.048 |  -0.054/-0.054 |  -0.016/-0.016 |  -0.026/-0.026 |  +0.084/+0.084 |
+
+The two grids give nearly identical numerical increments in most cells.
+
+The stability labels are more variable than the scores because hitting the new minimum:
+
+$$\alpha=10^{-8}$$
+
+is itself treated as instability.
+
+---
+
+# Circuit-Level Summaries
+
+| Circuit | Mean primary increment | Median primary increment | Positive cells | Primary unstable cells |
+| ------- | ---------------------: | -----------------------: | -------------: | ---------------------: |
+| F-X     |                 +0.055 |                   +0.004 |           9/16 |                   7/16 |
+| D-X     |                 +0.030 |      approximately 0.000 |           7/16 |                   7/16 |
+| H-X     |                 +0.033 |                   -0.002 |           7/16 |                   6/16 |
+| F-Y     |                 +0.036 |                   +0.002 |           8/16 |                   9/16 |
+| H-H     |                 +0.022 |      approximately 0.000 |           8/16 |                   6/16 |
+
+Every circuit has a mean positive increment.
+
+Every circuit also has a median close to zero.
+
+The positive means are driven mainly by:
+
+* C5;
+* S2 C6;
+* selected H-H C6 cells.
+
+The result is target specific rather than a broad improvement across all cycles.
+
+---
+
+# S2 C5
+
+The largest recurring raw-concatenation gain remains S2 C5.
+
+| Circuit | Primary increment | Stability-grid increment | Primary status | Stability-grid status |
+| ------- | ----------------: | -----------------------: | -------------- | --------------------- |
+| F-X     |            +0.303 |                   +0.306 | Stable         | Unstable              |
+| D-X     |            +0.280 |                   +0.272 | Unstable       | Stable                |
+| H-X     |            +0.305 |                   +0.305 | Stable         | Stable                |
+| F-Y     |            +0.303 |                   +0.303 | Stable         | Unstable              |
+| H-H     |            +0.061 |                   +0.061 | Stable         | Stable                |
+
+The four principal circuits all improve by approximately:
+
+$$0.27\text{--}0.31.$$
+
+H-X is the cleanest replication because both grids are labeled stable.
+
+D-X becomes stable when the six smallest penalties are removed.
+
+F-X and F-Y retain the same numerical gain but touch the stability-grid floor in one or more folds.
+
+The H-H gain is smaller but positive.
+
+---
+
+# S2 C6
+
+| Circuit | Primary increment | Stability-grid increment | Primary status | Stability-grid status |
+| ------- | ----------------: | -----------------------: | -------------- | --------------------- |
+| F-X     |            +0.153 |                   +0.153 | Unstable       | Stable                |
+| D-X     |            +0.133 |                   +0.133 | Stable         | Stable                |
+| H-X     |            +0.091 |                   +0.091 | Stable         | Stable                |
+| F-Y     |            +0.112 |                   +0.112 | Unstable       | Unstable              |
+| H-H     |            +0.105 |                   +0.105 | Stable         | Stable                |
+
+The positive direction survives across the complete circuit bank.
+
+The cleanest results are:
+
+* D-X;
+* H-X;
+* H-H;
+* F-X under the stability grid.
+
+F-Y retains the same score across grids but remains tied to a floor-selected fit.
+
+---
+
+# S1 C5
+
+All circuits have a positive S1 C5 increment:
+
+| Circuit | Increment |
+| ------- | --------: |
+| F-X     |    +0.217 |
+| D-X     |    +0.155 |
+| H-X     |    +0.170 |
+| F-Y     |    +0.200 |
+| H-H     |    +0.035 |
+
+Every cell is labeled unstable.
+
+The common cause is largely the classical baseline: one outer fold selects the minimum ridge penalty for the same S1 C5 classical model.
+
+The augmented models themselves are coherent and the numerical increments are unchanged under the stability grid.
+
+The instability label should therefore be read conservatively.
+
+It does not indicate a catastrophic S1 C5 augmented fit.
+
+---
+
+# Broader C5 Pattern
+
+C5 is the only target with a broadly positive raw-concatenation pattern.
+
+Across the 20 circuit–stratum cells:
+
+* 16 have positive increments;
+* the median increment is approximately $$0.126$$;
+* the mean increment is approximately $$0.117$$.
+
+Beyond S1 and S2, notable cells include:
+
+* F-X S3: +0.193;
+* F-Y S3: +0.184;
+* F-X S4: +0.096.
+
+These additional gains require comparison with E29C-OV2.
+
+Several disappear after exact linear-span removal, indicating that raw R2 acted primarily as an alternative coordinate system in those cells.
+
+---
+
+# C3 and C4
+
+The classical bank already predicts C3 and C4 near saturation.
+
+The mean increments are approximately:
+
+$$\overline{\Delta R^2}_{C3}=0.001,$$
+
+and:
+
+$$\overline{\Delta R^2}_{C4}=-0.005.$$
+
+No broad C3 or C4 benefit is established.
+
+Many C3 and C4 cells are labeled unstable because the classical model selects the grid floor despite already achieving scores near one.
+
+These floor selections have little practical effect on the reported prediction score.
+
+---
+
+# H-H Even-Cycle Pattern
+
+H-H produces positive C6 increments in every stratum:
+
+$$0.118,\quad0.105,\quad0.034,\quad0.084.$$
+
+This is consistent with the C4/C6-oriented H-H channel found in E29B-R and E29D-R.
+
+The raw-concatenation result suggests that H-H supplies an alternative even-cycle coordinate beyond the direct analytical-mixing-plus-spectrum parameterization.
+
+E29C-OV2 confirms part, but not all, of this pattern after exact projection.
+
+---
+
+# F-Y S4 C3 Correction
+
+The original E29C result was:
+
+$$\Delta R^2=-2.394.$$
+
+E29C-Rv2 obtains:
+
+$$\Delta R^2=-0.005.$$
+
+The fold-level augmented scores are:
+
+$$0.998,\quad0.998,\quad0.979,\quad0.998,\quad0.942.$$
+
+The catastrophic original value therefore does not survive the explicit-SVD solver.
+
+The corrected result is essentially no increment.
+
+The cell remains labeled unstable because the classical baseline selects the grid floor in one fold. That is a much narrower issue than the original catastrophic prediction collapse.
+
+The original F-Y S4 C3 result should be treated as a numerical solver failure.
+
+---
+
+# Reverse Reconstruction of R2
+
+The primary-grid reverse reconstruction scores are:
+
+| Circuit |   S1 |   S2 |   S3 |   S4 | Approximate mean |
+| ------- | ---: | ---: | ---: | ---: | ---------------: |
+| F-X     | 1.00 | 1.00 | 1.00 | 1.00 |             1.00 |
+| D-X     | 0.94 | 0.84 | 0.61 | 0.41 |             0.70 |
+| H-X     | 0.89 | 0.92 | 0.61 | 0.75 |             0.79 |
+| F-Y     | 1.00 | 1.00 | 1.00 | 1.00 |             1.00 |
+| H-H     | 0.23 | 0.27 | 0.09 | 0.10 |             0.17 |
+
+This reproduces the stable reverse-location conclusion.
+
+* F-X and F-Y R2 are almost completely linearly reconstructed from analytical mixing and raw spectrum.
+* D-X and H-X retain substantial sector variation outside that fitted bank.
+* H-H is mostly unreconstructed.
+
+The amount of unreconstructed R2 variance does not predict the raw cycle increment.
+
+F-X and F-Y can produce large C5 gains despite nearly perfect classical reconstruction.
+
+H-H is poorly reconstructed but usually produces smaller C5 gains.
+
+This is direct evidence that raw-concatenation improvement is not an information-content metric.
+
+---
+
+# Comparison with Original E29C
+
+The explicit-SVD solver changes several conclusions.
+
+##### Corrected catastrophic cell
+
+$$\text{F-Y S4 C3}:-2.394\rightarrow-0.005.$$
+
+##### Stable headline cells
+
+The major S2 results remain close to the original values:
+
+| Circuit | S2 C5 original | S2 C5 Rv2 | S2 C6 original | S2 C6 Rv2 |
+| ------- | -------------: | --------: | -------------: | --------: |
+| F-X     |         +0.294 |    +0.303 |         +0.147 |    +0.153 |
+| D-X     |         +0.305 |    +0.280 |         +0.176 |    +0.133 |
+| H-X     |         +0.307 |    +0.305 |         +0.088 |    +0.091 |
+| F-Y     |         +0.304 |    +0.303 |         +0.118 |    +0.112 |
+| H-H     |         +0.005 |    +0.061 |         +0.074 |    +0.105 |
+
+The four principal circuits preserve the main effect.
+
+##### Newly positive cells
+
+F-X and F-Y now show large S3 C5 increments:
+
+$$+0.193$$
+
+and:
+
+$$+0.184.$$
+
+These did not appear in the original E29C table.
+
+E29C-OV2 shows that most of these gains disappear after exact projection, so they should be interpreted as coordinate-addition effects rather than newly isolated structural information.
+
+---
+
+# Comparison with E29C-R v1
+
+The first E29C-R used an incomplete GCV calculation and produced catastrophic values including:
+
+* D-X S3 C5: approximately $$-11.16$$;
+* D-X S3 C6: approximately $$-9.55$$;
+* D-X S4 C5: approximately $$-6.43$$;
+* F-Y S4 C4: approximately $$-4.84$$.
+
+None survives E29C-Rv2.
+
+The corresponding Rv2 values are:
+
+$$-0.035,\quad-0.037,\quad+0.017,\quad-0.011.$$
+
+The first stable-replication notebook should therefore be superseded entirely by Rv2.
+
+Its extreme values were artifacts of the defective penalty-selection procedure.
+
+---
+
+# What the Experiment Establishes
+
+E29C-Rv2 establishes that:
+
+1. **The explicit-SVD solver completes without singular-system fallback warnings.**
+
+2. **The catastrophic original F-Y S4 C3 result disappears.**
+
+3. **The defective GCV catastrophes from E29C-R v1 disappear.**
+
+4. **S2 C5 remains strongly positive under every circuit.**
+
+5. **The four principal circuits retain S2 C5 gains of approximately (0.27)–(0.31).**
+
+6. **S2 C6 remains positive across the complete circuit bank.**
+
+7. **S1 C5 remains positive under all five circuits.**
+
+8. **C5 is the dominant target for raw R2 coordinate addition.**
+
+9. **C3 and C4 receive essentially no broad benefit.**
+
+10. **H-H retains a repeated C6-oriented raw increment.**
+
+11. **F-X and F-Y R2 remain almost completely reconstructed from mixing and spectrum.**
+
+12. **The reverse reconstruction gap is not a proxy for predictive increment.**
+
+13. **Thirty-five cells trigger at least one conservative instability symptom.**
+
+14. **The revised inner folds are shuffled, so the run is not literally a solver-only replication of the original `RidgeCV(cv=5)` protocol.**
+
+15. **Raw concatenation does not establish information outside the classical linear span.**
+
+---
+
+# Necessary Qualifications
+
+The notebook’s “protocol matched” description should be corrected.
+
+The inner folds differ from the original unshuffled `RidgeCV(cv=5)` folds.
+
+The stability label combines symptoms from:
+
+* the classical model;
+* and the augmented model.
+
+A cell can therefore be labeled unstable even when the augmented fit is numerically coherent.
+
+This occurs throughout S1 C5.
+
+Selecting the grid floor is treated as instability even when:
+
+* held-out performance is stable;
+* primary and conservative grids agree;
+* and the design condition number is moderate.
+
+The label is a conservative diagnostic, not a formal invalidation.
+
+Conversely, a cell labeled stable is not statistically replicated.
+
+The condition number excludes singular values below the effective-rank cutoff. It therefore characterizes only the retained subspace and can understate the complete raw design degeneracy.
+
+No:
+
+* repeated outer-fold seed;
+* graph bootstrap;
+* permutation test;
+* or multiplicity correction
+
+is performed.
+
+The experiment evaluates 80 incremental cells.
+
+The reverse reconstruction score is pooled over heterogeneous sector coordinates and is variance weighted.
+
+The feature spaces remain unmatched in dimension.
+
+The augmented S3 bank has:
+
+$$335$$
+
+features for only:
+
+$$320$$
+
+outer-training graphs.
+
+The notebook saves its output under the same filename as E29C-R v1:
+
+```text
+e29c_r_stable_classical.pkl
+```
+
+Artifact provenance must therefore be checked carefully when both versions exist.
+
+The notebook verifies graph identifiers but does not load the E29P-R manifest and compare its stored hashes.
+
+All analyses use exact ideal probabilities.
+
+Finally, R2 receives graph-supplied degree classes. The experiment concerns a hybrid graph-conditioned representation, not quantum advantage.
+
+---
+
+# Overall Assessment
+
+E29C-Rv2 is a successful numerical repair of the raw classical-location audit.
+
+It removes both classes of prior catastrophic failure:
+
+* the original scikit-learn singular-solver collapse;
+* the defective custom-GCV collapse.
+
+The major S2 deeper-cycle result remains intact.
+
+S2 C5 gains approximately:
+
+$$0.27\text{--}0.31$$
+
+under the four principal circuits, and S2 C6 gains:
+
+$$0.09\text{--}0.15.$$
+
+S1 C5 also remains strongly positive.
+
+The broader raw table should not be promoted directly to an information claim.
+
+F-X and F-Y R2 are nearly perfectly reconstructed from the classical bank, and several new raw C5 gains disappear after exact projection in E29C-OV2.
+
+The appropriate central claim is:
+
+> An explicit-SVD ridge implementation removes the catastrophic solver failures in the original E29C and the defective GCV failures in E29C-R v1. Under the revised analysis, raw degree-sector concatenation retains strong S2 C5, S2 C6, and S1 C5 gains, while the original F-Y S4 triangle collapse disappears. The result remains a regularized coordinate-addition audit rather than an information decomposition: F-X and F-Y sector vectors are almost completely reconstructed from analytical mixing and spectrum, and the revised inner validation folds are shuffled rather than exactly matching the original `RidgeCV(cv=5)` partition. E29C-Rv2 therefore supplies the corrected numerical raw-concatenation table, while E29C-OV2 determines which gains survive exact linear-span removal.
+
+
+### E29C-OV2 - Exact Linear-Span R2 Increment Audit
+
+#### Experimental purpose
+
+E29C-OV2 strengthens the orthogonalized increment experiment.
+
+The first E29C-O notebook formed R2 residuals using a regularized ridge nuisance model:
+
+$$R2_\perp=R2-\widehat{R2}_{\text{ridge}}(M,\lambda).$$
+
+Those residuals were not mathematically orthogonal to the classical bank.
+
+They could retain directions already present in:
+
+$$[M,\lambda].$$
+
+E29C-OV2 replaces that nuisance model with an exact least-squares projection fitted inside each outer-training fold.
+
+The experiment asks:
+
+> After removing the complete outer-training linear projection of R2 onto analytical joint-degree mixing and the raw adjacency spectrum, does the remaining sector representation improve held-out cycle prediction?
+
+The primary statistic is:
+
+$$\Delta R^2_\perp=R^2(M+\lambda+R2_\perp)-R^2(M+\lambda).$$
+
+The prespecified headline cells are:
+
+* S2 C5;
+* S2 C6;
+* S1 C5.
+
+---
+
+## Execution status
+
+E29C-OV2 completed successfully.
+
+The notebook:
+
+* loaded all five E29P-R circuit families;
+* loaded the E30 analytical coordinates;
+* aligned graph ordering across E6, E29P-R, and E30;
+* computed exact outer-training projections for every circuit and stratum;
+* evaluated all 80 circuit–stratum–cycle cells;
+* calculated a full-stratum orthogonality diagnostic;
+* saved the fold results and full-stratum residual matrices;
+* generated the increment heatmap;
+* saved:
+
+```text
+e29c_o_orthogonal_increment.pkl
+```
+
+and:
+
+```text
+e29c_o_orthogonal_increment.png
+```
+
+No cell terminated with an exception.
+
+The target-fitting stage emitted:
+
+$$5{,}928$$
+
+ill-conditioned-matrix warnings.
+
+The warning count remains a major numerical qualification.
+
+---
+
+# Graph Families and Classical Bank
+
+The graph families, circuits, analytical mixing targets, and R2 definitions match E29C-Rv2.
+
+The classical bank is:
+
+$$X_C(G)=[u(G),\lambda(G)],$$
+
+with dimensions:
+
+$$17,\quad15,\quad20,\quad19.$$
+
+The R2 dimensions are:
+
+$$99,\quad64,\quad315,\quad216.$$
+
+The augmented models therefore contain:
+
+| Stratum | Classical dimensions | R2 residual dimensions | Total dimensions |
+| ------- | -------------------: | ---------------------: | ---------------: |
+| S1      |                   17 |                     99 |              116 |
+| S2      |                   15 |                     64 |               79 |
+| S3      |                   20 |                    315 |              335 |
+| S4      |                   19 |                    216 |              235 |
+
+---
+
+# Exact Outer-Training Projection
+
+For outer-training nuisance matrix $$X_C$$ and sector matrix $$R2$$, the notebook fits:
+
+$$\widehat B=\arg\min_B|R2_{\text{train}}-[\mathbf1,X_{C,\text{train}}]B|_F^2.$$
+
+The training residual is:
+
+$$R2_{\perp,\text{train}}=R2_{\text{train}}-[\mathbf1,X_{C,\text{train}}]\widehat B.$$
+
+The outer-test residual is:
+
+$$R2_{\perp,\text{test}}=R2_{\text{test}}-[\mathbf1,X_{C,\text{test}}]\widehat B.$$
+
+The coefficients are estimated using only the outer-training graphs.
+
+The training residual therefore satisfies:
+
+$$[\mathbf1,X_{C,\text{train}}]^\top R2_{\perp,\text{train}}\approx0$$
+
+to numerical precision.
+
+This removes the exact finite-sample linear component of R2 carried by the classical bank on the outer-training set.
+
+#### Stale procedural description
+
+The opening notebook text still says that the outer-training residuals are generated through inner cross-fitted R2 predictions.
+
+The executed code does not do that.
+
+It uses one in-sample ordinary least-squares projection on the complete outer-training fold.
+
+This is not a defect for the present purpose.
+
+In-sample outer-training projection is precisely what guarantees exact orthogonality.
+
+The prose should be updated.
+
+The configured:
+
+```text
+NUISANCE_ALPHAS
+```
+
+and the declared inner-fold object are no longer used.
+
+---
+
+# Target Decoder
+
+The base and augmented cycle models use:
+
+* train-only `StandardScaler`;
+* `RidgeCV`;
+* five internal folds;
+* ridge grid:
+
+$$\alpha\in{10^{-14},10^{-13},\ldots,10^2};$$
+
+* five shuffled outer folds with seed zero;
+* mean outer-test-fold $$R^2$$.
+
+The exact projection corrects the nuisance-removal method.
+
+It does not correct the numerical sensitivity of the final high-dimensional ridge models.
+
+---
+
+# Calibration and Orthogonality
+
+The synthetic calibration produces:
+
+$$\Delta R^2_{\text{beyond nuisance}}=1.024,$$
+
+and:
+
+$$\Delta R^2_{\text{in span}}=0.000.$$
+
+The maximum calibration residual-to-nuisance correlation is:
+
+$$2.3\times10^{-16}.$$
+
+The full-stratum diagnostic reports:
+
+$$\max|\text{corr}(R2_\perp,X_C)|=4.9\times10^{-11}.$$
+
+The exact projection therefore removes the tested linear nuisance span to numerical precision.
+
+The full-stratum diagnostic is descriptive only.
+
+The predictive experiment itself uses fold-specific outer-training projections.
+
+---
+
+# Classical Reconstruction of R2
+
+The mean held-out reconstruction scores are approximately:
+
+| Circuit | Mean R2 reconstruction from $$[M,\lambda]$$ |
+| ------- | ------------------------------------------: |
+| F-X     |                                        1.00 |
+| D-X     |                                        0.71 |
+| H-X     |                                        0.80 |
+| F-Y     |                                        1.00 |
+| H-H     |                                        0.17 |
+
+The broad location result remains unchanged.
+
+* F-X and F-Y R2 are nearly entirely linearly reconstructed from the classical bank.
+* D-X and H-X retain substantial residual sector variation.
+* H-H is mostly unreconstructed.
+
+The reconstruction metric is not numerically identical to the E29C-Rv2 reverse score.
+
+E29C-OV2 pools held-out projection residual energy relative to the outer-training R2 mean, whereas E29C-Rv2 reports mean fold $$R^2$$ under its ridge decoder.
+
+The rounded conclusions agree, but the statistics should not be treated as exact duplicates.
+
+---
+
+# Prespecified Headline Results
+
+## S2 C5
+
+| Circuit | Classical baseline | Exact-residual augmented | Increment | Fold dispersion |
+| ------- | -----------------: | -----------------------: | --------: | --------------: |
+| F-X     |              0.611 |                    0.904 |    +0.293 |           0.083 |
+| D-X     |              0.611 |                    0.919 |    +0.307 |           0.072 |
+| H-X     |              0.611 |                    0.917 |    +0.306 |           0.069 |
+| F-Y     |              0.611 |                    0.917 |    +0.306 |           0.085 |
+| H-H     |              0.611 |                    0.640 |    +0.029 |           0.042 |
+
+The four principal circuits retain large gains:
+
+$$0.293\text{--}0.307.$$
+
+The augmented scores reach:
+
+$$0.904\text{--}0.919.$$
+
+H-H produces only a small gain.
+
+This is the strongest E29C-OV2 result.
+
+## S2 C6
+
+| Circuit | Classical baseline | Exact-residual augmented | Increment | Fold dispersion |
+| ------- | -----------------: | -----------------------: | --------: | --------------: |
+| F-X     |              0.666 |                    0.815 |    +0.149 |           0.047 |
+| D-X     |              0.666 |                    0.844 |    +0.177 |           0.029 |
+| H-X     |              0.666 |                    0.750 |    +0.084 |           0.016 |
+| F-Y     |              0.666 |                    0.782 |    +0.115 |           0.023 |
+| H-H     |              0.666 |                    0.740 |    +0.073 |           0.070 |
+
+Every circuit retains a positive increment.
+
+The four principal circuits improve by:
+
+$$0.084\text{--}0.177.$$
+
+## S1 C5
+
+| Circuit | Classical baseline | Exact-residual augmented |           Increment | Fold dispersion |
+| ------- | -----------------: | -----------------------: | ------------------: | --------------: |
+| F-X     |              0.719 |                    0.917 |              +0.197 |           0.046 |
+| D-X     |              0.719 |                    0.887 |              +0.168 |           0.040 |
+| H-X     |              0.719 |                    0.887 |              +0.168 |           0.022 |
+| F-Y     |              0.719 |                    0.906 |              +0.186 |           0.044 |
+| H-H     |              0.719 |                    0.719 | approximately 0.000 |           0.050 |
+
+The four principal circuits retain substantial positive increments:
+
+$$0.168\text{--}0.197.$$
+
+H-H provides no meaningful S1 C5 gain.
+
+The success cell reports 15 positive circuit-by-headline combinations because the H-H S1 value is numerically above zero before rounding.
+
+Scientifically, that cell is zero.
+
+The substantive result is 14 positive cells, with 12 large gains across the four principal circuits.
+
+---
+
+# Complete Exact-Residual Increment Table
+
+| Cell  |    F-X |    D-X |    H-X |    F-Y |    H-H |
+| ----- | -----: | -----: | -----: | -----: | -----: |
+| S1 C3 | +0.007 | -0.051 | -0.000 | +0.009 | -0.004 |
+| S1 C4 | -0.004 | -0.002 | -0.003 | -0.009 | -0.006 |
+| S1 C5 | +0.197 | +0.168 | +0.168 | +0.186 | +0.000 |
+| S1 C6 | -0.020 | +0.059 | +0.008 | -0.021 | +0.089 |
+| S2 C3 | +0.013 | +0.008 | +0.006 | +0.013 | -0.002 |
+| S2 C4 | +0.013 | +0.008 | +0.014 | +0.016 | -0.009 |
+| S2 C5 | +0.293 | +0.307 | +0.306 | +0.306 | +0.029 |
+| S2 C6 | +0.149 | +0.177 | +0.084 | +0.115 | +0.073 |
+| S3 C3 | -0.006 | -0.007 | -0.004 | -0.011 | -0.019 |
+| S3 C4 | -0.025 | -0.025 | -0.011 | -0.033 | -0.059 |
+| S3 C5 | -0.006 | -0.019 | +0.028 | +0.043 | -0.067 |
+| S3 C6 | -0.065 | -0.041 | -0.042 | -0.071 | -0.027 |
+| S4 C3 | -0.004 | -0.006 | -0.002 | -2.064 | -0.013 |
+| S4 C4 | -0.045 | -0.011 | -0.011 | -0.019 | -0.054 |
+| S4 C5 | +0.140 | +0.085 | +0.050 | +0.010 | -0.021 |
+| S4 C6 | -0.094 | -0.222 | -0.017 | -0.073 | +0.047 |
+
+---
+
+# Circuit-Level Summaries
+
+| Circuit | Mean increment |    Median increment | Positive cells |
+| ------- | -------------: | ------------------: | -------------: |
+| F-X     |         +0.034 |              -0.004 |           7/16 |
+| D-X     |         +0.027 |              -0.004 |           7/16 |
+| H-X     |         +0.036 |              +0.003 |           8/16 |
+| F-Y     |         -0.100 | approximately 0.000 |           8/16 |
+| H-H     |         -0.003 |              -0.008 |           4/16 |
+
+F-Y’s mean is dominated by S4 C3.
+
+Removing that one cell changes its mean from:
+
+$$-0.100$$
+
+to approximately:
+
+$$+0.031.$$
+
+The circuit-level means remain poor summaries of the target-specific result.
+
+---
+
+# C3 and C4
+
+The classical bank already predicts C3 and C4 at approximately:
+
+$$0.96\text{--}0.99.$$
+
+Most exact-residual increments are:
+
+* near zero;
+* or slightly negative.
+
+No broad C3 or C4 increment is established.
+
+The small positive S2 values change an already saturated score only marginally.
+
+The severe F-Y S4 C3 value is numerical failure rather than a structural result.
+
+---
+
+# C5
+
+C5 is the main target carrying linearly independent R2 residual information.
+
+The strong prespecified results occur in:
+
+* S1 under F-X, D-X, H-X, and F-Y;
+* S2 under the same four circuits.
+
+Additional exploratory S4 gains occur under:
+
+* F-X: +0.140;
+* D-X: +0.085;
+* H-X: +0.050.
+
+F-Y S4 C5 is only:
+
+$$+0.010$$
+
+with fold dispersion:
+
+$$0.274.$$
+
+It is not stable enough to support a positive claim.
+
+S3 C5 is much weaker:
+
+* F-X: -0.006;
+* D-X: -0.019;
+* H-X: +0.028;
+* F-Y: +0.043;
+* H-H: -0.067.
+
+The exact projection therefore localizes the robust residual C5 channel primarily to S1 and S2.
+
+---
+
+# C6
+
+The principal C6 result is S2.
+
+Outside S2:
+
+* D-X has a positive S1 gain of +0.059;
+* H-H has positive S1 and S4 gains of +0.089 and +0.047;
+* most other cells are near zero or negative.
+
+The H-H S3 C6 raw gain does not survive exact projection:
+
+$$+0.034\rightarrow-0.027.$$
+
+The H-H even-cycle channel remains present, but it is not uniform across all degree-sequence families.
+
+---
+
+# Comparison with Ridge-Residual E29C-O
+
+The exact OLS correction leaves every major headline conclusion intact.
+
+| Circuit | Cell  | Ridge-residual E29C-O | Exact-residual E29C-OV2 |
+| ------- | ----- | --------------------: | ----------------------: |
+| F-X     | S1 C5 |                +0.193 |                  +0.197 |
+| F-X     | S2 C5 |                +0.290 |                  +0.293 |
+| F-X     | S2 C6 |                +0.149 |                  +0.149 |
+| D-X     | S1 C5 |                +0.165 |                  +0.168 |
+| D-X     | S2 C5 |                +0.306 |                  +0.307 |
+| D-X     | S2 C6 |                +0.177 |                  +0.177 |
+| H-X     | S1 C5 |                +0.167 |                  +0.168 |
+| H-X     | S2 C5 |                +0.300 |                  +0.306 |
+| H-X     | S2 C6 |                +0.084 |                  +0.084 |
+| F-Y     | S1 C5 |                +0.190 |                  +0.186 |
+| F-Y     | S2 C5 |                +0.309 |                  +0.306 |
+| F-Y     | S2 C6 |                +0.124 |                  +0.115 |
+| H-H     | S1 C5 |                +0.006 |     approximately 0.000 |
+| H-H     | S2 C5 |                +0.027 |                  +0.029 |
+| H-H     | S2 C6 |                +0.078 |                  +0.073 |
+
+The principal results change by only a few thousandths.
+
+They are not caused by the ridge nuisance model leaving large classical directions inside the residual.
+
+Several nonheadline cells do change materially.
+
+The largest examples are:
+
+* D-X S4 C6: $$-0.031\rightarrow-0.222$$;
+* H-H S3 C6: $$+0.030\rightarrow-0.027$$;
+* F-Y S4 C3: $$-1.954\rightarrow-2.064$$.
+
+The exact residualization therefore matters outside the prespecified headline cells.
+
+---
+
+# Comparison with Raw E29C-Rv2
+
+The exact audit separates persistent residual information from raw coordinate effects.
+
+##### F-X S3 C5
+
+Raw concatenation:
+
+$$+0.193.$$
+
+Exact residual:
+
+$$-0.006.$$
+
+The apparent raw gain is entirely removed.
+
+##### F-Y S3 C5
+
+Raw concatenation:
+
+$$+0.184.$$
+
+Exact residual:
+
+$$+0.043.$$
+
+Most of the raw gain is removed.
+
+##### H-H S1 C5
+
+Raw concatenation:
+
+$$+0.035.$$
+
+Exact residual:
+
+$$0.000.$$
+
+The raw gain was a coordinate effect.
+
+##### Prespecified headline cells
+
+The S1/S2 C5 and S2 C6 gains remain close to their raw values.
+
+Those effects are therefore not explained merely by adding a linearly redundant reparameterization of the complete R2 vector.
+
+This is the central scientific contribution of E29C-OV2.
+
+---
+
+# Meaning of the Exact-Residual Result
+
+E29C-OV2 rules out one important alternative explanation.
+
+On each outer-training fold, the residual sector features are outside the finite-sample linear span of:
+
+$$[1,M,\lambda].$$
+
+The augmented model cannot use R2 merely as an exact linear re-expression of the classical coordinates.
+
+A positive held-out increment therefore indicates predictive variation carried by sector directions not present in that outer-training linear span.
+
+The notebook’s statement that this completely excludes a penalty-geometry artifact is still too strong.
+
+The target model:
+
+* standardizes the residual coordinates;
+* refits `RidgeCV`;
+* and can select a different common penalty after the residual block is added.
+
+Even with orthogonal feature blocks, changing the selected penalty can change the fitted coefficients on the classical block.
+
+The result is substantially stronger than raw concatenation, but it remains tied to the completed ridge-selection pipeline.
+
+---
+
+# Tiny Residual Scaling
+
+F-X and F-Y R2 are reconstructed at approximately:
+
+$$R^2=1.00.$$
+
+Their exact residual matrices therefore carry little total raw variance.
+
+Before cycle fitting, each nonconstant residual coordinate is standardized to unit variance.
+
+This can magnify:
+
+* low-amplitude but genuine structural directions;
+* projection-estimation error;
+* floating-point residuals;
+* or unstable near-null coordinates.
+
+The strong held-out and cross-circuit consistency of the prespecified cells is evidence against pure random amplification.
+
+It does not eliminate the numerical concern.
+
+A useful additional diagnostic would report:
+
+* raw residual Frobenius norms;
+* residual singular values;
+* target covariance before standardization;
+* and results after discarding extremely low-variance residual directions.
+
+---
+
+# Numerical Stability
+
+The target-fitting stage emits:
+
+$$5{,}928$$
+
+ill-conditioned-matrix warnings.
+
+The warnings arise from repeated ridge fitting on highly redundant designs, including:
+
+* 335 features in S3;
+* 320 outer-training graphs;
+* exact dependencies;
+* very low-variance residual coordinates;
+* penalties as small as $$10^{-14}$$.
+
+E29C-OV2 does not store:
+
+* selected penalties;
+* effective ranks;
+* condition numbers;
+* fold-specific warning status;
+* or a conservative-grid rerun.
+
+The F-Y S4 C3 result demonstrates an active numerical failure:
+
+$$0.988\rightarrow-1.076,$$
+
+for:
+
+$$\Delta R^2_\perp=-2.064.$$
+
+Its fold dispersion is:
+
+$$4.143.$$
+
+D-X S4 C6 also has a large negative increment:
+
+$$-0.222,$$
+
+with dispersion:
+
+$$0.408.$$
+
+Those cells should not be interpreted structurally.
+
+The prespecified headline gains have much smaller dispersion and reproduce across four circuits, making them considerably more credible than the failed cells.
+
+---
+
+# Full-Stratum Residual Artifact
+
+The saved artifact includes:
+
+```text
+orthogonal_residuals
+```
+
+constructed using a projection fitted on all 400 graphs in a stratum.
+
+Those matrices are appropriate for:
+
+* descriptive geometry;
+* residual-rank analysis;
+* visualization;
+* unsupervised inspection.
+
+They must not be used directly as predictive features in a later cross-validation experiment.
+
+Doing so would use held-out graph features to determine the projection coefficients.
+
+Any downstream predictive consumer must recompute the projection inside its own training folds.
+
+The current E29C-OV2 prediction results do use fold-specific projections and are not affected by this issue.
+
+---
+
+# What the Experiment Establishes
+
+E29C-OV2 establishes that:
+
+1. **The exact least-squares projection removes the classical linear span from outer-training R2 features.**
+
+2. **The full-stratum residual-to-nuisance correlation is below (5\times10^{-11}).**
+
+3. **The synthetic in-span target receives zero incremental value.**
+
+4. **The prespecified S2 C5 gain survives exact projection under all five circuits.**
+
+5. **The four principal circuits retain S2 C5 gains of (0.293)–(0.307).**
+
+6. **S2 C6 remains positive across the complete circuit bank.**
+
+7. **The four principal circuits retain S1 C5 gains of (0.168)–(0.197).**
+
+8. **H-H does not retain a meaningful S1 C5 residual channel.**
+
+9. **Many C3 and C4 cells remain saturated or slightly worsen.**
+
+10. **Several raw nonheadline C5 gains collapse after exact projection.**
+
+11. **F-X S3 C5 is a clear coordinate-addition effect rather than an independent residual effect.**
+
+12. **The H-H C6 residual channel survives in S1, S2, and S4 but not S3.**
+
+13. **The F-Y S4 C3 instability persists and must be excluded from aggregation.**
+
+14. **The final augmented ridge fits remain severely ill conditioned.**
+
+15. **The result identifies information outside the tested finite-sample linear span, not outside all classical graph representations.**
+
+---
+
+# Necessary Qualifications
+
+The classical bank contains:
+
+* E30 analytical joint-degree coordinates;
+* raw sorted adjacency eigenvalues.
+
+It does not contain:
+
+* nonlinear spectral features;
+* polynomial trace moments as explicit regressors;
+* folklore 2-WL;
+* higher-order degree correlations;
+* or arbitrary classical graph kernels.
+
+“Outside the classical span” must therefore be written as:
+
+> outside the tested linear span of analytical mixing and raw spectrum.
+
+The full-stratum orthogonality diagnostic does not directly certify every fold-specific residual matrix, although the executed least-squares construction guarantees training-fold orthogonality algebraically.
+
+Residual columns below the diagnostic variance threshold are skipped in the reported correlation check.
+
+The target decoder uses one outer-fold seed.
+
+No repeated split, graph bootstrap, or permutation test is provided.
+
+The 80-cell complete table remains exploratory.
+
+The three headline cells were prespecified and are the appropriate basis for the main claim.
+
+The target models do not use the explicit-SVD stable decoder from E29C-Rv2.
+
+They retain scikit-learn `RidgeCV` and its extensive ill-conditioning warnings.
+
+The notebook’s output filename is unchanged from the ridge-residual E29C-O version:
+
+```text
+e29c_o_orthogonal_increment.pkl
+```
+
+Artifact provenance must distinguish OV2 from the earlier file.
+
+The notebook opening still describes inner cross-fitted nuisance predictions, while the executed method is outer-training ordinary least squares.
+
+The unused nuisance grid should be removed from the saved configuration.
+
+All analyses use exact ideal probabilities.
+
+Finally, R2 uses graph-supplied degree classes. The result concerns a hybrid graph-conditioned circuit representation and does not establish quantum advantage.
+
+---
+
+# Overall Assessment
+
+E29C-OV2 is the strongest completed test of R2’s deeper-cycle residual channel.
+
+It replaces regularized nuisance residualization with exact outer-training linear projection and leaves the central prespecified results essentially unchanged.
+
+Across F-X, D-X, H-X, and F-Y:
+
+* S1 C5 improves by $$0.168\text{--}0.197$$;
+* S2 C5 improves by $$0.293\text{--}0.307$$;
+* S2 C6 improves by $$0.084\text{--}0.177$$.
+
+These effects cannot be explained solely by adding R2 as an exact linear reparameterization of analytical mixing and raw spectrum.
+
+The exact audit also shows where the broader raw-concatenation story fails.
+
+F-X S3 C5 collapses from:
+
+$$+0.193$$
+
+to:
+
+$$-0.006,$$
+
+and most of the F-Y S3 C5 gain disappears.
+
+Those cells were primarily coordinate effects.
+
+The principal remaining weakness is numerical.
+
+Nearly six thousand ill-conditioning warnings occur, and F-Y S4 C3 remains catastrophic. The prespecified cells are cross-circuit consistent and have moderate fold dispersion, but the final values should still be reported with explicit numerical qualifications.
+
+The appropriate central claim is:
+
+> After exact outer-training least-squares removal of the linear component of degree-sector masses supplied by the E30 analytical mixing coordinates and raw adjacency spectrum, substantial held-out deeper-cycle information remains. Under the four principal circuits, the exact residual sector readout improves S1 C5 by (0.168)–(0.197), S2 C5 by (0.293)–(0.307), and S2 C6 by (0.084)–(0.177). These values closely reproduce both the raw and ridge-residual headline results, while several nonheadline raw gains collapse after projection. E29C-OV2 therefore isolates a target-aligned R2 component outside the tested finite-sample linear span of mixing and spectrum. The conclusion remains estimator and numerically qualified because tiny residual directions are standardized, ridge penalties are reselected in the augmented model, and the final fits emit 5,928 ill-conditioning warnings.
 
 
 
