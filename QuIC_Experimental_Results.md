@@ -36706,6 +36706,853 @@ The appropriate central claim is:
 
 > After exact outer-training least-squares removal of the linear component of degree-sector masses supplied by the E30 analytical mixing coordinates and raw adjacency spectrum, substantial held-out deeper-cycle information remains. Under the four principal circuits, the exact residual sector readout improves S1 C5 by (0.168)–(0.197), S2 C5 by (0.293)–(0.307), and S2 C6 by (0.084)–(0.177). These values closely reproduce both the raw and ridge-residual headline results, while several nonheadline raw gains collapse after projection. E29C-OV2 therefore isolates a target-aligned R2 component outside the tested finite-sample linear span of mixing and spectrum. The conclusion remains estimator and numerically qualified because tiny residual directions are standardized, ridge penalties are reselected in the augmented model, and the final fits emit 5,928 ill-conditioning warnings.
 
+### E29F-HX - Finite-Shot Transfer of the Degree-Sector Mixing Channel
+
+#### Experimental purpose
+
+E29F-HX tests whether the finite-shot readout result established for the canonical F-X circuit transfers to a substantially different circuit architecture.
+
+The tested circuit is:
+
+$$H^{\otimes14}\rightarrow\prod_{uv\in E}R_{ZZ}^{(u,v)}(2.0)\rightarrow R_X(0.1)^{\otimes14}.$$
+
+The experiment compares three representations of the same sampled H-X Born distribution:
+
+* **R0:** global descending probability sorting;
+* **R1:** Hamming-weight marginalization;
+* **R2:** degree-class occupancy marginalization.
+
+The only target is the E30 analytical joint-degree mixing coordinate.
+
+The experiment asks:
+
+1. Does the strong exact-state H-X mixing result remain accessible under finite sampling?
+2. Does R2 retain an advantage over global sorting?
+3. Is that advantage caused specifically by degree conditioning, or merely by aggregation and reduced feature dimension?
+4. How many shots are required to recover fixed fractions of the exact-state mixing score?
+
+R1 is the critical mechanism control.
+
+If the R2 advantage were explained only by pooling probabilities into a smaller representation, R1 should provide a similar or stronger finite-shot benefit because it is even lower dimensional.
+
+Instead, R1 is a deterministic coarsening of R2:
+
+$$R_1(w)=\sum_{\kappa:\sum_j\kappa_j=w}R_2(\kappa).$$
+
+A persistent R2-over-R1 advantage therefore localizes useful information to the distribution of probability mass **among degree classes**, rather than total excitation number alone.
+
+---
+
+## Execution status
+
+All three distributed workers and the synthesis notebook completed successfully.
+
+| Worker       | Strata                         | Completed runtime |
+| ------------ | ------------------------------ | ----------------: |
+| S1/S2 worker | S1 near regular and S2 bimodal |            2.06 h |
+| S3 worker    | S3 skewed                      |            5.47 h |
+| S4 worker    | S4 hub                         |            3.30 h |
+
+The synthesis notebook verified:
+
+* all three expected worker artifacts;
+* identical circuit and decoder configurations;
+* identical shot ladders;
+* identical sampling seeds;
+* identical target definitions;
+* all four expected graph strata;
+* 12 completed replicates for every readout and shot budget;
+* matching graph-order and target hashes stored by each worker.
+
+The complete analysis contains:
+
+$$4\text{ strata}\times6\text{ budgets}\times12\text{ replicates}\times3\text{ readouts}=864$$
+
+finite-shot decoder evaluations.
+
+No code cell terminated with an exception.
+
+The synthesis emitted one harmless deprecation warning from `numpy.trapz`.
+
+---
+
+# Graph Families
+
+The experiment uses the four fixed-degree-sequence E6 graph families at:
+
+$$n=14.$$
+
+| Stratum         | Fixed degree sequence | Graphs | Analytical mixing rank |
+| --------------- | --------------------- | -----: | ---------------------: |
+| S1 near regular | $$(4,4,3^{10},2,2)$$  |    400 |                      3 |
+| S2 bimodal      | $$(4^7,2^7)$$         |    400 |                      1 |
+| S3 skewed       | $$(5,5,4,4,3^6,2^4)$$ |    400 |                      6 |
+| S4 hub          | $$(6,4,4,3^8,2,2,2)$$ |    400 |                      5 |
+
+For every graph, the worker notebooks verify:
+
+* the locked degree sequence;
+* graph ordering against E30;
+* statevector normalization;
+* the triangle trace identity;
+* the 4-cycle trace identity.
+
+The trace gates are:
+
+$$\text{tr}(A^3)=6C_3,$$
+
+and:
+
+$$\text{tr}(A^4)=8C_4+2\sum_i d_i^2-\sum_i d_i.$$
+
+All 1,600 graph records pass.
+
+---
+
+# H-X Circuit
+
+For every graph:
+
+1. all qubits are initialized with Hadamard gates;
+2. one (R_{ZZ}(2.0)) gate is applied per graph edge;
+3. every qubit receives (R_X(0.1)).
+
+The exact probabilities are regenerated independently from the E6 stored F-X vectors.
+
+A circuit gate confirms that the resulting sorted H-X vector is not accidentally identical to the stored F-X distribution.
+
+The notebook does not load the E29P-R H-X artifact for an array-level comparison.
+
+Its exact decoder results nevertheless reproduce the earlier E29A-R H-X results to displayed precision.
+
+---
+
+# Readouts
+
+## R0 - Global sorting
+
+For exact or sampled probability vector (p_G):
+
+$$R_0(G)=\text{sort}_{\downarrow}{p_G(z)}.$$
+
+The decoder uses the first:
+
+$$1{,}000$$
+
+rank coordinates.
+
+Because every probability vector is already sorted, the selected head is simply the first 1,000 ranks.
+
+R0 discards:
+
+* bitstring identity;
+* Hamming-weight identity;
+* degree-class identity.
+
+## R1 - Hamming-weight marginal
+
+$$R_1(G)*w=\sum*{z:|z|=w}p_G(z),\qquad w=0,\ldots,14.$$
+
+Its dimension is:
+
+$$15.$$
+
+R1 preserves total excitation number but discards which degree classes carry those excitations.
+
+## R2 - Degree-sector marginal
+
+Let the graph’s degree classes be:
+
+$$d_1<\cdots<d_m.$$
+
+For bitstring (z), define:
+
+$$\kappa_G(z)=\left(\sum_{i:\deg(i)=d_1}z_i,\ldots,\sum_{i:\deg(i)=d_m}z_i\right).$$
+
+The degree-sector readout is:
+
+$$R_2(G)*\kappa=\sum*{z:\kappa_G(z)=\kappa}p_G(z).$$
+
+Its dimensions are:
+
+| Stratum | Degree-class sizes | R2 dimension |
+| ------- | ------------------ | -----------: |
+| S1      | (2,10,2)           |           99 |
+| S2      | (7,7)              |           64 |
+| S3      | (4,6,2,2)          |          315 |
+| S4      | (3,8,2,1)          |          216 |
+
+R2 is a hybrid graph-conditioned readout because the graph’s degree partition is supplied during aggregation.
+
+---
+
+# Analytical Mixing Target
+
+The target is the sample-independent E30 coordinate:
+
+$$u(G)=m(G)N_s,$$
+
+where:
+
+* (m(G)) is the raw joint-degree edge-count vector;
+* (N_s) is the null-space basis of the fixed degree-stub constraints.
+
+The target dimensions are:
+
+$$3,\quad1,\quad6,\quad5$$
+
+for S1 through S4.
+
+This corrects the graph-sample-fitted global SVD target used in the earlier E28 finite-shot experiment.
+
+The E30 basis is fixed by the stored artifact, but its numerical orientation is not mathematically canonical across all linear-algebra implementations.
+
+The coordinatewise decoder remains sensitive to such rotations.
+
+---
+
+# Finite-Shot Protocol
+
+The shot ladder is:
+
+$$S\in{2^{10},2^{12},2^{14},2^{16},2^{18},2^{20}}.$$
+
+For every graph:
+
+$$\widehat p_G\sim\frac1S\text{Multinomial}(S,p_G).$$
+
+The experiment uses:
+
+$$12$$
+
+sampling replicates at every shot budget.
+
+A deterministic seed is keyed by:
+
+* base seed 29000;
+* shot-budget exponent;
+* replicate index;
+* stratum index.
+
+For each graph and replicate, one multinomial count vector is sampled and reused for R0, R1, and R2.
+
+Every comparison is therefore paired at the measurement level.
+
+---
+
+# Decoder
+
+The mixing decoder follows the E6 protocol:
+
+* raw readout coordinates;
+* five shuffled outer folds;
+* outer seed zero;
+* coordinatewise `RidgeCV`;
+* five inner folds;
+* ridge grid:
+
+$$\alpha\in{10^{-14},10^{-13},\ldots,10^2};$$
+
+* pooled multivariate squared errors within each outer fold;
+* mean outer-fold (R^2).
+
+The synthetic calibration gives:
+
+$$R^2_{\text{null}}=-0.005,$$
+
+and:
+
+$$R^2_{\text{linear}}=1.000.$$
+
+The basic decoding machinery passes.
+
+---
+
+# Exact-State Mixing References
+
+The exact-probability scores are:
+
+| Stratum         |     R0 |     R1 |     R2 |
+| --------------- | -----: | -----: | -----: |
+| S1 near regular | 0.0700 | 0.6063 | 0.9997 |
+| S2 bimodal      | 0.5531 | 0.9958 | 1.0000 |
+| S3 skewed       | 0.1242 | 0.4670 | 0.9991 |
+| S4 hub          | 0.0900 | 0.3823 | 0.9992 |
+
+R2 reconstructs analytical mixing almost perfectly in every stratum.
+
+Global sorting preserves little H-X mixing information outside S2.
+
+R1 retains substantial exact-state information:
+
+* 0.606 in S1;
+* 0.996 in S2;
+* 0.467 in S3;
+* 0.382 in S4.
+
+This makes its finite-shot failure especially informative.
+
+The issue is not that the Hamming-weight marginal contains no mixing information in the ideal distribution.
+
+The issue is that its target-aligned differences are too small to estimate efficiently.
+
+---
+
+# Complete Finite-Shot Recovery Curves
+
+## S1 near regular
+
+| Readout | (2^{10}) | (2^{12}) | (2^{14}) | (2^{16}) | (2^{18}) | (2^{20}) |
+| ------- | -------: | -------: | -------: | -------: | -------: | -------: |
+| R0      |   -0.020 |   -0.018 |   -0.016 |    0.028 |    0.126 |    0.088 |
+| R1      |   -0.015 |   -0.017 |   -0.017 |   -0.018 |   -0.024 |    0.054 |
+| R2      |    0.113 |    0.424 |    0.767 |    0.916 |    0.975 |    0.993 |
+
+## S2 bimodal
+
+| Readout | (2^{10}) | (2^{12}) | (2^{14}) | (2^{16}) | (2^{18}) | (2^{20}) |
+| ------- | -------: | -------: | -------: | -------: | -------: | -------: |
+| R0      |   -0.014 |   -0.016 |    0.005 |    0.194 |    0.453 |    0.494 |
+| R1      |   -0.010 |   -0.013 |   -0.011 |   -0.016 |    0.006 |    0.087 |
+| R2      |    0.249 |    0.613 |    0.874 |    0.963 |    0.990 |    0.997 |
+
+## S3 skewed
+
+| Readout | (2^{10}) | (2^{12}) | (2^{14}) | (2^{16}) | (2^{18}) | (2^{20}) |
+| ------- | -------: | -------: | -------: | -------: | -------: | -------: |
+| R0      |   -0.013 |   -0.013 |   -0.010 |    0.046 |    0.099 |    0.106 |
+| R1      |   -0.013 |   -0.013 |   -0.014 |   -0.013 |   -0.009 |    0.022 |
+| R2      |    0.005 |    0.192 |    0.573 |    0.845 |    0.949 |    0.983 |
+
+## S4 hub
+
+| Readout | (2^{10}) | (2^{12}) | (2^{14}) | (2^{16}) | (2^{18}) | (2^{20}) |
+| ------- | -------: | -------: | -------: | -------: | -------: | -------: |
+| R0      |   -0.018 |   -0.017 |   -0.013 |    0.037 |    0.112 |    0.077 |
+| R1      |   -0.019 |   -0.021 |   -0.018 |   -0.020 |   -0.021 |    0.029 |
+| R2      |    0.050 |    0.333 |    0.730 |    0.912 |    0.971 |    0.992 |
+
+R2 is the only readout that produces a smooth, strong recovery curve in all four families.
+
+---
+
+# Recovery at (2^{20}) Shots
+
+| Stratum |     R0 |     R1 |     R2 | R2 replicate SD |
+| ------- | -----: | -----: | -----: | --------------: |
+| S1      | 0.0880 | 0.0544 | 0.9931 |         0.00029 |
+| S2      | 0.4936 | 0.0869 | 0.9974 |         0.00020 |
+| S3      | 0.1059 | 0.0220 | 0.9830 |         0.00053 |
+| S4      | 0.0766 | 0.0290 | 0.9919 |         0.00026 |
+
+At approximately one million shots per graph, R2 recovers:
+
+$$98.3%\text{--}99.7%$$
+
+of its exact-state score.
+
+R1 recovers only approximately:
+
+$$4.7%\text{--}9.0%$$
+
+of its exact-state score.
+
+The bimodal result is the sharpest example:
+
+$$R^2_{\text{exact,R1}}=0.9958,$$
+
+but:
+
+$$R^2_{\text{finite,R1}}(2^{20})=0.0869.$$
+
+Exact decodability in a 15-dimensional representation does not imply finite-shot accessibility.
+
+---
+
+# Recovery Thresholds
+
+The synthesis forms a monotone envelope of each mean recovery curve and linearly interpolates in:
+
+$$\log_2S.$$
+
+The estimated R2 thresholds are:
+
+| Stratum | 50% recovery | Approximate shots | 90% recovery | Approximate shots |
+| ------- | -----------: | ----------------: | -----------: | ----------------: |
+| S1      |  (2^{12.44}) |   (5.6\times10^3) |  (2^{15.79}) |   (5.6\times10^4) |
+| S2      |  (2^{11.38}) |   (2.7\times10^3) |  (2^{14.59}) |   (2.5\times10^4) |
+| S3      |  (2^{13.62}) |   (1.3\times10^4) |  (2^{17.05}) |   (1.4\times10^5) |
+| S4      |  (2^{12.84}) |   (7.3\times10^3) |  (2^{15.86}) |   (6.0\times10^4) |
+
+Directly observed bracketing is:
+
+* S1, S2, and S4 exceed 90% by (2^{16});
+* S3 exceeds 90% by (2^{18}).
+
+S2 is the easiest family.
+
+It has:
+
+* one analytical mixing coordinate;
+* only 64 R2 sectors.
+
+S3 is the hardest.
+
+It has:
+
+* six analytical coordinates;
+* 315 R2 sectors.
+
+This ordering is consistent with target and representation complexity, but E29F does not isolate which factor controls the threshold.
+
+---
+
+# R2 Versus R0 Shot Efficiency
+
+The estimated log-shot thresholds for R0 reaching 50% of its own exact-state reference are:
+
+| Stratum | R0 50% threshold | R2 50% threshold | R0/R2 shot ratio |
+| ------- | ---------------: | ---------------: | ---------------: |
+| S1      |      (2^{16.14}) |      (2^{12.44}) |           13.00× |
+| S2      |      (2^{16.64}) |      (2^{11.38}) |           38.34× |
+| S3      |      (2^{16.62}) |      (2^{13.62}) |            8.00× |
+| S4      |      (2^{16.22}) |      (2^{12.84}) |           10.39× |
+
+R2 reaches half of an almost perfect exact-state score between:
+
+$$8\times$$
+
+and:
+
+$$38\times$$
+
+earlier than R0 reaches half of its much lower exact-state score.
+
+R1 does not reach 50% of its exact-state score in any stratum by:
+
+$$2^{20}$$
+
+shots.
+
+---
+
+# Recovery-Curve Area
+
+The synthesis also integrates the clipped monotone recovery fraction over the tested log-shot interval.
+
+Approximate normalized areas are:
+
+| Stratum |    R0 |    R1 |    R2 |
+| ------- | ----: | ----: | ----: |
+| S1      | 0.380 | 0.009 | 0.727 |
+| S2      | 0.325 | 0.010 | 0.813 |
+| S3      | 0.318 | 0.005 | 0.611 |
+| S4      | 0.382 | 0.008 | 0.694 |
+
+R2 has the largest recovery area in every stratum.
+
+R1 remains near zero over almost the complete shot ladder despite substantial exact-state ceilings.
+
+---
+
+# Paired Readout Comparisons
+
+Because every readout is derived from the same multinomial count vector, the experiment supports paired replicate comparisons.
+
+## At (2^{10}) shots
+
+| Stratum | R2 minus R0 | Conditional bootstrap interval | R2 minus R1 | Conditional bootstrap interval |
+| ------- | ----------: | -----------------------------: | ----------: | -----------------------------: |
+| S1      |      +0.132 |                 [0.112, 0.151] |      +0.128 |                 [0.108, 0.147] |
+| S2      |      +0.264 |                 [0.236, 0.285] |      +0.259 |                 [0.228, 0.284] |
+| S3      |      +0.018 |                 [0.013, 0.023] |      +0.018 |                 [0.012, 0.024] |
+| S4      |      +0.068 |                 [0.057, 0.081] |      +0.069 |                 [0.057, 0.082] |
+
+Even at the lowest budget, every mean difference is positive.
+
+## At (2^{20}) shots
+
+| Stratum | R2 minus R0 | Conditional bootstrap interval | R2 minus R1 | Conditional bootstrap interval |
+| ------- | ----------: | -----------------------------: | ----------: | -----------------------------: |
+| S1      |      +0.905 |                 [0.901, 0.909] |      +0.939 |                 [0.929, 0.951] |
+| S2      |      +0.504 |                 [0.496, 0.511] |      +0.911 |                 [0.896, 0.925] |
+| S3      |      +0.877 |                 [0.875, 0.879] |      +0.961 |                 [0.953, 0.969] |
+| S4      |      +0.915 |                 [0.913, 0.918] |      +0.963 |                 [0.950, 0.976] |
+
+Across:
+
+$$4\text{ strata}\times6\text{ budgets}\times2\text{ comparisons}=48$$
+
+paired cells:
+
+* every interval is positive;
+* every paired win fraction is 1.0.
+
+Thus, all:
+
+$$48\times12=576$$
+
+replicate-level R2 comparisons favor R2 over the corresponding R0 or R1 score.
+
+These intervals summarize sampling-replicate stability conditional on the fixed graph set and cross-validation folds.
+
+They are not population-level hypothesis tests.
+
+---
+
+# Sampling-Fidelity Diagnostics
+
+The readout error is measured as one-half of the (L_1) distance between the empirical and exact readout vectors.
+
+For R2 at (2^{20}), the mean errors are:
+
+| Stratum | Mean R2 (L_1/2) error |
+| ------- | --------------------: |
+| S1      |               0.00314 |
+| S2      |               0.00237 |
+| S3      |               0.00573 |
+| S4      |               0.00473 |
+
+The plots show that R1 has lower sampling error than R2 throughout the shot ladder in every stratum.
+
+Nevertheless, R1 is substantially worse at predicting mixing.
+
+This rules out the simple explanation:
+
+> R2 wins only because its empirical distribution is estimated more accurately.
+
+R1 is the more accurately estimated and lower-dimensional aggregate, but it discards the degree-class allocation that carries the target-aligned signal.
+
+The R2 advantage is therefore semantic rather than a generic consequence of pooling.
+
+For R0, the reported quantity is half the (L_1) distance between sorted probability vectors. It is a rank-space distance, not ordinary total variation over labeled bitstrings.
+
+Absolute error values across R0, R1, and R2 should therefore be compared cautiously.
+
+---
+
+# Global-Sorting Nonmonotonicity
+
+The R0 curves are not uniformly monotone.
+
+In S1:
+
+$$0.028\rightarrow0.126\rightarrow0.088$$
+
+from (2^{16}) through (2^{20}).
+
+In S4:
+
+$$0.037\rightarrow0.112\rightarrow0.077.$$
+
+The finite-shot score at (2^{18}) exceeds the corresponding exact-state score in both families.
+
+Therefore, the quantity labeled an exact “ceiling” in the notebooks is not a strict upper bound on finite-shot decoder performance.
+
+Sampling noise can act as:
+
+* implicit feature smoothing;
+* regularization;
+* tie formation under sorting;
+* or a favorable distortion of the rank coordinates.
+
+The proper term is:
+
+> exact-state reference score.
+
+The R0 50% and 90% thresholds should be interpreted as first crossings of a monotone envelope relative to that reference, not as estimates of convergence to a strict asymptote.
+
+The primary R2 curves do not exhibit this problem.
+
+They rise smoothly toward their near-unit exact-state references.
+
+---
+
+# Ridge Diagnostics
+
+The exact R2 models select the smallest tested ridge penalty in:
+
+* 27% of fits in S1;
+* 100% of fits in S2;
+* 0% of fits in S3;
+* 48% of fits in S4.
+
+Near-zero regularization is expected when the readout is nearly linearly sufficient for the target, but it makes the exact reference sensitive to the lower edge of the penalty grid.
+
+At (2^{18}) and (2^{20}), the reported R2 alpha-floor fraction is zero in all four strata.
+
+The high finite-shot scores therefore do not depend on selecting the minimum available penalty.
+
+E29A-R independently established the same near-perfect exact H-X mixing result, reducing concern that the reference score is only a grid-edge artifact.
+
+---
+
+# Mechanistic Interpretation
+
+## Degree semantics, not generic aggregation
+
+R1 is:
+
+* lower dimensional than R2;
+* more accurately estimated from samples;
+* an explicit deterministic coarsening of R2.
+
+Yet it remains near the prediction floor until the largest shot budget.
+
+The missing information is not total excitation number.
+
+It is the allocation of excitation mass among degree classes.
+
+This is precisely the information preserved by R2.
+
+## Global sorting loses degree association
+
+H-X contains an almost perfectly accessible mixing coordinate under R2.
+
+The same exact probabilities produce weak global-sorting scores in S1, S3, and S4.
+
+Thus, the structural signal is not absent from the circuit state.
+
+It is removed by the readout quotient.
+
+## Exact accessibility and finite-shot accessibility differ
+
+S2 R1 provides a particularly clean example.
+
+Its exact score is:
+
+$$0.9958,$$
+
+but its (2^{20})-shot score is:
+
+$$0.0869.$$
+
+The relevant variations exist, but at an amplitude too small for efficient empirical recovery.
+
+This parallels the E28 cycle result: information can be present in the ideal distribution yet operationally inaccessible at practical shot counts.
+
+## H-X transfer
+
+E28 established finite-shot degree-mixing recovery for F-X under R2.
+
+E29F establishes the same qualitative result under H-X.
+
+The finite-shot advantage is therefore not specific to flat (R_X) preparation.
+
+The two experiments use different target bases—legacy SVD in E28 and E30 analytical coordinates in E29F—so their numerical thresholds should not be treated as a controlled architecture ranking.
+
+The supported conclusion is qualitative architecture transfer.
+
+---
+
+# Relationship to E29A-R
+
+E29A-R showed that exact H-X representations have:
+
+* weak R0 mixing accessibility;
+* moderate R1 accessibility;
+* essentially perfect R2 accessibility.
+
+E29F preserves this ordering after finite sampling.
+
+More importantly, it shows that the moderate exact R1 channel is not sample efficient.
+
+The complete result is:
+
+> H-X carries degree mixing in a degree-conditioned sector geometry that survives multinomial sampling, while the globally sorted and Hamming-weight quotients lose or severely attenuate that channel.
+
+---
+
+# Relationship to E29E-L
+
+E29E-L showed that exact H-X mixing recovery remains approximately one over nearby entangling- and mixer-angle transects.
+
+E29F adds finite-shot evidence at the canonical operating point.
+
+Together, the results show that H-X mixing accessibility is:
+
+* not restricted to one exact angle;
+* not restricted to exact statevectors;
+* not restricted to the F-X preparation architecture.
+
+E29F does not perform an angle-by-shot sweep.
+
+Finite-shot angle robustness remains untested.
+
+---
+
+# Relationship to the Final Formalism
+
+The final formalism shows that normalized degree encoding and degree-conditioned defect sectors naturally organize irregular-graph responses.
+
+E29F supplies direct operational evidence for that interpretation.
+
+R1 retains only:
+
+$$\sum_j\kappa_j,$$
+
+while R2 retains the complete degree-occupancy vector:
+
+$$\kappa=(\kappa_1,\ldots,\kappa_m).$$
+
+The observed R2-over-R1 separation demonstrates that the degree-conditioned refinement is not merely descriptive notation.
+
+It is required to expose the dominant mixing coordinate under finite sampling.
+
+---
+
+# What the Experiment Establishes
+
+The completed experiment establishes that:
+
+1. **All distributed H-X finite-shot workers completed and merged successfully.**
+
+2. **The experiment uses the E30 analytical mixing coordinates rather than the legacy global SVD target.**
+
+3. **Exact H-X R2 mixing scores lie between (0.9991) and (1.0000).**
+
+4. **R2 reaches (0.9830)–(0.9974) at (2^{20}) shots.**
+
+5. **R2 exceeds 90% of its exact-state score by (2^{16}) in S1, S2, and S4.**
+
+6. **R2 exceeds 90% by (2^{18}) in S3.**
+
+7. **Estimated R2 50% recovery requires approximately (2.7\times10^3) to (1.3\times10^4) shots per graph.**
+
+8. **Estimated R2 90% recovery requires approximately (2.5\times10^4) to (1.4\times10^5) shots per graph.**
+
+9. **R2 reaches 50% of its near-unit reference 8×–38× earlier than R0 reaches 50% of its lower reference.**
+
+10. **R1 does not reach 50% of its exact-state score in any stratum by (2^{20}).**
+
+11. **Every one of the 576 paired replicate-level R2 comparisons favors R2 over R0 or R1.**
+
+12. **Every deterministic replicate-bootstrap interval for R2 minus R0 and R2 minus R1 is positive.**
+
+13. **R1 is sampled more accurately than R2 but remains much less predictive.**
+
+14. **The finite-shot advantage therefore depends on degree conditioning rather than generic aggregation or reduced dimensionality.**
+
+15. **Global sorting can produce nonmonotone, noise-regularized scores that exceed the exact-state reference.**
+
+16. **The exact-state R0 score is not a strict finite-shot ceiling.**
+
+17. **The H-X result provides qualitative architecture transfer beyond the F-X finite-shot experiment.**
+
+18. **The experiment does not evaluate finite-shot cycles, additional circuit families, or angle perturbations.**
+
+---
+
+# Necessary Qualifications
+
+The experiment uses ideal multinomial sampling from exact statevector probabilities.
+
+It does not include:
+
+* gate noise;
+* readout error;
+* device drift;
+* transpilation;
+* error mitigation;
+* or hardware calibration effects.
+
+The reported shot requirements are optimistic relative to hardware execution.
+
+Shots are counted per graph.
+
+At 400 graphs and 12 replicates, the total simulated measurement cost is far larger than the per-graph budget suggests.
+
+The graph set and outer cross-validation folds are fixed.
+
+The 12 replicates vary multinomial measurement noise only.
+
+The bootstrap intervals therefore exclude:
+
+* graph-sample uncertainty;
+* split uncertainty;
+* circuit-parameter uncertainty;
+* and target-basis uncertainty.
+
+The recovery thresholds use:
+
+* a monotone envelope;
+* linear interpolation in (\log_2S);
+* the exact-state decoder score as the denominator.
+
+They are descriptive interpolation estimates.
+
+They are not directly observed shot budgets or theoretical sample-complexity bounds.
+
+The term “ceiling” should be avoided for R0 because finite-shot scores exceed the exact-state score in S1 and S4.
+
+R0, R1, and R2 are not capacity matched:
+
+$$1{,}000,\qquad15,\qquad64\text{--}315$$
+
+coordinates.
+
+The R1 control strongly rejects a generic low-dimensional aggregation explanation, but it does not isolate every possible effect of feature dimension and regularization.
+
+The E30 target basis is sample independent but numerically orientation dependent.
+
+Coordinatewise ridge prediction is not fully invariant under arbitrary rotations of that basis.
+
+The notebooks install unpinned current versions of:
+
+* Qiskit;
+* scikit-learn;
+* NumPy.
+
+Exact reruns may therefore depend on future package behavior.
+
+The workers independently regenerate H-X probabilities but do not perform an array-level comparison against E29P-R.
+
+All workers use one circuit schedule:
+
+$$\gamma=2.0,\qquad\beta=0.1.$$
+
+No finite-shot claim is established for:
+
+* F-Y;
+* D-X;
+* H-H;
+* nearby angle schedules;
+* or deeper circuits.
+
+Finally, R2 uses graph-supplied degree classes at readout time.
+
+The result concerns a hybrid graph-conditioned quantum representation and does not establish quantum advantage.
+
+---
+
+# Overall Assessment
+
+E29F-HX closes the remaining finite-shot architecture-transfer question for the dominant joint-degree mixing channel.
+
+The result is stronger than a simple replication of R2 over global sorting.
+
+The Hamming-weight control shows why R2 works.
+
+R1 is:
+
+* only 15-dimensional;
+* more accurately sampled;
+* strongly predictive in the exact distribution;
+* and a direct coarsening of R2.
+
+Yet at one million shots it recovers less than 9% of its exact-state score in every stratum.
+
+R2, by contrast, reaches:
+
+$$R^2=0.983\text{--}0.997.$$
+
+The relevant information is therefore not generic concentration into a small marginal.
+
+It is the degree-conditioned allocation of probability mass.
+
+The appropriate central claim is:
+
+> Under the H-X circuit, degree-sector aggregation transfers the dominant joint-degree mixing channel from exact statevectors to finite sampling. Across four fixed-degree-sequence graph families, R2 reaches (0.983)–(0.997) at (2^{20}) shots and crosses 90% of its near-unit exact-state score after approximately (2^{14.59})–(2^{17.05}) shots. It reaches 50% recovery 8×–38× earlier than global sorting. The lower-dimensional Hamming-weight marginal does not approach its own exact-state score and remains near the prediction floor despite lower sampling error. Because R1 is a deterministic coarsening of R2, this separation identifies degree conditioning—not generic aggregation—as the source of the finite-shot advantage. E29F therefore shows that the degree-mixing channel is neither specific to the F-X preparation nor an exact-state artifact. The conclusion remains limited to ideal multinomial sampling, the canonical H-X schedule, and the E30 analytical coordinate system.
 
 
 
