@@ -441,23 +441,3 @@ Do not introduce:
 - a general comparison with \(k\)-WL.
 
 These are deferred foundational-theory directions or supplementary context.
-
----
-
-## 10. Author verification checklist
-
-- [ ] Circuit gate conventions and signs of all half angles match the implementation.
-- [ ] The Walsh normalization in Section 3 matches the final manuscript.
-- [ ] \(C_4\) means total simple four-cycles, including chorded cycles.
-- [ ] \(D_\diamond\) means the pair-incidence count and the \(K_4\) convention is acceptable.
-- [ ] The expression for \(A_n\) matches the final definition of \(B_{n,3}\) and the pair kernel.
-- [ ] The three numerical coefficients come from the canonical \(n=14,\eta=2.875,\gamma=2.0\) output in the \(M_2''(0)\) convention.
-- [ ] The triangular-prism/\(K_{3,3}\) derivative difference and orientation are correct.
-- [ ] The cubic spectral trace identities use the same cycle and diamond conventions.
-- [ ] The local-in-\(\beta\) conclusion is not rewritten as a statement at every finite angle.
-- [ ] E14 is described as an independent \(\beta=0.1\) witness experiment.
-- [ ] Deferred proofs map to Appendices \(\ref{app:M2-proof}\), \(\ref{app:boundary-transform}\), \(\ref{app:sorting}\), and \(\ref{app:cospectral-proof}\).
-
-After verification, rename this file:
-
-**QuIC_AAAI27_Theorem_Sheet_VERIFIED.md**
