@@ -2,6 +2,1468 @@
 
 Full per-experiment write-ups for the AAAI 2027 QuIC characterization study: experimental design, results, what each experiment establishes, qualifications, and overall assessment, for every experiment E1 through E8B. This is a results record only — for the object definition, mathematical framework, project status, and the direction the work is currently taking, see the companion project-state document.
 
+
+### Final QuIC Formalism - Boundary Transforms, Rooted Incidence Hierarchies, and the Measured Probability Spectrum
+
+#### Purpose
+
+This notebook develops the final mathematical characterization of the ideal one-repetition QuIC circuit:
+
+$$|\psi_G\rangle=R_X(\beta)^{\otimes n}\left[\prod_{uv\in E}R_{ZZ}^{(u,v)}(\gamma)\right]\left[\bigotimes_iR_X(\eta_i)\right]|0^n\rangle.$$
+
+The canonical parameters are:
+
+$$\eta=2.875,\qquad\gamma=2.0,\qquad\beta=0.1.$$
+
+For the normalized degree encoder used on irregular graphs:
+
+$$\eta_i=\eta\frac{d_i}{\Delta}.$$
+
+The formalism connects six levels of the representation:
+
+1. the graph cut function encoded as a phase;
+2. a degree-weighted boundary polynomial at imaginary Ising coupling;
+3. Walsh-space interference under the mixer;
+4. the Born map as a probability autocorrelation;
+5. weak-mixer purity derivatives as rooted-incidence functionals;
+6. the sorted rank hierarchy induced by the near-(\pi) encoder.
+
+The central characterization is:
+
+> QuIC is a degree-weighted imaginary-temperature Ising boundary transform. The entangler encodes the graph cut function as a phase potential, the noncommuting mixer converts finite differences of that potential into amplitude interference, and the Born map converts that interference into a probability multiset. On regular graphs near the canonical encoder, the dominant sorted coordinates are organized by defect cardinality, with pair- and triple-root incidence statistics exposing progressively deeper graph structure.
+
+---
+
+## Execution status
+
+The notebook was executed again from a fresh kernel.
+
+It contains:
+
+* 61 cells;
+* 29 executed code cells;
+* sequential execution counts from 1 through 29;
+* no execution exceptions;
+* no visible numerical warnings;
+* approximately 1.8 seconds of fresh-kernel execution time.
+
+All programmed assertions pass.
+
+The notebook verifies:
+
+* the cut-phase identity;
+* the weighted boundary transform;
+* open-sector distance valuation;
+* mixer and Born Fourier identities;
+* first, second, and third purity derivatives;
+* the exact cubic second-order motif closure;
+* the rejection of a five-motif third-order closure;
+* pair- and triple-defect cycle identities;
+* finite-angle defect-layer separation;
+* sorting nonexpansiveness;
+* Newton-identity multiset recovery;
+* and the repeated-layer space-time expansion.
+
+The remaining limitations concern theorem scope and finite-angle interpretation, not notebook execution.
+
+---
+
+# 1. Exact Cut-Phase Encoding
+
+Using:
+
+$$z_i(x)=(-1)^{x_i},$$
+
+the commuting graph entangler acts as:
+
+$$\prod_{uv\in E}e^{-i\gamma z_u(x)z_v(x)/2}=e^{-i\gamma m/2}e^{i\gamma c_G(x)}.$$
+
+Thus, up to a graph-independent global phase:
+
+$$\boxed{f_G(x)=e^{i\gamma c_G(x)}.}$$
+
+The graph is encoded as the phase of its cut function.
+
+At:
+
+$$\beta=0,$$
+
+this phase is invisible to computational-basis measurement. The mixer is necessary because it compares amplitudes associated with nearby bitstrings and converts cut-phase differences into measurable probability differences.
+
+The maximum direct numerical error in the cut-phase identity is:
+
+$$2.00\times10^{-16}.$$
+
+---
+
+# 2. Degree-Weighted Boundary Transform
+
+For an edge subset:
+
+$$F\subseteq E,$$
+
+let:
+
+$$\partial F$$
+
+denote the set of vertices with odd degree in (F).
+
+Define the degree-weighted boundary polynomial:
+
+$$\mathcal Z^{\boldsymbol\eta}*{G,T}(q)=\sum*{F\subseteq E}q^{|F|}\exp\left(i\sum_{v\in T\triangle\partial F}\eta_v\right).$$
+
+The exact pre-mixer Walsh coefficient is:
+
+$$\boxed{\widehat g_G(T)=2^{-n}\left(\cos\frac{\gamma}{2}\right)^me^{-\frac{i}{2}\sum_v\eta_v}\mathcal Z^{\boldsymbol\eta}_{G,T}\left(-i\tan\frac{\gamma}{2}\right).}$$
+
+This formula applies to:
+
+* uniform regular encoding;
+* normalized degree encoding;
+* arbitrary vertex-dependent encoder angles.
+
+On the irregular five-vertex audit graph, the maximum discrepancy between the direct statevector and boundary transform is:
+
+$$4.16\times10^{-17}.$$
+
+This is the primary exact mathematical representation of the circuit before mixing.
+
+---
+
+## Imaginary-temperature Ising interpretation
+
+The graph phase can be rewritten as:
+
+$$e^{i\gamma c_G(x)}=e^{i\gamma m/2}\prod_{uv\in E}e^{-i(\gamma/2)z_u(x)z_v(x)}.$$
+
+It is therefore an Ising Boltzmann weight at imaginary coupling:
+
+$$K=-i\gamma/2.$$
+
+The closed-boundary polynomial corresponds to the high-temperature expansion of the Ising partition function.
+
+The open-boundary polynomial corresponds to an unnormalized spin-correlation numerator.
+
+“Unnormalized” is important because the complex partition function can vanish even while the polynomial numerator remains well defined.
+
+---
+
+# 3. Closed Boundary Sectors and Cycle Packings
+
+For the uniform cut phase:
+
+$$\widehat f_G(T)=e^{i\gamma m/2}\cos(\gamma/2)^mZ_{G,T}\left(-i\tan\frac{\gamma}{2}\right),$$
+
+where:
+
+$$Z_{G,T}(z)=\sum_{F:\partial F=T}z^{|F|}.$$
+
+On a cubic graph, every even edge subset is a collection of vertex-disjoint cycles.
+
+Consequently:
+
+$$[z^3]Z_{G,\varnothing}=C_3,$$
+
+$$[z^4]Z_{G,\varnothing}=C_4,$$
+
+$$[z^5]Z_{G,\varnothing}=C_5.$$
+
+At edge order six:
+
+$$\boxed{[z^6]Z_{G,\varnothing}=C_6+\binom{C_3}{2}-D_\diamond,}$$
+
+where:
+
+$$D_\diamond=\sum_{uv\in E}\binom{|N(u)\cap N(v)|}{2}$$
+
+is the pair-incidence diamond count.
+
+The identity correctly handles overlapping triangles. Two triangles sharing an edge do not form a valid disjoint even-subgraph packing and are removed by the diamond term.
+
+The notebook verifies these coefficients on:
+
+* the triangular prism;
+* (K_{3,3});
+* (K_4).
+
+---
+
+## Degree mixing enters at first edge order
+
+For an irregular degree encoder:
+
+$$[q]\mathcal Z^{\boldsymbol\eta}*{G,\varnothing}=\sum*{uv\in E}e^{i(\eta_u+\eta_v)}.$$
+
+Grouping edges by endpoint degree yields:
+
+$$\boxed{[q]\mathcal Z^{\boldsymbol\eta}*{G,\varnothing}=\sum*{a\le b}M_{ab}e^{i(\eta_a+\eta_b)}.}$$
+
+Thus, joint-degree mixing enters the weighted boundary representation at the first graph-edge order.
+
+This provides an exact mathematical explanation for the strong degree-mixing accessibility observed in E25R and E29A-R.
+
+It does not imply that every irregular-graph response is completely determined by the joint-degree matrix. Later terms can depend on the full degree-decorated rooted-neighborhood census.
+
+---
+
+# 4. Open Boundary Sectors Recover Distance
+
+For:
+
+$$T={u,v},$$
+
+the lowest nonzero edge order in the open-boundary polynomial satisfies:
+
+$$\boxed{\text{val},Z_{G,{u,v}}=d_G(u,v).}$$
+
+Every edge subset with boundary ({u,v}) contains a (u)-to-(v) path after cycle components are removed.
+
+Conversely, a shortest path has boundary ({u,v}).
+
+The notebook verifies all 30 unordered vertex pairs across the prism and (K_{3,3}), with zero valuation error.
+
+Open sectors therefore contain metric information before the mixer and Born map.
+
+---
+
+# 5. Mixer and Born Map
+
+## Mixer in Walsh space
+
+The uniform X mixer is diagonal in the Walsh basis:
+
+$$\boxed{\widehat\psi_G(T;\beta)=e^{-i\beta(n-2|T|)/2}\widehat g_G(T).}$$
+
+The mixer does not attenuate boundary sectors.
+
+It rotates them by a phase determined only by sector cardinality.
+
+The graph dependence remains in the boundary coefficients; the mixer changes how those coefficients interfere.
+
+## Born map as symmetric-difference autocorrelation
+
+The probability Fourier coefficient is:
+
+$$\boxed{\widehat p_G(T;\beta)=\sum_{A\subseteq V}e^{i\beta(|A|-|A\triangle T|)}\widehat g_G(A)\overline{\widehat g_G(A\triangle T)}.}$$
+
+The measured distribution is therefore an exact symmetric-difference autocorrelation of the boundary transform.
+
+The numerical audit gives:
+
+| Identity                 |        Maximum error |
+| ------------------------ | -------------------: |
+| Mixer reconstruction     | (7.85\times10^{-17}) |
+| Born Fourier bridge      | (1.04\times10^{-17}) |
+| Purity Parseval identity | (1.11\times10^{-16}) |
+| Third-moment convolution | (4.51\times10^{-17}) |
+
+This supplies the exact bridge from the graph phase to measured probabilities.
+
+---
+
+# 6. Probability Moments and Sorting
+
+The probability purity is:
+
+$$M_2(G)=\sum_xp_G(x)^2=2^n\sum_T|\widehat p_G(T)|^2.$$
+
+Higher power sums follow from repeated Walsh convolution.
+
+For a finite probability vector of length:
+
+$$N=2^n,$$
+
+the complete moment list:
+
+$$M_1,\ldots,M_N$$
+
+determines the probability multiset through Newton identities.
+
+The notebook reconstructs the test multiset:
+
+$$(0.41,0.27,0.19,0.13)$$
+
+with maximum error:
+
+$$3.11\times10^{-15}.$$
+
+This is an exact algebraic identifiability statement.
+
+It is not a practical truncated-moment reconstruction result. Recovering a large probability multiset from a finite noisy moment sequence can be severely ill conditioned.
+
+---
+
+# 7. Weak-Mixer Probability Gradient
+
+Let:
+
+$$H=\sum_iX_i,$$
+
+and:
+
+$$|\psi(\beta)\rangle=e^{-i\beta H/2}|g\rangle.$$
+
+For outcome (x), define the local neighbor field:
+
+$$h_i(x)=\sum_{j\in N(i)}z_j(x).$$
+
+The first probability derivative is:
+
+$$\boxed{p'_G(x;0)=p_0(x)\sum_i\left[x_it_i^{-1}-(1-x_i)t_i\right]\cos\left(\gamma h_i(x)\right),}$$
+
+where:
+
+$$t_i=\tan(\eta_i/2).$$
+
+Since:
+
+$$\Delta_ic_G(x)=z_i(x)h_i(x),$$
+
+the first measured response is a cosine-filtered discrete gradient of the graph cut potential.
+
+The cut function itself is not the final measured scalar.
+
+Its local finite differences drive the initial redistribution of probability.
+
+The direct labeled-probability derivative error is:
+
+$$1.39\times10^{-16}.$$
+
+---
+
+# 8. First Purity Derivative
+
+Define:
+
+$$c_i=\cos(\eta_i/2),\qquad s_i=\sin(\eta_i/2),$$
+
+$$r_i=c_i^2,\qquad u_i=s_i^2,$$
+
+$$L_i=r_i^2+u_i^2,\qquad b_i=r_i-u_i,$$
+
+$$Q_i=r_i^2e^{i\gamma}+u_i^2e^{-i\gamma}.$$
+
+The exact first purity derivative is:
+
+$$\boxed{M_2'(G;0)=-2\sum_ic_is_ib_i\left(\prod_{k\notin{i}\cup N(i)}L_k\right)\Re\left(\prod_{j\in N(i)}Q_j\right).}$$
+
+The irregular direct statevector and local formula agree:
+
+$$0.0563558080436742.$$
+
+On a fixed (d)-regular family, all vertex factors are identical. Therefore:
+
+$$M_2'(G;0)=-2ncs(r-u)L^{n-d-1}\Re(Q^d),$$
+
+which is graph independent at fixed (n) and (d).
+
+For the prism and (K_{3,3}):
+
+$$M_2'(0)=1.22539246414057.$$
+
+For canonical (n=14) cubic graphs:
+
+$$M_2'(0)=2.15547811074903.$$
+
+Thus, the first purity response is common-mode on the cubic census. Graph discrimination begins at higher order.
+
+On irregular graphs, the derivative depends on the degree-decorated one-hop neighborhood of each root. Joint-degree mixing is a principal coarse coordinate, but not necessarily a complete sufficient statistic.
+
+---
+
+# 9. Correct Second-Order Purity Expansion
+
+The state expansion is:
+
+$$|\psi(\beta)\rangle=|\phi\rangle-\frac{i\beta}{2}H|\phi\rangle-\frac{\beta^2}{8}H^2|\phi\rangle+O(\beta^3).$$
+
+The probability derivatives are:
+
+$$p'(0)=\Im(\overline\phi H\phi),$$
+
+$$p''(0)=\frac12\left(|H\phi|^2-\Re(\overline\phi H^2\phi)\right).$$
+
+Therefore:
+
+$$\boxed{M_2''(0)=2\sum_yp'(y)^2+\sum_yp_0(y)\left(|H\phi(y)|^2-\Re\left[\overline{\phi(y)}(H^2\phi)(y)\right]\right).}$$
+
+The weighting by:
+
+$$p_0(y)$$
+
+is essential.
+
+The unweighted quantity:
+
+$$\Re\langle\phi|H^2|\phi\rangle$$
+
+is not a purity coefficient. It participates in state-norm conservation and cancels against the corresponding unweighted (|H\phi|^2) term.
+
+---
+
+## Prism–(K_{3,3}) second-order audit
+
+For the prism-minus-(K_{3,3}) contrast:
+
+| Component                            |                 Difference |     |                            |
+| ------------------------------------ | -------------------------: | --- | -------------------------- |
+| (\sum p_1^2)                         | (+3.80365903\times10^{-6}) |     |                            |
+| (\sum p_0                            |                      H\phi | ^2) | (-3.60336995\times10^{-6}) |
+| (\sum p_0\Re(\overline\phi H^2\phi)) | (-9.46990696\times10^{-5}) |     |                            |
+| (M_2''(0))                           | (+9.87030177\times10^{-5}) |     |                            |
+
+The corresponding quadratic Taylor coefficient is:
+
+$$[\beta^2]\Delta M_2=4.93515089\times10^{-5}.$$
+
+The unweighted correlator difference is:
+
+$$-1.30926209\times10^{-2},$$
+
+which is much larger but is not the measured purity coefficient.
+
+---
+
+# 10. Exact Pair-Adjacency/Codegree Theorem
+
+For vertices (i<j), define:
+
+$$a_{ij}=\mathbf1[ij\in E],$$
+
+$$\kappa_{ij}=|N(i)\cap N(j)|.$$
+
+On a (d)-regular graph, every pair contribution to the second purity derivative depends only on:
+
+$$(a_{ij},\kappa_{ij}).$$
+
+Therefore:
+
+$$\boxed{M_2''(G;0)=B_{n,d}+\sum_{a,k}N_{a,k}(G)F_{a,k}^{(n,d)}.}$$
+
+This is the exact pair-root closure.
+
+For cubic graphs, the pair types have:
+
+$$a\in{0,1},\qquad k\in{0,1,2,3},$$
+
+subject to degree feasibility.
+
+The canonical (n=14) pair kernels range from approximately:
+
+$$0.05897$$
+
+to:
+
+$$0.07789.$$
+
+A pair profile predicts direct statevector second derivatives with maximum residual:
+
+$$1.78\times10^{-15}.$$
+
+---
+
+# 11. Exact Cubic Motif Closure at Second Order
+
+The final notebook now contains an algebraic proof of the only nontrivial closure step.
+
+For nonadjacent cubic roots:
+
+$$\boxed{F_{0,3}-3F_{0,2}+3F_{0,1}-F_{0,0}=0.}$$
+
+The proof expresses the local kernel as a combination of three geometric carriers and shows that their third differences cancel through the exact factor:
+
+$$1+1-2=0.$$
+
+The identity holds for every encoder and entangler angle, including removable singular cases by continuity.
+
+Since adjacent cubic pairs can have only:
+
+$$k=0,1,2,$$
+
+their kernels are automatically quadratic in common-neighbor count.
+
+Using:
+
+$$\sum_kkN_{1,k}=3C_3,$$
+
+$$\sum_{a,k}\binom{k}{2}N_{a,k}=2C_4,$$
+
+$$\sum_k\binom{k}{2}N_{1,k}=D_\diamond,$$
+
+the complete second derivative becomes:
+
+$$\boxed{M_2''(G;0)=A_n+b_3C_3(G)+b_4C_4(G)+b_DD_\diamond(G).}$$
+
+Here (C_4) counts all simple 4-cycles, including chorded 4-cycles.
+
+At the canonical (n=14) parameters:
+
+| Motif                  | Coefficient in (M_2''(0)) |
+| ---------------------- | ------------------------: |
+| (C_3)                  | (3.73045185\times10^{-5}) |
+| Total (C_4)            | (3.34368946\times10^{-8}) |
+| Pair-incidence diamond | (3.99102708\times10^{-8}) |
+
+The triangle coefficient is approximately three orders of magnitude larger than the 4-cycle and diamond coefficients.
+
+This is coefficient dominance, not a universal claim that every graph contrast is numerically dominated by triangles.
+
+A triangle-free family can still vary through 4-cycles and diamonds.
+
+---
+
+## Proof and numerical audit
+
+The Appendix B closed form agrees with the independently evaluated pair kernel to:
+
+$$1.39\times10^{-16}.$$
+
+The third finite-difference identity is tested over 16 unrelated angle combinations, with maximum residual:
+
+$$4.34\times10^{-17}.$$
+
+Direct statevector motif-formula residuals are:
+
+| Graph order |     Maximum residual |
+| ----------: | -------------------: |
+|           8 | (1.78\times10^{-15}) |
+|          10 | (8.88\times10^{-16}) |
+|          12 | (2.44\times10^{-15}) |
+
+The second-order cubic closure is therefore both algebraically proved and independently audited.
+
+This supersedes the earlier approximate pair-curvature interpretation.
+
+---
+
+## Normalized triangle coefficient
+
+Let:
+
+$$L(\eta)=\cos^4(\eta/2)+\sin^4(\eta/2).$$
+
+Define the normalized coefficient in the quadratic Taylor term:
+
+$$K(\eta,\gamma)=\frac{b_3}{2L(\eta)^n}.$$
+
+The notebook verifies that (K) is independent of (n).
+
+At the canonical angles:
+
+$$K(2.875,2.0)=3.05823671\times10^{-5}.$$
+
+Its exact harmonic support is:
+
+$$\boxed{K(\eta,\gamma)=a_2(\eta)(\cos2\gamma-1)+a_4(\eta)(\cos4\gamma-1)+a_6(\eta)(\cos6\gamma-1).}$$
+
+For the canonical encoder:
+
+$$a_2=-5.09542796\times10^{-5},$$
+
+$$a_4=4.90602453\times10^{-5},$$
+
+$$a_6=-1.61429668\times10^{-5}.$$
+
+The signed-grid reconstruction residual is:
+
+$$1.25\times10^{-16}.$$
+
+---
+
+# 12. Exact Third-Order Purity Coefficient
+
+Expand:
+
+$$p(x;\beta)=\sum_{m\ge0}\beta^mp_m(x).$$
+
+The cubic probability coefficient is:
+
+$$p_3=-\frac1{24}\Im(\overline\phi H^3\phi)+\frac18\Im(\overline{H\phi},H^2\phi).$$
+
+The exact cubic purity coefficient is:
+
+$$\boxed{M^{[3]}=[\beta^3]M_2=2\sum_xp_0p_3+2\sum_xp_1p_2.}$$
+
+Equivalently:
+
+$$M_2'''(0)=6M^{[3]}.$$
+
+The flip identities are:
+
+$$H^2\phi=n\phi+2\sum_{i<j}\phi_{ij},$$
+
+$$H^3\phi=(3n-2)H\phi+6\sum_{a<b<c}\phi_{abc}.$$
+
+Every cubic term therefore involves at most three distinct flipped roots.
+
+All graph phases on edges disjoint from those roots cancel.
+
+---
+
+## Exact three-root incidence closure
+
+For a flipped set (S):
+
+$$\frac{\phi(x\oplus S)}{\phi(x)}=\prod_{i\in S}\frac{w_i(1-x_i)}{w_i(x_i)}\exp\left(i\gamma\sum_{uv\in\delta(S)}z_u(x)z_v(x)\right).$$
+
+Conditioned on the root bits, every remaining vertex contributes according to the subset of roots to which it is adjacent.
+
+Thus:
+
+$$\boxed{[\beta^3]M_2(G)=A_n+\sum_{a,k}J_{a,k}N_{a,k}(G)+\sum_{\tau\in\mathfrak T_{3,3}}K_\tau N_\tau(G).}$$
+
+A triple-root type records:
+
+* adjacency among the three roots;
+* pair-shared nonroot neighbors;
+* triple-shared nonroot neighbors;
+* root-private neighbors;
+* and the associated multiplicities.
+
+For cubic graphs there are:
+
+$$40$$
+
+degree-feasible triple types up to root permutation.
+
+Two are locally closed (K_4) and (K_{3,3}) component types that cannot occur inside a connected cubic graph with (n>6).
+
+Thus, at most:
+
+$$38$$
+
+triple types are relevant to the main connected census.
+
+---
+
+## Numerical three-root audit
+
+For (n=10):
+
+* 120 connected cubic graphs were tested;
+* 36 triple-type categories were observed;
+* the exact incidence design has rank 14;
+* held-out maximum residual is (3.55\times10^{-15}).
+
+For (n=12):
+
+* 96 connected cubic graphs were tested;
+* all 38 relevant categories were observed;
+* the exact incidence design has rank 16;
+* held-out maximum residual is (3.55\times10^{-14}).
+
+The numerical audit confirms the rooted-incidence theorem.
+
+It does not provide a unique symbolic coefficient for every type because the observed census coordinates obey linear dependencies.
+
+---
+
+# 13. Third Order Does Not Close on Five Familiar Motifs
+
+A tempting simplification is:
+
+$$[\beta^3]M_2\stackrel{?}{=}\widetilde A_n+\widetilde b_3C_3+\widetilde b_4C_4+\widetilde b_5C_5+\widetilde b_6C_6+\widetilde b_DD_\diamond.$$
+
+The notebook disproves this identity.
+
+Two connected cubic (n=12) graphs have the same motif vector:
+
+$$(C_3,C_4,C_5,C_6,D_\diamond)=(1,4,2,6,0),$$
+
+but different canonical cubic purity coefficients:
+
+$$-9.448449730236993$$
+
+and:
+
+$$-9.448449723595136.$$
+
+Their difference is:
+
+$$-6.64185684\times10^{-9}.$$
+
+The graphs have different nonadjacent pair profiles despite agreeing on the five displayed motif counts.
+
+An exact Gaussian-integer calculation at the algebraic parameter point:
+
+$$\cos(\eta/2)=3/5,\qquad\sin(\eta/2)=4/5,\qquad e^{i\gamma}=(3+4i)/5$$
+
+produces a nonzero integer certificate.
+
+The failure is therefore algebraic, not floating-point noise.
+
+The correct third-order object is the complete three-root incidence census, not only:
+
+$$C_3,\ C_4,\ C_5,\ C_6,\ D_\diamond.$$
+
+---
+
+## Empirical triangle dominance
+
+Although the five-motif basis does not close exactly, the canonical cubic coefficient is strongly aligned with triangle count in the sampled graph families.
+
+The triangle-only regression gives:
+
+| Graph order | Triangle-only (R^2) |
+| ----------: | ------------------: |
+|          10 |          0.99998327 |
+|          12 |          0.99998338 |
+
+The complete cycle-and-diamond basis still leaves maximum residuals of approximately:
+
+$$1.33\times10^{-8}$$
+
+at (n=10), and:
+
+$$8.09\times10^{-9}$$
+
+at (n=12).
+
+Thus, “triangle dominated” is an accurate empirical description at the canonical angles.
+
+“Exactly determined by triangles” is false.
+
+---
+
+# 14. Operating-Point Importance of Third Order
+
+For prism minus (K_{3,3}):
+
+$$[\beta^2]\Delta M_2=4.93515089\times10^{-5},$$
+
+and:
+
+$$[\beta^3]\Delta M_2=5.61487363\times10^{-3}.$$
+
+At:
+
+$$\beta=0.1,$$
+
+their contributions are:
+
+$$4.93515\times10^{-7}$$
+
+and:
+
+$$5.61487\times10^{-6}.$$
+
+The cubic contribution is approximately:
+
+$$11.38$$
+
+times larger.
+
+The first graph-dependent coefficient occurs at second order, but the second-order theorem does not explain the complete magnitude at the canonical mixer angle.
+
+Fourth and higher terms also remain.
+
+The correct hierarchy is:
+
+1. exact second-order motif closure;
+2. exact third-order rooted-incidence closure;
+3. empirical triangle dominance at the canonical angles;
+4. no claim that truncation through third order completely explains (\beta=0.1).
+
+---
+
+# 15. Defect-Layer Rank Geometry
+
+For a uniform regular encoder, define the defect set:
+
+$$D(x)={i:x_i=0}.$$
+
+At zero mixer:
+
+$$\boxed{p_0(D)=r_0^{|D|}u_0^{n-|D|},}$$
+
+where:
+
+$$r_0=\cos^2(\eta/2),\qquad u_0=\sin^2(\eta/2).$$
+
+Because the canonical encoder is close to (\pi), each additional zero bit sharply lowers the baseline probability.
+
+The defect layer of size (\ell) has multiplicity:
+
+$$\binom n\ell,$$
+
+and ends at sorted rank:
+
+$$K_\ell(n)=\sum_{j=0}^{\ell}\binom nj.$$
+
+The rank boundaries are:
+
+| (n) | (\ell=0) | (\ell\le1) | (\ell\le2) | (\ell\le3) |
+| --: | -------: | ---------: | ---------: | ---------: |
+|  14 |        1 |         15 |        106 |        470 |
+|  16 |        1 |         17 |        137 |        697 |
+
+---
+
+## First-order defect score
+
+For:
+
+$$k_i(D)=|N(i)\cap D|,$$
+
+the first-order relative score is:
+
+$$R_G(D)=T^{-1}\sum_{i\notin D}\cos(\gamma(2k_i-d))-T\sum_{i\in D}\cos(\gamma(2k_i-d)),$$
+
+where:
+
+$$T=\tan(\eta/2).$$
+
+For cubic graphs, define:
+
+$$A(D)=#{i\notin D:k_i\in{0,3}},$$
+
+$$B(D)=#{i\in D:k_i\in{0,3}}.$$
+
+Then:
+
+$$R_G(D)=\cos\gamma[T^{-1}(n-\ell)-T\ell]+[\cos3\gamma-\cos\gamma][T^{-1}A(D)-TB(D)].$$
+
+The direct formula error is:
+
+$$7.11\times10^{-15}.$$
+
+At the canonical encoder:
+
+$$T^2=55.61575848.$$
+
+This large scale separation allows the scalar score to identify the relevant integer ((A,B)) types at (n=14) and (n=16).
+
+---
+
+# 16. Two-Defect Layer as the Pair Census
+
+For:
+
+$$D={u,v},$$
+
+define:
+
+$$a=\mathbf1[uv\in E],\qquad k=|N(u)\cap N(v)|.$$
+
+Then:
+
+$$A(D)=n-8+2a+k,$$
+
+$$B(D)=2(1-a).$$
+
+The complete two-defect score histogram is therefore equivalent to the adjacency/codegree census:
+
+$$N_{a,k}.$$
+
+It determines:
+
+$$\boxed{C_3=\frac13\sum_kkN_{1,k},}$$
+
+$$\boxed{C_4=\frac12\sum_{a,k}\binom{k}{2}N_{a,k},}$$
+
+$$\boxed{D_\diamond=\sum_k\binom{k}{2}N_{1,k}.}$$
+
+For the prism:
+
+$$N_{0,k}=(0,0,6,0),$$
+
+$$N_{1,k}=(3,6,0,0).$$
+
+For (K_{3,3}):
+
+$$N_{0,k}=(0,0,0,6),$$
+
+$$N_{1,k}=(9,0,0,0).$$
+
+This explicitly confirms that prism versus (K_{3,3}) does not isolate triangles.
+
+The graphs differ across several pair-incidence coordinates.
+
+---
+
+# 17. Three-Defect Histogram and Longer Cycles
+
+For:
+
+$$|D|=3,$$
+
+define:
+
+$$S_{pq}(G)=\sum_{|D|=3}A(D)^pB(D)^q.$$
+
+The notebook gives explicit rational identities recovering:
+
+$$C_3,\qquad C_4,\qquad C_5$$
+
+from the mixed moments:
+
+$$S_{02},\ S_{11},\ S_{12},\ S_{21},\ S_{22}.$$
+
+The identities are evaluated using exact rational arithmetic and produce integral outputs.
+
+They are verified on 44 connected cubic graphs with:
+
+$$n\in{6,8,10,12},$$
+
+with zero error.
+
+The prism is recovered as:
+
+$$(C_3,C_4,C_5)=(2,3,6),$$
+
+and (K_{3,3}) as:
+
+$$(0,9,0).$$
+
+---
+
+## Exact (C_6) identity
+
+The notebook also supplies an explicit rational expression for (C_6) using moments of the three-defect ((A,B)) histogram.
+
+For general disconnected cubic graphs, the expression includes a correction:
+
+$$-2(n-12)Q_4,$$
+
+where (Q_4) is the number of connected (K_4) components.
+
+The identity is checked on:
+
+* (K_4);
+* two disjoint (K_4) components;
+* the prism;
+* (K_{3,3});
+* 52 additional sampled connected cubic graphs.
+
+All 56 checks have zero integer error.
+
+For connected cubic graphs with:
+
+$$n>4,$$
+
+the (K_4)-component correction vanishes.
+
+Thus, on the connected (n=14) and (n=16) graph families, the ideal first-order three-defect score histogram determines:
+
+$$C_3,\ C_4,\ C_5,\ C_6.$$
+
+---
+
+## Proof-status qualification
+
+The notebook states explicit identities and verifies them in exact arithmetic over sampled graph families.
+
+It does not include full combinatorial derivations of the (C_3)-through-(C_6) formulas.
+
+If these are presented as formal theorems in the manuscript, the derivations should appear in the paper or technical appendix rather than relying solely on executable validation.
+
+---
+
+# 18. Sixth Spectral Moment and the Spectral Split
+
+For a simple cubic graph:
+
+$$\boxed{\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D_\diamond).}$$
+
+The identity has zero error over the tested graph set.
+
+Thus, after lower-order information is fixed, the adjacency spectrum determines:
+
+$$C_6+D_\diamond.$$
+
+The defect hierarchy separates the two terms:
+
+* the pair layer determines (D_\diamond);
+* the triple layer determines (C_6).
+
+This gives a concrete interpretation of the spectral backbone and non-spectral residue:
+
+> The spectrum combines certain motif contributions into trace moments, while the rooted-incidence hierarchy can separate structures that enter those moments only through a sum.
+
+This does not prove that the final globally sorted QuIC representation always separates every such structure.
+
+It identifies the mathematical coordinates available in the weak-mixer incidence algebra.
+
+---
+
+# 19. All-Orders Rooted-Incidence Locality
+
+The pair and triple formulas are instances of a general locality principle:
+
+$$\boxed{M_2^{(r)}(0)=\sum_{s=0}^r\sum_{\tau\in\mathfrak T_{s,d}}K_{r,\tau}(n,d,\eta,\gamma)N_\tau(G).}$$
+
+At derivative order (r), no term contains more than (r) distinct flipped roots.
+
+Every entangling phase on an edge disjoint from those roots cancels.
+
+The surviving graph dependence is therefore contained in a radius-one incidence type with at most (r) roots.
+
+This produces the structural hierarchy:
+
+$$C_3,\ C_4\quad\text{accessible at root order two},$$
+
+$$C_5,\ C_6\quad\text{first accessible at root order three}.$$
+
+“Accessible” does not mean that the listed cycle counts form a complete basis.
+
+At third order, the complete object is the full triple-root incidence census.
+
+A publication proof should explicitly formalize:
+
+* the derivative expansion;
+* the union of flipped roots;
+* phase cancellation away from those roots;
+* and the factorization of nonroot contributions by root-adjacency subset.
+
+---
+
+# 20. Finite-(\beta) Defect-Head Certificate
+
+The weak-mixer hierarchy concerns:
+
+$$\beta=0.$$
+
+A separate argument is needed at the operating point:
+
+$$\beta=0.1.$$
+
+The notebook retains mixer paths through two flips and bounds:
+
+* the unknown edge correction in the two-flip amplitude;
+* all mixer paths involving three or more flips.
+
+The resulting certified margins are:
+
+| (n) | (p_0-p_1) |  (p_1-p_2) | Tight (p_2-p_3) profile margin |
+| --: | --------: | ---------: | -----------------------------: |
+|  14 |  0.581584 | 0.00239477 |         (1.23678\times10^{-5}) |
+|  16 |  0.538520 | 0.00201515 |         (1.14248\times10^{-5}) |
+
+These margins are positive.
+
+The finite-angle bounds therefore separate defect layers zero, one, two, and three.
+
+---
+
+## Complete-head audit
+
+The code directly compares the two-defect lower bound with the enumerated three-defect upper bound.
+
+To conclude that the first:
+
+$$1+n+\binom n2$$
+
+sorted coordinates contain exactly every outcome with at most two defects, all layers:
+
+$$\ell\ge3$$
+
+must be excluded.
+
+Using the notebook’s existing all-shell upper bound, the maximum higher-layer bound occurs at:
+
+$$\ell=3.$$
+
+The complete-head margins are:
+
+| (n) | Minimum two-defect probability | Maximum probability over all (\ell\ge3) |          Full-head margin |
+| --: | -----------------------------: | --------------------------------------: | ------------------------: |
+|  14 |      (3.69760613\times10^{-5}) |               (3.39727539\times10^{-5}) | (3.00330743\times10^{-6}) |
+|  16 |      (3.56869964\times10^{-5}) |               (3.35040462\times10^{-5}) | (2.18295013\times10^{-6}) |
+
+Thus, the intended conclusion is supported:
+
+$$\boxed{\text{The first 106 coordinates at }n=14\text{ and first 137 at }n=16\text{ contain exactly the defect-}\le2\text{ outcomes}.}$$
+
+The notebook should add this all-higher-shell assertion explicitly.
+
+---
+
+## Numerical-certificate qualification
+
+The bounds are analytical, but the final constants are evaluated with ordinary double-precision floating point.
+
+The smallest complete-head margin is approximately:
+
+$$2.18\times10^{-6}.$$
+
+A publication-grade rigorous certificate should repeat the final constant evaluation using:
+
+* outward-rounded interval arithmetic;
+* or sufficiently high-precision arithmetic with explicit error bounds.
+
+The current notebook is a reproducible numerical audit of an analytical inequality, not a formally machine-certified interval proof.
+
+---
+
+## What finite-angle separation does not prove
+
+The finite-angle result proves which outcomes occupy the sorted head.
+
+It does not prove that probabilities within the complete two-defect layer remain an injective function of:
+
+$$(a,k).$$
+
+Higher-order mixer corrections can alter:
+
+* ordering within the layer;
+* equality among pair types;
+* dependence on more detailed rooted structure.
+
+Likewise, three- and four-defect probabilities can interleave.
+
+The notebook therefore does not prove:
+
+* a complete finite-(\beta) three-defect block;
+* exact (C_5) or (C_6) recovery at (\beta=0.1);
+* or finite-shot recovery of the weak-mixer score histograms.
+
+---
+
+# 21. Irregular Graphs and Degree-Occupancy Sectors
+
+With degree-dependent encoder angles:
+
+$$p_0(D)=\prod_{i\in D}\cos^2(\eta_i/2)\prod_{i\notin D}\sin^2(\eta_i/2).$$
+
+The zero-mixer baseline is indexed by degree-class occupancy:
+
+$$\ell_d=|D\cap V_d|,$$
+
+rather than only total defect count.
+
+Global sorting removes the identities of these degree-conditioned sectors.
+
+R2 preserves them.
+
+For the irregular audit graph with degree classes:
+
+$${1,2,3},$$
+
+the state space separates into:
+
+$$27$$
+
+degree-occupancy sectors.
+
+This provides a direct mathematical motivation for the degree-sector readout introduced in E26R and E29.
+
+---
+
+## Irregular comparison
+
+The notebook constructs two six-vertex graphs with:
+
+* identical degree multiset ((1,1,2,2,3,3));
+* one 4-cycle each.
+
+Their cyclic degree signatures differ:
+
+$$(2,2,3,3)$$
+
+versus:
+
+$$(2,3,2,3).$$
+
+Their sorted QuIC probability vectors differ by:
+
+$$|p_G^\downarrow-p_H^\downarrow|_2=0.0360648.$$
+
+The example proves that:
+
+* degree multiset alone is insufficient;
+* untyped 4-cycle count alone is insufficient.
+
+It does not isolate the cyclic degree sequence as the sole cause.
+
+The graphs also differ in:
+
+* joint-degree mixing;
+* rooted degree-incidence structure;
+* and potentially other degree-decorated motifs.
+
+The appropriate conclusion is that irregular responses require degree-decorated rooted incidence types, not merely untyped cycle totals.
+
+---
+
+# 22. Sorting and the Remaining Injectivity Question
+
+The readouts form successive quotients:
+
+$$\text{labeled probabilities}\longrightarrow\text{degree-sector probabilities}\longrightarrow\text{globally sorted probabilities}.$$
+
+Sorting is nonexpansive for every:
+
+$$\ell_p,\qquad p\ge1.$$
+
+Thus:
+
+$$|\text{sort}(a)-\text{sort}(b)|_p\le|a-b|_p.$$
+
+Perturbation upper bounds survive sorting.
+
+The difficult issue is semantic inversion after coordinate labels are discarded.
+
+---
+
+## Analytic-collision dichotomy
+
+Define the probability-multiset polynomial:
+
+$$\Pi_G(t;\lambda)=\prod_x(t-p_G(x;\lambda)).$$
+
+Its coefficients are real-analytic functions of the circuit parameters (\lambda).
+
+For any fixed graph pair (G,H), either:
+
+1. (\Pi_G\equiv\Pi_H) over the complete parameter family; or
+2. at least one coefficient difference is a nonzero real-analytic function, so the collision set has measure zero and empty interior.
+
+Therefore:
+
+> Any graph pair whose probability multisets are not analytically identical is separated for generic circuit parameters.
+
+This is a conditional genericity theorem.
+
+It is not universal injectivity.
+
+The possibility of analytically probability-multiset-homometric non-isomorphic graph pairs has not been ruled out.
+
+---
+
+# 23. Repeated Circuits
+
+For repeated entangler–mixer blocks, the circuit can be represented on a space-time graph.
+
+Spatial edges represent graph entanglers.
+
+Temporal edges represent mixer transitions.
+
+Summing intermediate spin variables imposes empty boundary on internal time layers.
+
+The state becomes:
+
+$$\boxed{\psi_G^{(r)}(y)=C_r\sum_{\substack{F\subseteq E(\mathscr H_r)\\partial_jF=\varnothing,\ 1\le j\le r-1}}q^{|F_s|}\tau^{|F_t|}\left(\prod_{(i,0)\in\partial_0F}e^{i\eta_i}\right)\chi_{\partial_rF}(y).}$$
+
+The parameters are:
+
+$$q=-i\tan(\gamma/2),\qquad\tau=e^{i\beta}.$$
+
+The notebook verifies the formula on three small cases with maximum error:
+
+$$6.78\times10^{-16}.$$
+
+The repeated-layer formula is useful if the manuscript discusses depth beyond one repetition.
+
+The current primary characterization remains the one-repetition circuit.
+
+---
+
+# Relationship to the Experimental Results
+
+## Spectral backbone
+
+Closed boundary sectors and spectral trace moments both aggregate cycles and closed walks.
+
+The identity:
+
+$$\text{tr}(A^6)=87n+6C_3+96C_4+12(C_6+D_\diamond)$$
+
+shows explicitly why the spectrum captures a strong structural backbone while merging distinct incidence coordinates.
+
+This supports the dominant spectral alignment observed experimentally.
+
+## Non-spectral residue
+
+The pair and triple incidence hierarchies can separate quantities that the spectrum combines.
+
+The formalism therefore provides a mechanism for the numerically certified non-spectral residue.
+
+It does not by itself prove that every such coordinate survives the Born map and global sorting for all graph pairs.
+
+## Cycle hierarchy
+
+The root-order hierarchy matches the empirical accessibility order:
+
+$$C_3,C_4\longrightarrow C_5,C_6.$$
+
+Pair-root structure exposes triangles, 4-cycles, and diamonds.
+
+Triple-root structure first exposes 5- and 6-cycles.
+
+This gives a mathematical explanation for the progressively weaker cycle decodability observed in E1 and E2.
+
+## Irregular transfer
+
+Degree-dependent encoding splits scalar defect layers into degree-conditioned sectors.
+
+Global sorting removes the sector labels; R2 restores them.
+
+This directly supports the E25R–E29 conclusion that degree mixing dominates the irregular representation and that degree-sector aggregation recovers structure lost by global sorting.
+
+## Finite shots
+
+The formalism concerns exact ideal probabilities and weak-mixer coefficients.
+
+E28 shows that exact structural accessibility does not imply practical finite-shot accessibility.
+
+In particular, the exact R2 cycle ceilings can remain almost unrecovered after (2^{20}) multinomial samples.
+
+The formal and finite-shot results address different questions and should be presented together.
+
+---
+
+# What the Final Formalism Establishes
+
+The completed notebook establishes that:
+
+1. **The graph entangler encodes the exact graph cut function as a phase.**
+
+2. **The pre-mixer circuit is an exact degree-weighted boundary transform.**
+
+3. **The boundary transform is an imaginary-coupling Ising expansion.**
+
+4. **Closed cubic sectors count cycle packings.**
+
+5. **Open two-vertex sectors recover graph distance at lowest order.**
+
+6. **Joint-degree mixing enters the irregular transform at first edge order.**
+
+7. **The X mixer rotates Walsh sectors without attenuating them.**
+
+8. **Born probabilities are exact symmetric-difference autocorrelations of boundary coefficients.**
+
+9. **The weak-mixer probability response is a filtered discrete cut gradient.**
+
+10. **The first purity derivative is graph independent on fixed regular families.**
+
+11. **The complete second purity derivative is an exact pair adjacency/codegree functional.**
+
+12. **For simple cubic graphs, the second derivative closes exactly on total (C_3), total (C_4), and pair-incidence diamonds.**
+
+13. **The cubic second-order closure now has an explicit algebraic proof.**
+
+14. **At the canonical angles, the triangle coefficient is approximately three orders of magnitude larger than the 4-cycle and diamond coefficients.**
+
+15. **The exact cubic purity coefficient depends on at most three-root radius-one incidence types.**
+
+16. **The cubic coefficient does not close exactly on only (C_3,C_4,C_5,C_6,D_\diamond).**
+
+17. **An exact algebraic graph-pair counterexample proves that failure.**
+
+18. **The canonical cubic coefficient is nevertheless empirically triangle dominated.**
+
+19. **The ideal two-defect score histogram is exactly the pair adjacency/codegree census.**
+
+20. **The pair census determines (C_3,C_4,) and diamonds.**
+
+21. **The ideal three-defect score histogram determines (C_3,C_4,C_5,) and, with the stated component correction, (C_6).**
+
+22. **The complete defect-(\le2) head remains separated at (\beta=0.1) for cubic graphs at (n=14) and (n=16).**
+
+23. **The complete-head result requires an explicit all-higher-shell assertion, which follows from the notebook’s existing bounds.**
+
+24. **Finite-(\beta) within-layer motif recovery is not proved.**
+
+25. **Irregular scalar layers split into degree-occupancy sectors.**
+
+26. **Sorting is stable but discards semantic coordinate identity.**
+
+27. **Generic parameter separation holds conditionally unless a graph pair has analytically identical probability multisets.**
+
+28. **Universal injectivity after Born measurement and global sorting remains open.**
+
+---
+
+# Necessary Qualifications
+
+The second-order cubic closure is now publication-ready in mathematical structure, subject only to normal proof editing and notation cleanup.
+
+The third-order rooted-incidence theorem has a convincing direct locality derivation and held-out numerical audit.
+
+A publication version should still present the formal grouping argument completely rather than relying on the regression audit.
+
+The explicit (C_3)-through-(C_6) triple-histogram identities are verified in exact rational arithmetic but do not receive full combinatorial proofs in the notebook.
+
+Those derivations should be supplied if the identities appear as formal theorems.
+
+The finite-angle certificate is analytically derived but numerically evaluated in ordinary floating point.
+
+A rigorous certificate should use interval or high-precision arithmetic.
+
+The notebook’s current finite-angle cell directly checks the two-defect layer against the three-defect layer.
+
+The stronger all-higher-layer comparison is valid under the existing shell bound but should be added explicitly.
+
+The pair and triple score identities apply to derivatives at:
+
+$$\beta=0.$$
+
+They are not exact finite-(\beta) decoders.
+
+The complete two-defect layer remains in the finite-(\beta) sorted head, but its internal probability values need not remain a pure function of adjacency and codegree.
+
+The complete three-defect layer is not isolated at the canonical mixer angle.
+
+The second- and third-order terms do not necessarily dominate the full response at:
+
+$$\beta=0.1.$$
+
+Higher mixer orders can materially affect individual graph comparisons.
+
+“Triangle dominated” is a statement about coefficient magnitude and empirical projection at the canonical angles.
+
+It is not an exact triangle-only theorem.
+
+The irregular example does not isolate one degree-typed cycle coordinate.
+
+It establishes that degree multiset and untyped cycle count are insufficient.
+
+The analytic-collision result is conditional and does not rule out structurally homometric graph pairs.
+
+All calculations use exact ideal statevectors.
+
+No hardware-noise or finite-shot theorem follows from this formalism.
+
+---
+
+# Overall Assessment
+
+The final notebook provides a coherent mathematical characterization suitable for the AAAI paper.
+
+Its strongest exact statement is:
+
+> The one-repetition QuIC circuit is a degree-weighted imaginary-temperature Ising boundary transform whose mixer–Born pipeline converts rooted cut-phase incidence into a probability spectrum.
+
+The strongest measured local theorem is:
+
+$$M_2''(G;0)=A_n+b_3C_3(G)+b_4C_4(G)+b_DD_\diamond(G)$$
+
+for every simple cubic graph.
+
+The algebraic closure is now proved rather than inferred numerically.
+
+The third-order analysis correctly avoids overcompression.
+
+The cubic purity coefficient is exactly local to at most three roots, making 5- and 6-cycle structure accessible, but it does not reduce to only the familiar cycle and diamond counts.
+
+An exact counterexample proves that additional three-root overlap invariants survive.
+
+The defect-rank formalism supplies the clearest explanation of the empirical structural hierarchy.
+
+The two-defect score histogram is the pair census, while the three-defect histogram contains cycles through length six.
+
+At the canonical mixer angle, the complete two-defect layer remains in the leading sorted head at both graph orders used in the main census.
+
+The primary remaining gap is not the pre-mixer mathematics or weak-mixer locality.
+
+It is the finite operating-point quotient:
+
+> The notebook does not yet prove that globally sorted probabilities at (\beta=0.1) retain enough within-layer identity to reconstruct the weak-mixer pair and triple incidence histograms universally.
+
+The appropriate central claim is:
+
+> QuIC encodes a graph as a degree-weighted imaginary-temperature Ising boundary transform. The mixer converts discrete cut gradients into interference, and the Born map converts boundary-sector interference into a probability multiset. On regular cubic graphs, the first purity response is common-mode, the second purity derivative closes exactly on triangles, total 4-cycles, and pair-incidence diamonds, and the third-order coefficient closes on the complete radius-one incidence census of at most three roots. The two-defect weak-mixer score histogram is exactly the pair adjacency/codegree census, while the three-defect histogram determines cycles through length six. At the canonical operating point, analytic bounds retain the complete defect-(\le2) layer in the leading sorted head for (n=14) and (n=16). The formalism therefore explains QuIC’s spectral backbone, non-spectral incidence residue, and progressive cycle hierarchy. It does not claim universal post-Born injectivity, exact finite-(\beta) recovery of the weak-mixer motif histograms, or finite-shot accessibility of every ideal structural coordinate.
+
 ### Full Description of Experiments
 
 ### E1 - Stratified Residue
